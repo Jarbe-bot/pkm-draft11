@@ -91,16 +91,16 @@
         <div class="max-w-2xl w-full bg-slate-800 rounded-2xl border border-slate-600 p-6 shadow-2xl relative my-auto">
             <button onclick="closeHTP()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center font-bold transition-colors">✕</button>
             
-            <h2 class="text-3xl font-black text-yellow-400 mb-6 uppercase tracking-wider text-center border-b border-slate-700 pb-4">How To Play</h2>
+            <h2 class="text-3xl font-black text-yellow-400 mb-6 uppercase tracking-wider text-center border-b border-slate-700 pb-4">Tactics & Rules</h2>
             
             <div class="space-y-6 text-sm text-slate-300">
                 <div>
-                    <h3 class="text-lg font-bold text-white mb-2 uppercase">1. The Match Engine (3 Phases)</h3>
-                    <p class="mb-2">Matches aren't decided by raw OVR, but by a 3-phase simulation:</p>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase">1. The Engine (3 Phases)</h3>
+                    <p class="mb-2">Your team's OVR doesn't matter during the match. The game calculates real football phases based on specific stats:</p>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-blue-400">Phase 1 (Possession):</strong> Midfield controls the ball. High <span class="text-white">HP</span> (Physicality) and <span class="text-white">Sp. Def</span> (Tactics) win the midfield battle.</li>
-                        <li><strong class="text-green-400">Phase 2 (Creation):</strong> Turning possession into chances. Your team's <span class="text-white">Sp. Atk</span> (Vision/Passing) vs their <span class="text-white">Sp. Def</span>. <span class="text-white font-bold">Wingers (WG) are crucial here!</span></li>
-                        <li><strong class="text-red-400">Phase 3 (Finishing):</strong> Scoring the goal. <span class="text-white font-bold">Strikers (ST)</span> use <span class="text-white">Attack</span> (Finishing) & <span class="text-white">Speed</span> vs Defenders' <span class="text-white">Defense</span> & <span class="text-white">HP</span>.</li>
+                        <li><strong class="text-blue-400">Phase 1 (Possession):</strong> Midfield controls the game. High <span class="text-white">HP</span> (Physicality) and <span class="text-white">Sp. Def</span> win the ball.</li>
+                        <li><strong class="text-green-400">Phase 2 (Creation):</strong> Turning possession into chances. Wingers (WG), Attacking Mids (AM) and Wingbacks (FB) use <span class="text-white">Sp. Atk</span> (Vision) and <span class="text-white">Speed</span>.</li>
+                        <li><strong class="text-red-400">Phase 3 (Finishing):</strong> Scoring the goal. Strikers (ST) use <span class="text-white">Attack</span> (Finishing) & massive <span class="text-white">HP</span> (Hold-up play) vs Defenders.</li>
                     </ul>
                 </div>
 
@@ -117,9 +117,9 @@
                 </div>
 
                 <div>
-                    <h3 class="text-lg font-bold text-white mb-2 uppercase">3. Tactics & Chemistry</h3>
-                    <p class="mb-2">Don't just pick the highest OVR! A slow midfielder with high Sp.A and HP is a great playmaker. A fast winger with 0 HP can still outrun the defense.</p>
-                    <p><strong>Chemistry:</strong> Link players of the same <span class="text-yellow-400">Generation</span> or <span class="text-yellow-400">Type</span> to boost your team's overall performance. <span class="text-green-400">Green lines</span> give the biggest boost!</p>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase">3. Roles & Chemistry</h3>
+                    <p class="mb-2">A <strong>Striker (ST)</strong> needs ATK & HP. A <strong>Winger (WG)</strong> needs SPE & Sp.A. An <strong>Attacking Mid (AM)</strong> needs balanced passing and finishing. Put the right player in the right spot!</p>
+                    <p><strong>Chemistry:</strong> Link players of the same <span class="text-yellow-400">Generation</span> or <span class="text-yellow-400">Type</span>. <span class="text-green-400">Green lines</span> give the biggest stat boost!</p>
                     <div class="bg-slate-900/50 border border-slate-700 rounded p-3 mt-2">
                         <p class="text-yellow-400 font-bold text-xs uppercase mb-1">🎁 Diversity Bonus</p>
                         <p class="text-xs">Playing with multiple generations active? You receive a <strong>free base Chemistry bonus</strong> (+2 points per extra generation) to compensate for the higher difficulty of finding matching links!</p>
@@ -276,9 +276,9 @@
                 </div>
 
                 <div id="right-panel" class="w-full lg:w-1/2 flex flex-col gap-4 relative">
-                    <div id="post-season-awards" class="hidden flex-col gap-4"></div>
+                    <div id="post-season-awards" class="hidden flex-col gap-4 transition-all duration-500"></div>
                     
-                    <div id="tv-scoreboard" class="tv-glass rounded-2xl overflow-hidden shadow-2xl relative w-full border border-slate-600">
+                    <div id="tv-scoreboard" class="tv-glass rounded-2xl overflow-hidden shadow-2xl relative w-full border border-slate-600 transition-all duration-500">
                         
                         <div id="kickoff-overlay" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex-col items-center justify-center p-6 text-center">
                             <h3 id="kickoff-title" class="text-2xl font-black text-white uppercase mb-8 tracking-widest drop-shadow-lg text-blue-400">Round of 16</h3>
@@ -389,7 +389,7 @@
                 name: '4-3-3 Balanced', desc: 'Standard width and central control.',
                 positions: [
                     { id: 'LW', display: 'LW', top: '20%', left: '25%', role: 'WG' }, { id: 'ST', display: 'ST', top: '15%', left: '50%', role: 'ST' }, { id: 'RW', display: 'RW', top: '20%', left: '75%', role: 'WG' },
-                    { id: 'CM1', display: 'CM1', top: '45%', left: '30%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '40%', left: '50%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '70%', role: 'CM' },
+                    { id: 'CM1', display: 'CM1', top: '45%', left: '30%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '40%', left: '50%', role: 'AM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '70%', role: 'CM' },
                     { id: 'LB', display: 'LB', top: '75%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '35%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '65%', role: 'CB' }, { id: 'RB', display: 'RB', top: '75%', left: '85%', role: 'FB' },
                     { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
                 ],
@@ -409,7 +409,7 @@
                 name: '3-5-2 Overload', desc: 'Heavy possession, weak flanks.',
                 positions: [
                     { id: 'LS', display: 'LS', top: '15%', left: '35%', role: 'ST' }, { id: 'RS', display: 'RS', top: '15%', left: '65%', role: 'ST' },
-                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WM' }, { id: 'CM1', display: 'CM1', top: '45%', left: '35%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '35%', left: '50%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '65%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WM' },
+                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WM' }, { id: 'CM1', display: 'CM1', top: '45%', left: '35%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '35%', left: '50%', role: 'AM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '65%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WM' },
                     { id: 'CB1', display: 'CB1', top: '75%', left: '25%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '50%', role: 'CB' }, { id: 'CB3', display: 'CB3', top: '75%', left: '75%', role: 'CB' },
                     { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
                 ],
@@ -439,8 +439,8 @@
                 name: '4-2-3-1 Modern Control', desc: 'Solid double pivot, versatile attacks.',
                 positions: [
                     { id: 'ST', display: 'ST', top: '15%', left: '50%', role: 'ST' },
-                    { id: 'LAM', display: 'LAM', top: '35%', left: '25%', role: 'WG' }, { id: 'CAM', display: 'CAM', top: '30%', left: '50%', role: 'CM' }, { id: 'RAM', display: 'RAM', top: '35%', left: '75%', role: 'WG' },
-                    { id: 'CDM1', display: 'CDM1', top: '55%', left: '35%', role: 'CM' }, { id: 'CDM2', display: 'CDM2', top: '55%', left: '65%', role: 'CM' },
+                    { id: 'LAM', display: 'LAM', top: '35%', left: '25%', role: 'AM' }, { id: 'CAM', display: 'CAM', top: '30%', left: '50%', role: 'AM' }, { id: 'RAM', display: 'RAM', top: '35%', left: '75%', role: 'AM' },
+                    { id: 'CDM1', display: 'CDM1', top: '55%', left: '35%', role: 'DM' }, { id: 'CDM2', display: 'CDM2', top: '55%', left: '65%', role: 'DM' },
                     { id: 'LB', display: 'LB', top: '75%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '35%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '65%', role: 'CB' }, { id: 'RB', display: 'RB', top: '75%', left: '85%', role: 'FB' },
                     { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
                 ],
@@ -449,31 +449,31 @@
         };
 
         const opponents = [
-            { id: 1, name: "Pewter City FC", pools: { poss: 1000, create: 900, prevent: 1100, finish: 900, block: 1100 }, names: ["Onix", "Geodude", "Graveler", "Kabutops", "Aerodactyl"] },
-            { id: 2, name: "Cerulean Utd", pools: { poss: 1050, create: 1000, prevent: 1000, finish: 1000, block: 1000 }, names: ["Starmie", "Golduck", "Seaking", "Dewgong", "Lapras"] },
-            { id: 3, name: "Vermilion City", pools: { poss: 1000, create: 1100, prevent: 950, finish: 1100, block: 950 }, names: ["Raichu", "Electabuzz", "Voltorb", "Electrode", "Jolteon"] },
-            { id: 4, name: "Celadon City", pools: { poss: 1100, create: 1050, prevent: 1050, finish: 1000, block: 1000 }, names: ["Vileplume", "Victreebel", "Tangela", "Venusaur", "Exeggutor"] },
-            { id: 5, name: "Fuchsia Rovers", pools: { poss: 1050, create: 1000, prevent: 1100, finish: 1100, block: 1050 }, names: ["Weezing", "Muk", "Arbok", "Venomoth", "Crobat"] },
-            { id: 6, name: "Saffron Control", pools: { poss: 1450, create: 1300, prevent: 1200, finish: 1200, block: 1200 }, names: ["Alakazam", "Hypno", "Mr. Mime", "Slowbro", "Gengar"] },
-            { id: 7, name: "Indigo Plateau", pools: { poss: 1400, create: 1450, prevent: 1450, finish: 1550, block: 1450 }, names: ["Dragonite", "Machamp", "Gyarados", "Charizard", "Snorlax"] }
+            { id: 1, name: "Pewter City FC", pools: { poss: 1100, create: 950, prevent: 1150, finish: 950, block: 1150 }, names: ["Onix", "Geodude", "Graveler", "Kabutops", "Aerodactyl"] },
+            { id: 2, name: "Cerulean Utd", pools: { poss: 1150, create: 1050, prevent: 1050, finish: 1050, block: 1050 }, names: ["Starmie", "Golduck", "Seaking", "Dewgong", "Lapras"] },
+            { id: 3, name: "Vermilion City", pools: { poss: 1100, create: 1200, prevent: 1000, finish: 1150, block: 1000 }, names: ["Raichu", "Electabuzz", "Voltorb", "Electrode", "Jolteon"] },
+            { id: 4, name: "Celadon City", pools: { poss: 1200, create: 1150, prevent: 1150, finish: 1050, block: 1050 }, names: ["Vileplume", "Victreebel", "Tangela", "Venusaur", "Exeggutor"] },
+            { id: 5, name: "Fuchsia Rovers", pools: { poss: 1150, create: 1050, prevent: 1200, finish: 1150, block: 1100 }, names: ["Weezing", "Muk", "Arbok", "Venomoth", "Crobat"] },
+            { id: 6, name: "Saffron Control", pools: { poss: 1600, create: 1400, prevent: 1300, finish: 1250, block: 1300 }, names: ["Alakazam", "Hypno", "Mr. Mime", "Slowbro", "Gengar"] },
+            { id: 7, name: "Indigo Plateau", pools: { poss: 1550, create: 1550, prevent: 1550, finish: 1650, block: 1550 }, names: ["Dragonite", "Machamp", "Gyarados", "Charizard", "Snorlax"] }
         ];
 
         const euroOpponents = [
-            { id: 101, name: "Bayern Mewnich", pools: { poss: 1350, create: 1300, prevent: 1250, finish: 1350, block: 1300 }, names: ["Mewtwo", "Mew", "Snorlax"] },
-            { id: 102, name: "Paras St. Germain", pools: { poss: 1650, create: 1650, prevent: 1600, finish: 1700, block: 1600 }, names: ["Paras", "Parasect"] }, 
-            { id: 103, name: "Spheal Madrid", pools: { poss: 1400, create: 1350, prevent: 1300, finish: 1400, block: 1350 }, names: ["Spheal", "Walrein", "Sealeo"] },
-            { id: 104, name: "Abracelona", pools: { poss: 1450, create: 1400, prevent: 1200, finish: 1300, block: 1200 }, names: ["Abra", "Kadabra", "Alakazam"] },
-            { id: 105, name: "Atletreecko Madrid", pools: { poss: 1250, create: 1250, prevent: 1450, finish: 1300, block: 1400 }, names: ["Treecko", "Grovyle", "Sceptile"] },
-            { id: 106, name: "Napoliwrath", pools: { poss: 1300, create: 1300, prevent: 1350, finish: 1350, block: 1350 }, names: ["Poliwag", "Poliwhirl", "Poliwrath"] },
-            { id: 107, name: "AC Miltank", pools: { poss: 1320, create: 1280, prevent: 1400, finish: 1300, block: 1400 }, names: ["Miltank"] },
-            { id: 108, name: "Manchester Skitty", pools: { poss: 1400, create: 1350, prevent: 1350, finish: 1380, block: 1350 }, names: ["Skitty", "Delcatty"] },
-            { id: 109, name: "Chelseadra", pools: { poss: 1280, create: 1300, prevent: 1380, finish: 1320, block: 1350 }, names: ["Horsea", "Seadra", "Kingdra"] },
-            { id: 110, name: "Aronsenal", pools: { poss: 1350, create: 1380, prevent: 1250, finish: 1350, block: 1280 }, names: ["Aron", "Lairon", "Aggron"] },
-            { id: 111, name: "Galladesaray", pools: { poss: 1300, create: 1350, prevent: 1300, finish: 1350, block: 1300 }, names: ["Ralts", "Kirlia", "Gallade"] },
-            { id: 112, name: "OAK Athens", pools: { poss: 1400, create: 1400, prevent: 1400, finish: 1400, block: 1400 }, names: ["Tauros", "Exeggutor", "Arcanine", "Gyarados"] },
-            { id: 113, name: "Bor. Wailordmund", pools: { poss: 1320, create: 1320, prevent: 1350, finish: 1380, block: 1320 }, names: ["Wailmer", "Wailord"] },
-            { id: 114, name: "Ashton Villa", pools: { poss: 1360, create: 1350, prevent: 1320, finish: 1390, block: 1300 }, names: ["Pikachu", "Charizard", "Snorlax", "Greninja", "Bulbasaur", "Squirtle"] },
-            { id: 115, name: "Inter Mewlan", pools: { poss: 1330, create: 1330, prevent: 1390, finish: 1340, block: 1370 }, names: ["Mew", "Persian"] }
+            { id: 101, name: "Bayern Mewnich", pools: { poss: 1450, create: 1400, prevent: 1350, finish: 1450, block: 1400 }, names: ["Mewtwo", "Mew", "Snorlax"] },
+            { id: 102, name: "Paras St. Germain", pools: { poss: 1750, create: 1750, prevent: 1700, finish: 1800, block: 1700 }, names: ["Paras", "Parasect"] }, 
+            { id: 103, name: "Spheal Madrid", pools: { poss: 1500, create: 1450, prevent: 1400, finish: 1500, block: 1450 }, names: ["Spheal", "Walrein", "Sealeo"] },
+            { id: 104, name: "Abracelona", pools: { poss: 1550, create: 1500, prevent: 1300, finish: 1400, block: 1300 }, names: ["Abra", "Kadabra", "Alakazam"] },
+            { id: 105, name: "Atletreecko Madrid", pools: { poss: 1350, create: 1350, prevent: 1550, finish: 1400, block: 1500 }, names: ["Treecko", "Grovyle", "Sceptile"] },
+            { id: 106, name: "Napoliwrath", pools: { poss: 1400, create: 1400, prevent: 1450, finish: 1450, block: 1450 }, names: ["Poliwag", "Poliwhirl", "Poliwrath"] },
+            { id: 107, name: "AC Miltank", pools: { poss: 1420, create: 1380, prevent: 1500, finish: 1400, block: 1500 }, names: ["Miltank"] },
+            { id: 108, name: "Manchester Skitty", pools: { poss: 1500, create: 1450, prevent: 1450, finish: 1480, block: 1450 }, names: ["Skitty", "Delcatty"] },
+            { id: 109, name: "Chelseadra", pools: { poss: 1380, create: 1400, prevent: 1480, finish: 1420, block: 1450 }, names: ["Horsea", "Seadra", "Kingdra"] },
+            { id: 110, name: "Aronsenal", pools: { poss: 1450, create: 1480, prevent: 1350, finish: 1450, block: 1380 }, names: ["Aron", "Lairon", "Aggron"] },
+            { id: 111, name: "Galladesaray", pools: { poss: 1400, create: 1450, prevent: 1400, finish: 1450, block: 1400 }, names: ["Ralts", "Kirlia", "Gallade"] },
+            { id: 112, name: "OAK Athens", pools: { poss: 1500, create: 1500, prevent: 1500, finish: 1500, block: 1500 }, names: ["Tauros", "Exeggutor", "Arcanine", "Gyarados"] },
+            { id: 113, name: "Bor. Wailordmund", pools: { poss: 1420, create: 1420, prevent: 1450, finish: 1480, block: 1420 }, names: ["Wailmer", "Wailord"] },
+            { id: 114, name: "Ashton Villa", pools: { poss: 1460, create: 1450, prevent: 1420, finish: 1490, block: 1400 }, names: ["Pikachu", "Charizard", "Snorlax", "Greninja", "Bulbasaur", "Squirtle"] },
+            { id: 115, name: "Inter Mewlan", pools: { poss: 1430, create: 1430, prevent: 1490, finish: 1440, block: 1470 }, names: ["Mew", "Persian"] }
         ];
 
         let activeFormation = null; let globalIdPool = []; let hasReroll = true;
@@ -602,7 +602,9 @@
                 'ST': { atk: 0.35, spe: 0.25, spa: 0.20, hp: 0.20, def: 0, spd: 0 },
                 'WG': { spe: 0.40, spa: 0.30, atk: 0.15, hp: 0.15, def: 0, spd: 0 },
                 'WM': { spe: 0.35, spa: 0.25, spd: 0.15, hp: 0.15, atk: 0.05, def: 0.05 },
+                'AM': { spa: 0.35, spe: 0.20, atk: 0.20, hp: 0.15, spd: 0.10, def: 0 },
                 'CM': { spa: 0.35, spd: 0.25, hp: 0.25, spe: 0.15, atk: 0, def: 0 },
+                'DM': { spd: 0.35, hp: 0.25, def: 0.25, spa: 0.10, spe: 0.05, atk: 0 },
                 'FB': { def: 0.40, spe: 0.35, spa: 0.15, hp: 0.10, spd: 0, atk: 0 },
                 'CB': { def: 0.40, hp: 0.30, spd: 0.20, atk: 0.10, spe: 0, spa: 0 },
                 'GK': { def: 0.40, spd: 0.30, hp: 0.20, spe: 0.10, atk: 0, spa: 0 }
@@ -698,33 +700,36 @@
         function updateScores() {
             let fwdOVRSum = 0, midOVRSum = 0, defOVRSum = 0; 
             let fCount = 0, mCount = 0, dCount = 0;
-            let stCount = 0, wgCount = 0; // WG VS ST SPLIT
-
-            let midSPA=0, midSPD=0, midHP=0, midSPE=0; 
-            let stSPA=0, stHP=0, stATK=0, stSPE=0; // Strikers stats
-            let wgSPA=0, wgHP=0, wgATK=0, wgSPE=0; // Wingers stats
-            let defSPD=0, defHP=0, defDEF=0;
+            
+            let stCount=0, wgCount=0, wmCount=0, amCount=0, cmCount=0, dmCount=0, fbCount=0, cbCount=0, gkCount=0;
+            
+            let stSPA=0, stHP=0, stATK=0, stSPE=0; 
+            let wgSPA=0, wgHP=0, wgATK=0, wgSPE=0; 
+            let wmSPA=0, wmHP=0, wmSPE=0, wmSPD=0;
+            let amSPA=0, amHP=0, amATK=0, amSPE=0, amSPD=0;
+            let cmSPA=0, cmHP=0, cmSPE=0, cmSPD=0, cmATK=0;
+            let dmSPD=0, dmHP=0, dmDEF=0, dmSPA=0;
+            let fbSPE=0, fbSPA=0, fbDEF=0, fbHP=0;
+            let cbSPD=0, cbHP=0, cbDEF=0;
+            let gkDEF=0, gkSPD=0;
 
             formations[activeFormation].positions.forEach(pos => {
                 const p = userTeam[pos.id]; if (!p) return;
                 const ovr = calculatePlayerOVR(p, pos.role); const s = p.normStats;
                 
-                if (pos.role === 'ST') { 
-                    fwdOVRSum += ovr; fCount++; stCount++; 
-                    stSPA += s.spa; stHP += s.hp; stATK += s.atk; stSPE += s.spe; 
-                } 
-                else if (pos.role === 'WG') { 
-                    fwdOVRSum += ovr; fCount++; wgCount++; 
-                    wgSPA += s.spa; wgHP += s.hp; wgATK += s.atk; wgSPE += s.spe; 
-                }
-                else if (pos.role === 'CM' || pos.role === 'WM') { 
-                    midOVRSum += ovr; mCount++; 
-                    midSPA += s.spa; midSPD += s.spd; midHP += s.hp; midSPE += s.spe; 
-                } 
-                else if (pos.role === 'FB' || pos.role === 'CB' || pos.role === 'GK') { 
-                    defOVRSum += ovr; dCount++; 
-                    defSPD += s.spd; defHP += s.hp; defDEF += s.def; 
-                }
+                if (pos.role === 'ST' || pos.role === 'WG') { fwdOVRSum += ovr; fCount++; }
+                else if (pos.role === 'WM' || pos.role === 'AM' || pos.role === 'CM' || pos.role === 'DM') { midOVRSum += ovr; mCount++; }
+                else { defOVRSum += ovr; dCount++; }
+
+                if (pos.role === 'ST') { stCount++; stSPA += s.spa; stHP += s.hp; stATK += s.atk; stSPE += s.spe; }
+                else if (pos.role === 'WG') { wgCount++; wgSPA += s.spa; wgHP += s.hp; wgATK += s.atk; wgSPE += s.spe; }
+                else if (pos.role === 'WM') { wmCount++; wmSPA += s.spa; wmHP += s.hp; wmSPE += s.spe; wmSPD += s.spd; }
+                else if (pos.role === 'AM') { amCount++; amSPA += s.spa; amHP += s.hp; amATK += s.atk; amSPE += s.spe; amSPD += s.spd; }
+                else if (pos.role === 'CM') { cmCount++; cmSPA += s.spa; cmHP += s.hp; cmSPE += s.spe; cmSPD += s.spd; cmATK += s.atk; }
+                else if (pos.role === 'DM') { dmCount++; dmSPD += s.spd; dmHP += s.hp; dmDEF += s.def; dmSPA += s.spa; }
+                else if (pos.role === 'FB') { fbCount++; fbSPE += s.spe; fbSPA += s.spa; fbDEF += s.def; fbHP += s.hp; }
+                else if (pos.role === 'CB') { cbCount++; cbSPD += s.spd; cbHP += s.hp; cbDEF += s.def; }
+                else if (pos.role === 'GK') { gkCount++; gkDEF += s.def; gkSPD += s.spd; }
             });
 
             let chemMultiplier = 1 + (teamChemScore * 0.005); 
@@ -737,28 +742,43 @@
             document.getElementById('score-def').innerText = dCount ? uiDef : '--';
 
             if(fCount && mCount && dCount) {
-                const midDiminish = Math.pow(mCount, 0.75); const defDiminish = Math.pow(dCount, 0.75);
+                // Fase 1: Ball Possession (Midfield dominance + FB/CB slightly)
+                let cPoss = cmCount ? (cmSPA/cmCount + cmSPD/cmCount + cmHP/cmCount) * cmCount : 0;
+                let dPoss = dmCount ? (dmSPD/dmCount + dmHP/dmCount + dmDEF/dmCount) * 0.8 * dmCount : 0;
+                let aPoss = amCount ? (amSPA/amCount + amSPD/amCount) * 0.6 * amCount : 0;
+                let wPoss = wmCount ? (wmSPA/wmCount + wmSPE/wmCount + wmSPD/wmCount) * 0.7 * wmCount : 0;
+                let defPoss = ((fbSPA + cbSPD) / (fbCount+cbCount)) * 0.5 * (fbCount+cbCount);
+                myTeamEnginePools.poss = (cPoss + dPoss + aPoss + wPoss + defPoss) * 1.5;
                 
-                // Fase 1: Ball Possession (Midfield dominance)
-                myTeamEnginePools.poss = ((midSPA/mCount + midSPD/mCount + midHP/mCount) * midDiminish) * 1.5;
-                myTeamEnginePools.poss += ((defSPD/dCount) * 0.5);
-                
-                // Fase 2: Chance Creation (Midfield + Wingers heavily + Strikers slightly)
-                let midCreation = ((midSPA/mCount * 1.5 + midSPE/mCount * 0.5 + midHP/mCount * 0.25) * midDiminish);
-                let wgCreation = wgCount ? ((wgSPA/wgCount * 1.5 + wgSPE/wgCount * 1.5) * Math.pow(wgCount, 0.75) * 0.4) : 0;
-                let stCreation = stCount ? ((stSPA/stCount * 0.5 + stSPE/stCount * 0.5) * Math.pow(stCount, 0.75) * 0.2) : 0;
-                myTeamEnginePools.create = midCreation + wgCreation + stCreation;
+                // Fase 2: Chance Creation (Wingers, AMs, WMs heavily + FBs overlay)
+                let wgCreation = wgCount ? ((wgSPA/wgCount * 1.0 + wgSPE/wgCount * 1.5) * wgCount) : 0;
+                let amCreation = amCount ? ((amSPA/amCount * 1.5 + amSPE/amCount * 0.8 + amATK/amCount * 0.5) * amCount) : 0;
+                let wmCreation = wmCount ? ((wmSPA/wmCount * 1.0 + wmSPE/wmCount * 1.0) * wmCount) : 0;
+                let cmCreation = cmCount ? ((cmSPA/cmCount * 1.2 + cmSPE/cmCount * 0.5) * cmCount) : 0;
+                let fbCreation = fbCount ? ((fbSPE/fbCount * 1.0 + fbSPA/fbCount * 0.8) * fbCount) : 0; // Crucial for 5-4-1
+                let stCreation = stCount ? ((stSPA/stCount * 0.5) * stCount) : 0;
+                myTeamEnginePools.create = (wgCreation + amCreation + wmCreation + cmCreation + fbCreation + stCreation) * 1.5;
                 
                 // Fase 2 Defense: Preventing Chances
-                myTeamEnginePools.prevent = ((defSPD/dCount * 1.5 + defHP/dCount * 0.5) * defDiminish) + ((midSPD/mCount + midHP/mCount) * midDiminish * 0.5);
+                let dmPrevent = dmCount ? ((dmSPD/dmCount * 1.5 + dmDEF/dmCount * 1.0 + dmHP/dmCount * 1.0) * dmCount) : 0;
+                let cmPrevent = cmCount ? ((cmSPD/cmCount * 1.0 + cmHP/cmCount * 0.8) * cmCount) : 0;
+                let cbPrevent = cbCount ? ((cbSPD/cbCount * 1.2 + cbDEF/cbCount * 1.0) * cbCount) : 0;
+                let fbPrevent = fbCount ? ((fbDEF/fbCount * 1.0 + fbSPE/fbCount * 0.8) * fbCount) : 0;
+                myTeamEnginePools.prevent = (dmPrevent + cmPrevent + cbPrevent + fbPrevent) * 1.5;
                 
-                // Fase 3: Finishing (Strikers heavily + Wingers moderately)
-                let stFinish = stCount ? ((stATK/stCount * 1.8 + stSPE/stCount * 1.0 + stHP/stCount * 0.2) * Math.pow(stCount, 0.75)) : 0;
-                let wgFinish = wgCount ? ((wgATK/wgCount * 1.0 + wgSPE/wgCount * 1.2) * Math.pow(wgCount, 0.75) * 0.6) : 0;
-                myTeamEnginePools.finish = stFinish + wgFinish;
+                // Fase 3: Finishing (Strikers heavily rely on ATK + HP now)
+                let stFinish = stCount ? ((stATK/stCount * 1.5 + stHP/stCount * 0.8 + stSPE/stCount * 0.7) * stCount) : 0;
+                let wgFinish = wgCount ? ((wgATK/wgCount * 1.0 + wgSPE/wgCount * 0.8) * wgCount) : 0;
+                let amFinish = amCount ? ((amATK/amCount * 1.2 + amSPA/amCount * 0.5) * amCount) : 0;
+                let cmFinish = cmCount ? ((cmATK/cmCount * 0.5) * cmCount) : 0;
+                myTeamEnginePools.finish = (stFinish + wgFinish + amFinish + cmFinish) * 1.5;
                 
                 // Fase 3 Defense: Blocking Shots
-                myTeamEnginePools.block = ((defDEF/dCount * 1.5 + defHP/dCount * 0.5) * defDiminish);
+                let cbBlock = cbCount ? ((cbDEF/cbCount * 1.5 + cbHP/cbCount * 1.0) * cbCount) : 0;
+                let gkBlock = gkCount ? ((gkDEF/gkCount * 2.0 + gkSPD/gkCount * 1.0) * gkCount) : 0;
+                let fbBlock = fbCount ? ((fbDEF/fbCount * 0.8) * fbCount) : 0;
+                let dmBlock = dmCount ? ((dmDEF/dmCount * 0.5) * dmCount) : 0;
+                myTeamEnginePools.block = (cbBlock + gkBlock + fbBlock + dmBlock) * 1.5;
                 
                 Object.keys(myTeamEnginePools).forEach(k => myTeamEnginePools[k] *= chemMultiplier);
             }
@@ -881,10 +901,11 @@
                 if(p) {
                     let weight = 1; 
                     if(pos.role === 'ST') weight = 50;
-                    else if(pos.role === 'WG') weight = 25;
-                    else if(pos.role === 'CM' || pos.role === 'WM') weight = 15;
-                    else if(pos.role === 'CB' || pos.role === 'FB') weight = 4;
-                    else if(pos.role === 'GK') weight = 1; 
+                    else if(pos.role === 'WG') weight = 20;
+                    else if(pos.role === 'AM') weight = 15;
+                    else if(pos.role === 'CM' || pos.role === 'WM') weight = 5;
+                    else if(pos.role === 'DM') weight = 2;
+                    else if(pos.role === 'CB' || pos.role === 'FB') weight = 1;
                     for(let i=0; i<weight; i++) pool.push(p);
                 }
             });
@@ -1063,15 +1084,15 @@
             }
 
             // Real Stats Analysis for Scout Report (Ignoring OVR)
-            let defHP = 0, defDEF = 0, defSPE = 0, dCount = 0;
-            let midHP = 0, midSPD = 0, midSPA = 0, mCount = 0;
-            let atkATK = 0, atkSPE = 0, atkHP = 0, fCount = 0;
+            let defHP=0, defDEF=0, defSPE=0, dCount=0;
+            let midHP=0, midSPD=0, midSPA=0, mCount=0;
+            let atkATK=0, atkSPE=0, atkHP=0, fCount=0;
 
             formations[activeFormation].positions.forEach(pos => {
                 const p = userTeam[pos.id]; if(!p) return;
                 if (pos.role === 'CB' || pos.role === 'FB' || pos.role === 'GK') {
                     defHP += p.normStats.hp; defDEF += p.normStats.def; defSPE += p.normStats.spe; dCount++;
-                } else if (pos.role === 'CM' || pos.role === 'WM') {
+                } else if (pos.role === 'CM' || pos.role === 'WM' || pos.role === 'AM' || pos.role === 'DM') {
                     midHP += p.normStats.hp; midSPD += p.normStats.spd; midSPA += p.normStats.spa; mCount++;
                 } else if (pos.role === 'ST' || pos.role === 'WG') {
                     atkATK += p.normStats.atk; atkSPE += p.normStats.spe; atkHP += p.normStats.hp; fCount++;
@@ -1411,7 +1432,6 @@
                 resultsClone.style.maxHeight = 'none';
                 resultsClone.style.flexShrink = '0';
                 
-                // Zorg ervoor dat tekst op de foto op 1 lijn blijft
                 const resultItems = resultsClone.querySelectorAll('div > span');
                 resultItems.forEach(el => el.style.whiteSpace = 'nowrap');
                 
