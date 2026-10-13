@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Draft FC</title>
+    <meta property="og:title" content="Pokémon Draft FC">
+    <meta property="og:description" content="Build your ultimate Pokémon football team! Choose your generations, draft players, and simulate the season.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#eab308">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; overflow-x: hidden; }
+
+        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.1); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .gen-toggle, .form-toggle { transition: all 0.2s ease-in-out; }
+        .gen-toggle.active, .form-toggle.active { background-color: #eab308; color: #0f172a; border-color: #eab308; transform: scale(1.05); box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.4); }
+        
+        .formation-card { opacity: 0; transform: translateY(40px) scale(0.9); }
+        .formation-card.reveal-anim { animation: draftReveal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes draftReveal { to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        .pitch-wrapper { transition: all 0.5s ease-in-out; }
+        .pitch {
+            position: relative; background: linear-gradient(180deg, #166534 0%, #15803d 100%);
+            border: 4px solid rgba(255, 255, 255, 0.8); box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .pitch::before {
+            content: ''; position: absolute; inset: 0;
+            background: repeating-linear-gradient( 0deg, transparent, transparent 10%, rgba(255, 255, 255, 0.05) 10%, rgba(255, 255, 255, 0.05) 20% );
+            pointer-events: none;
+        }
+        .pitch-lines { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+        .half-way-line { position: absolute; top: 50%; left: 0; width: 100%; border-top: 3px solid rgba(255,255,255,0.4); }
+        .center-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 120px; border: 3px solid rgba(255,255,255,0.4); border-radius: 50%; }
+        .penalty-box-top { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 50%; height: 15%; border: 3px solid rgba(255,255,255,0.4); border-top: none; }
+        .penalty-box-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 50%; height: 15%; border: 3px solid rgba(255,255,255,0.4); border-bottom: none; }
+
+        #chem-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+
+        .player-node { transform: translate(-50%, -50%); transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; }
+        .player-node:hover { transform: translate(-50%, -55%) scale(1.1); z-index: 20; }
+        
+        /* Pokeball Animations */
+        .pokeball-container { width: 100px; height: 100px; position: relative; transform: translateY(-200vh); }
+        @media(min-width: 768px) { .pokeball-container { width: 120px; height: 120px; } }
+        .pokeball-container.dropping { animation: dropIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+        .pokeball-container.shaking { transform: translateY(0); animation: shake 0.5s infinite; }
+        .pokeball-container.popping { transform: translateY(0); animation: popOpen 0.3s ease-out forwards; }
+
+        @keyframes dropIn { 0% { transform: translateY(-100vh) rotate(-180deg); } 70% { transform: translateY(20px) rotate(20deg); } 100% { transform: translateY(0) rotate(0deg); } }
+        @keyframes shake { 0%, 50%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 75% { transform: rotate(15deg); } }
+        @keyframes popOpen { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.3); filter: brightness(2); } 100% { transform: scale(0); opacity: 0; filter: brightness(5); } }
+
+        .fut-card { opacity: 0; transform: scale(0.8) translateY(50px); display: none; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid #334155; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+        .fut-card.revealing { display: flex; animation: revealCard 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .fut-card:hover { transform: translateY(-10px) scale(1.05) !important; box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(234, 179, 8, 0.3); border-color: #eab308; cursor: pointer; z-index: 30; }
+        @keyframes revealCard { 0% { opacity: 0; transform: scale(0.5) translateY(50px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+        /* TV & Cup Styles */
+        .tv-glass { background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); transition: all 0.5s ease; }
+        
+        .cup-theme { border-color: #3b82f6 !important; box-shadow: 0 0 40px rgba(59,130,246,0.3) !important; }
+        .cup-theme .tv-header-bg { background-color: #081226 !important; border-bottom-color: #1e3a8a !important; }
+        .cup-theme .tv-body-bg { background: linear-gradient(to bottom, #1e3a8a, #081226) !important; }
+        .cup-theme .tv-stats-bg { background-color: #040914 !important; border-top-color: #1e3a8a !important; }
+        .cup-theme #tv-status-text { color: #60a5fa !important; }
+        .cup-theme #tv-matchday-text { color: #93c5fd !important; }
+
+        .progress-bar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .goal-item { animation: fadeIn 0.3s ease-out forwards; opacity: 0; transform: translateY(5px); }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+        
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .ovr-label { background: #1e293b; color: white; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); font-size: 10px; display: inline-flex; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col relative">
+
+    <!-- How To Play Modal -->
+    <div id="htp-modal" class="fixed inset-0 bg-slate-900/95 z-[300] hidden flex-col items-center justify-center p-4 overflow-y-auto backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div class="max-w-2xl w-full bg-slate-800 rounded-2xl border border-slate-600 p-6 shadow-2xl relative my-auto">
+            <button onclick="closeHTP()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center font-bold transition-colors">✕</button>
+            
+            <h2 class="text-3xl font-black text-yellow-400 mb-6 uppercase tracking-wider text-center border-b border-slate-700 pb-4">How To Play</h2>
+            
+            <div class="space-y-6 text-sm text-slate-300">
+                <div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase">1. The Match Engine (3 Phases)</h3>
+                    <p class="mb-2">Matches aren't decided by raw OVR, but by a 3-phase simulation:</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong class="text-blue-400">Phase 1 (Possession):</strong> Midfield controls the ball. High <span class="text-white">HP</span> (Physicality) and <span class="text-white">Sp. Def</span> (Tactics) win the midfield battle.</li>
+                        <li><strong class="text-green-400">Phase 2 (Creation):</strong> Turning possession into chances. Your team's <span class="text-white">Sp. Atk</span> (Vision/Passing) vs their <span class="text-white">Sp. Def</span>.</li>
+                        <li><strong class="text-red-400">Phase 3 (Finishing):</strong> Scoring the goal. Strikers use <span class="text-white">Attack</span> (Finishing) & <span class="text-white">Speed</span> vs Defenders' <span class="text-white">Defense</span> & <span class="text-white">HP</span>.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase">2. Football Attributes</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700"><strong class="text-green-400">HP:</strong> Physicality, Stamina, Hold-up play.</div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700"><strong class="text-red-400">ATK:</strong> Finishing, Shot Power, Heading.</div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700"><strong class="text-blue-400">DEF:</strong> Tackling, Marking, Blocking.</div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700"><strong class="text-purple-400">Sp.A:</strong> Technique, Vision, Passing.</div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700"><strong class="text-pink-400">Sp.D:</strong> Tactical awareness, Interceptions.</div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-700"><strong class="text-yellow-400">SPE:</strong> Pace, Agility, Wing play.</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-white mb-2 uppercase">3. Tactics & Chemistry</h3>
+                    <p class="mb-2">Don't just pick the highest OVR! A slow midfielder with high Sp.A and HP is a great playmaker. A fast winger with 0 HP can still outrun the defense.</p>
+                    <p><strong>Chemistry:</strong> Link players of the same <span class="text-yellow-400">Generation</span> or <span class="text-yellow-400">Type</span> to boost your team's overall performance. <span class="text-green-400">Green lines</span> give the biggest boost!</p>
+                </div>
+            </div>
+            
+            <button onclick="closeHTP()" class="mt-8 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-xl transition-colors uppercase tracking-wide">Got it, Let's Play!</button>
+        </div>
+    </div>
+
+    <div id="start-screen" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-4 transition-opacity duration-500 overflow-y-auto">
+        <div class="max-w-4xl w-full mx-auto my-auto py-10 flex flex-col items-center">
+            <h1 class="text-4xl md:text-6xl font-black text-center mb-2 text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 drop-shadow-lg uppercase tracking-tight">
+                Pokémon Draft FC
+            </h1>
+            <p class="text-slate-400 mb-4 text-center text-sm md:text-base font-medium max-w-xl">
+                Build your ultimate team. First, set your club name and database, then see what playstyles the draft offers you!
+            </p>
+            
+            <button onclick="openHTP()" class="mb-8 px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2">
+                <span class="text-blue-400 font-black text-sm">?</span> How to play & tactics
+            </button>
+
+            <div id="step-1" class="w-full max-w-3xl mb-8 transition-all duration-300">
+                <div class="mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col items-center shadow-lg">
+                    <label class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">Club Name</label>
+                    <input type="text" id="team-name-input" placeholder="e.g. My Team" maxlength="20" class="bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-center text-white font-bold w-full max-w-xs focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400">
+                </div>
+
+                <div class="flex justify-between items-end mb-3">
+                    <h2 class="text-lg font-bold text-white uppercase tracking-wider">1. Select Generations</h2>
+                    <div class="flex gap-2">
+                        <button onclick="selectAllGens()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Select All</button>
+                        <button onclick="deselectAllGens()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Clear All</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-8" id="gen-grid"></div>
+                <div class="flex justify-center">
+                    <button onclick="proceedToFormations()" class="px-12 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-400 text-white font-black text-xl rounded-full shadow-[0_10px_40px_rgba(37,99,235,0.5)] transition-transform uppercase tracking-widest transform hover:-translate-y-1">
+                        Find Formations
+                    </button>
+                </div>
+            </div>
+
+            <div id="step-2" class="w-full max-w-3xl mb-8 hidden transition-all duration-300 flex-col items-center">
+                <h2 class="text-xl font-bold text-yellow-400 uppercase tracking-wider mb-6 text-center">2. Choose Your Playstyle</h2>
+                
+                <div id="formation-loader" class="flex flex-col items-center justify-center py-10 w-full hidden">
+                    <div class="spinner mb-4"></div>
+                    <p class="text-yellow-400 font-bold uppercase tracking-widest animate-pulse text-sm mt-4">Scouting Formations...</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-8" id="formation-draft-grid"></div>
+                
+                <div class="flex gap-4">
+                    <button onclick="backToGens()" class="px-6 py-4 bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm rounded-full transition-colors uppercase tracking-widest border border-slate-500">
+                        Back
+                    </button>
+                    <button id="btn-start-draft" onclick="startGame()" disabled class="px-12 py-4 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-400 text-white font-black text-xl rounded-full shadow-[0_10px_40px_rgba(34,197,94,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest transform hover:-translate-y-1">
+                        Draft Your Players
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-ui" class="hidden flex-col w-full flex-grow pt-4 px-4 md:px-0">
+        <!-- New Header with Team Name & How to Play Button -->
+        <div class="max-w-4xl mx-auto w-full flex justify-between items-center mb-4 z-10 px-2">
+            <h2 id="ui-team-name" class="text-xl md:text-2xl font-black text-white uppercase tracking-wider text-yellow-400 drop-shadow-md truncate max-w-[60%]">My Team</h2>
+            <button onclick="openHTP()" class="px-3 md:px-4 py-1 md:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1 md:gap-2 shadow-lg shrink-0">
+                <span class="text-blue-400 font-black text-sm">?</span> How to play
+            </button>
+        </div>
+
+        <header class="max-w-4xl mx-auto w-full mb-6 relative z-10">
+            <div class="flex flex-wrap md:flex-nowrap justify-between items-center bg-slate-800/80 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-slate-700 gap-2">
+                <div class="text-center w-full md:w-1/4">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Attack</p>
+                    <p id="score-atk" class="text-4xl font-black text-red-500 drop-shadow-md">0</p>
+                </div>
+                <div class="text-center w-full md:w-1/4 md:border-l border-slate-600/50">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Midfield</p>
+                    <p id="score-mid" class="text-4xl font-black text-green-500 drop-shadow-md">0</p>
+                </div>
+                <div class="text-center w-full md:w-1/4 md:border-l border-slate-600/50">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Defense</p>
+                    <p id="score-def" class="text-4xl font-black text-blue-500 drop-shadow-md">0</p>
+                </div>
+                <div class="text-center w-full md:w-1/4 md:border-l border-slate-600/50 bg-slate-900/50 rounded-xl py-2">
+                    <p class="text-slate-300 text-[10px] font-bold uppercase tracking-widest mb-1">Chemistry</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clip-rule="evenodd"/></svg>
+                        <p id="score-chem" class="text-3xl font-black text-yellow-400 drop-shadow-md">0</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow max-w-6xl w-full mx-auto relative mb-24 z-10 flex flex-col" id="main-view">
+            <div id="pitch-view" class="w-full max-w-3xl mx-auto pitch-wrapper block pb-10 relative">
+                <div id="pitch-capture-area" class="bg-[#0f172a] p-4 rounded-xl">
+                    <div class="pitch w-full aspect-[2/3] md:aspect-[3/4] rounded-xl relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] mx-auto">
+                        <div class="pitch-lines">
+                            <div class="half-way-line"></div>
+                            <div class="center-circle"></div>
+                            <div class="penalty-box-top"></div>
+                            <div class="penalty-box-bottom"></div>
+                        </div>
+                        <svg id="chem-lines"></svg>
+                        <div id="pitch-container" class="absolute inset-0 z-10"></div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center gap-4 flex-wrap">
+                    <button id="btn-simulate" onclick="startSeasonSimulation()" disabled class="px-10 py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 font-black text-xl rounded-full shadow-[0_0_20px_rgba(234,179,8,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none uppercase tracking-wide transform hover:-translate-y-1">
+                        Start Season
+                    </button>
+                    
+                    <button id="btn-play-cup-pitch" onclick="startContinentalCup()" class="hidden px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black text-base rounded-full transition-all uppercase tracking-wide shadow-[0_0_20px_rgba(37,99,235,0.6)] transform hover:scale-105 border-2 border-blue-300">
+                        🏆 PLAY CUP
+                    </button>
+
+                    <button id="btn-share" onclick="shareTeam()" class="hidden px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm md:text-base rounded-full transition-all uppercase tracking-wide shadow-[0_0_15px_rgba(147,51,234,0.4)] flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-5.368m0 5.368l5.657 5.657m-5.657-5.657l5.657-5.657m0 11.314a3 3 0 105.368-5.368 3 3 0 00-5.368 5.368zm0-11.314a3 3 0 105.368-5.368 3 3 0 00-5.368 5.368z"></path></svg> Share Team
+                    </button>
+                    <button id="btn-download" onclick="downloadTeam()" class="hidden px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm md:text-base rounded-full transition-all uppercase tracking-wide border border-slate-500">
+                        Download Image
+                    </button>
+                    <button id="btn-new-draft" onclick="startNewDraft()" class="hidden px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold text-sm md:text-base rounded-full transition-all uppercase tracking-wide shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                        New Draft
+                    </button>
+                </div>
+            </div>
+
+            <div id="match-center" class="hidden w-full flex-col lg:flex-row gap-6 relative">
+                <div id="standings-panel" class="w-full lg:w-1/2 bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden flex flex-col min-h-[500px]">
+                    <div class="bg-slate-900 p-4 border-b border-slate-700 flex justify-between items-center relative shrink-0">
+                        <h2 class="text-xl font-black text-yellow-400 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span> Standings
+                        </h2>
+                    </div>
+                    <div class="overflow-y-auto flex-grow bg-slate-800/50 relative">
+                        <table class="w-full text-left text-sm md:text-base border-collapse">
+                            <thead class="text-slate-400 uppercase bg-slate-900/90 sticky top-0 text-[10px] md:text-xs z-10 backdrop-blur-sm shadow-sm">
+                                <tr>
+                                    <th class="px-3 py-4">Club</th><th class="px-2 py-4 text-center">Pld</th><th class="px-2 py-4 text-center font-bold text-white">Pts</th>
+                                    <th class="px-2 py-4 text-center hidden sm:table-cell">W-D-L</th><th class="px-2 py-4 text-center">GD</th>
+                                </tr>
+                            </thead>
+                            <tbody id="live-table-body" class="font-medium text-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="right-panel" class="w-full lg:w-1/2 flex flex-col gap-4 relative">
+                    <!-- Post-season awards block (order-first so it jumps to the top!) -->
+                    <div id="post-season-awards" class="hidden flex-col gap-4 order-first"></div>
+                    
+                    <div id="tv-scoreboard" class="tv-glass rounded-2xl overflow-hidden shadow-2xl relative w-full border border-slate-600">
+                        
+                        <div id="kickoff-overlay" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex-col items-center justify-center p-6 text-center">
+                            <h3 id="kickoff-title" class="text-2xl font-black text-white uppercase mb-8 tracking-widest drop-shadow-lg text-blue-400">Round of 16</h3>
+                            <div class="flex flex-col items-center gap-6 text-white text-2xl md:text-3xl font-bold mb-10 w-full justify-center">
+                                <span id="kickoff-home" class="truncate max-w-full text-yellow-400 text-center">My Team</span> 
+                                <span class="text-slate-500 text-sm md:text-base bg-slate-800 px-4 py-2 rounded-full border border-slate-700 shadow-inner font-black">VS</span> 
+                                <span id="kickoff-away" class="truncate max-w-full text-center">Opponent</span>
+                            </div>
+                            <button id="btn-start-match" onclick="startCupMatchLoop()" class="px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_40px_rgba(59,130,246,0.6)] uppercase tracking-widest transform hover:scale-105 transition-all text-xl">
+                                Start Match ⚽
+                            </button>
+                        </div>
+
+                        <div class="tv-header-bg bg-slate-900 text-white text-center font-black py-2 text-sm tracking-[0.2em] flex items-center justify-center gap-3 border-b border-slate-800 transition-colors">
+                            <div class="bg-red-600 px-3 py-1 rounded text-xs flex items-center gap-2 shadow-inner">
+                                <span id="tv-status-dot" class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                <span id="tv-status-text">LIVE</span>
+                            </div>
+                            <span id="tv-matchday-text" class="text-slate-400 text-xs hidden md:inline transition-colors">Matchday 1</span>
+                            <span id="tv-clock" class="font-mono text-yellow-400">00'</span>
+                        </div>
+                        
+                        <div class="tv-body-bg flex justify-between items-center p-6 bg-gradient-to-b from-slate-800 to-slate-900 relative z-10 transition-colors">
+                            <div class="w-5/12 text-center"><h3 id="tv-home-team" class="text-lg md:text-xl lg:text-2xl font-black text-white leading-tight truncate">My Team</h3></div>
+                            <div class="w-2/12 text-center flex justify-center items-center gap-2 md:gap-4 shrink-0">
+                                <span id="tv-home-score" class="text-4xl md:text-5xl font-black text-white drop-shadow-md">0</span>
+                                <span class="text-2xl md:text-3xl text-slate-500 font-bold">:</span>
+                                <span id="tv-away-score" class="text-4xl md:text-5xl font-black text-white drop-shadow-md">0</span>
+                            </div>
+                            <div class="w-5/12 text-center"><h3 id="tv-away-team" class="text-lg md:text-xl lg:text-2xl font-black text-white leading-tight truncate">Opponent</h3></div>
+                        </div>
+                        
+                        <div class="flex justify-between px-6 pb-6 text-xs md:text-sm text-slate-300 min-h-[100px] tv-header-bg bg-slate-900 relative z-10 transition-colors">
+                            <div class="w-1/2 text-left pr-3 border-r border-slate-700/50 flex flex-col gap-1 pt-3" id="tv-home-scorers"></div>
+                            <div class="w-1/2 text-right pl-3 flex flex-col gap-1 pt-3" id="tv-away-scorers"></div>
+                        </div>
+
+                        <div id="tv-stats-panel" class="tv-stats-bg bg-slate-950 p-5 border-t border-slate-800 space-y-5 relative z-10 transition-colors">
+                            <div>
+                                <div class="flex justify-between text-[10px] md:text-xs font-bold mb-2">
+                                    <span id="tv-home-poss" class="text-blue-400">50%</span><span class="text-slate-500 tracking-[0.1em] uppercase">Possession</span><span id="tv-away-poss" class="text-red-400">50%</span>
+                                </div>
+                                <div class="flex h-2.5 rounded-full overflow-hidden bg-slate-800 shadow-inner">
+                                    <div id="bar-home-poss" class="bg-gradient-to-r from-blue-600 to-blue-400 w-[50%] progress-bar"></div>
+                                    <div id="bar-away-poss" class="bg-gradient-to-r from-red-600 to-red-400 w-[50%] progress-bar"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] md:text-xs font-bold mb-2">
+                                    <span id="tv-home-shots" class="text-white">0</span><span class="text-slate-500 tracking-[0.1em] uppercase">Shots</span><span id="tv-away-shots" class="text-white">0</span>
+                                </div>
+                                <div class="flex h-2.5 rounded-full overflow-hidden bg-slate-800 shadow-inner relative">
+                                    <div id="bar-home-shots" class="bg-slate-400 w-[50%] progress-bar absolute left-0 h-full origin-left rounded-l-full"></div>
+                                    <div id="bar-away-shots" class="bg-slate-600 w-[50%] progress-bar absolute right-0 h-full origin-right rounded-r-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="results-feed" class="bg-slate-800 rounded-2xl border border-slate-700 shadow-inner flex flex-col hidden overflow-hidden">
+                        <h4 class="text-slate-400 uppercase tracking-widest text-xs font-bold p-3 border-b border-slate-700 bg-slate-900 m-0 shrink-0">Your Results</h4>
+                        <!-- Adjusted the max-height and scrolling here -->
+                        <div id="results-feed-list" class="flex flex-col gap-2 p-3 overflow-y-auto max-h-[300px]"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="draft-modal" class="fixed inset-0 bg-black/90 hidden z-[60] flex-col items-center justify-center p-4 backdrop-blur-sm">
+        
+        <button onclick="openHTP()" class="absolute top-4 right-4 md:top-8 md:right-8 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2 shadow-lg z-50">
+            <span class="text-blue-400 font-black text-sm">?</span> Tactiek & Regels
+        </button>
+
+        <h2 class="text-3xl font-black mb-1 text-white uppercase tracking-wider drop-shadow-lg text-center mt-6">Scout Player</h2>
+        <p id="draft-position-label" class="text-xl text-yellow-400 font-bold mb-4 uppercase tracking-widest bg-yellow-400/10 px-4 py-1 rounded-full border border-yellow-400/30">POS</p>
+        
+        <div class="flex justify-center w-full mb-6 h-10">
+            <button id="btn-reroll" onclick="useReroll()" class="hidden px-6 py-2 bg-purple-600 hover:bg-purple-500 rounded-full font-black text-white transition-all uppercase tracking-wide items-center gap-2 shadow-[0_0_15px_rgba(147,51,234,0.5)]">
+                <span>🔄</span> Reroll <span class="text-xs font-normal opacity-80">(1 Left)</span>
+            </button>
+        </div>
+
+        <div id="gacha-container" class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 w-full max-w-5xl place-items-center mb-8 min-h-[250px]"></div>
+        
+        <button onclick="closeModal()" class="px-6 py-3 bg-slate-700/80 hover:bg-slate-600 rounded-full font-bold text-slate-200 transition-colors border border-slate-500 uppercase tracking-wide">
+            Cancel
+        </button>
+    </div>
+
+    <button id="btn-back-to-stats" onclick="backToStandings()" class="hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 px-8 py-4 bg-slate-800 hover:bg-slate-700 border-2 border-yellow-500 text-yellow-400 font-black text-lg rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.8)] z-50 uppercase tracking-widest items-center gap-2 whitespace-nowrap">
+        <span>🔙</span> Season Summary
+    </button>
+
+    <script>
+        const genData = [
+            { id: 1, name: "Gen 1", range: [1, 151], active: true }, { id: 2, name: "Gen 2", range: [152, 251], active: false },
+            { id: 3, name: "Gen 3", range: [252, 386], active: false }, { id: 4, name: "Gen 4", range: [387, 493], active: false },
+            { id: 5, name: "Gen 5", range: [494, 649], active: false }, { id: 6, name: "Gen 6", range: [650, 721], active: false },
+            { id: 7, name: "Gen 7", range: [722, 809], active: false }, { id: 8, name: "Gen 8", range: [810, 898], active: false },
+            { id: 9, name: "Gen 9", range: [899, 1025], active: false }
+        ];
+
+        const formations = {
+            '4-3-3': {
+                name: '4-3-3 Balanced', desc: 'Standard width and central control.',
+                positions: [
+                    { id: 'LW', display: 'LW', top: '20%', left: '25%', role: 'WG' }, { id: 'ST', display: 'ST', top: '15%', left: '50%', role: 'ST' }, { id: 'RW', display: 'RW', top: '20%', left: '75%', role: 'WG' },
+                    { id: 'CM1', display: 'CM1', top: '45%', left: '30%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '40%', left: '50%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '70%', role: 'CM' },
+                    { id: 'LB', display: 'LB', top: '75%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '35%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '65%', role: 'CB' }, { id: 'RB', display: 'RB', top: '75%', left: '85%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['LB', 'LW'], ['CB1', 'CM1'], ['CB2', 'CM2'], ['RB', 'RW'], ['CM1', 'CAM'], ['CM2', 'CAM'], ['CM1', 'LW'], ['CM2', 'RW'], ['LW', 'ST'], ['RW', 'ST'], ['CAM', 'ST']]
+            },
+            '4-4-2': {
+                name: '4-4-2 Classic', desc: 'Solid wide lines, dual strikers.',
+                positions: [
+                    { id: 'LS', display: 'LS', top: '15%', left: '35%', role: 'ST' }, { id: 'RS', display: 'RS', top: '15%', left: '65%', role: 'ST' },
+                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WG' }, { id: 'CM1', display: 'CM1', top: '45%', left: '40%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '60%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WG' },
+                    { id: 'LB', display: 'LB', top: '75%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '35%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '65%', role: 'CB' }, { id: 'RB', display: 'RB', top: '75%', left: '85%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['LB', 'LM'], ['CB1', 'CM1'], ['CB2', 'CM2'], ['RB', 'RM'], ['LM', 'CM1'], ['CM1', 'CM2'], ['CM2', 'RM'], ['LM', 'LS'], ['CM1', 'LS'], ['CM2', 'RS'], ['RM', 'RS'], ['LS', 'RS']]
+            },
+            '3-5-2': {
+                name: '3-5-2 Overload', desc: 'Heavy possession, weak flanks.',
+                positions: [
+                    { id: 'LS', display: 'LS', top: '15%', left: '35%', role: 'ST' }, { id: 'RS', display: 'RS', top: '15%', left: '65%', role: 'ST' },
+                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WG' }, { id: 'CM1', display: 'CM1', top: '45%', left: '35%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '35%', left: '50%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '65%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WG' },
+                    { id: 'CB1', display: 'CB1', top: '75%', left: '25%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '50%', role: 'CB' }, { id: 'CB3', display: 'CB3', top: '75%', left: '75%', role: 'CB' },
+                    { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['GK', 'CB3'], ['CB1', 'CB2'], ['CB2', 'CB3'], ['CB1', 'LM'], ['CB1', 'CM1'], ['CB2', 'CM1'], ['CB2', 'CM2'], ['CB3', 'CM2'], ['CB3', 'RM'], ['LM', 'CM1'], ['CM1', 'CAM'], ['CM2', 'CAM'], ['CM2', 'RM'], ['LM', 'LS'], ['CAM', 'LS'], ['CAM', 'RS'], ['RM', 'RS'], ['LS', 'RS']]
+            },
+            '5-4-1': {
+                name: '5-4-1 Park the Bus', desc: 'Massive defense wall. Counter attacks.',
+                positions: [
+                    { id: 'ST', display: 'ST', top: '15%', left: '50%', role: 'ST' },
+                    { id: 'LM', display: 'LM', top: '40%', left: '25%', role: 'WG' }, { id: 'CM1', display: 'CM1', top: '45%', left: '40%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '60%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '75%', role: 'WG' },
+                    { id: 'LWB', display: 'LWB', top: '65%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '30%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '50%', role: 'CB' }, { id: 'CB3', display: 'CB3', top: '78%', left: '70%', role: 'CB' }, { id: 'RWB', display: 'RWB', top: '65%', left: '85%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['GK', 'CB3'], ['LWB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'CB3'], ['CB3', 'RWB'], ['LWB', 'LM'], ['CB1', 'CM1'], ['CB2', 'CM1'], ['CB2', 'CM2'], ['CB3', 'CM2'], ['RWB', 'RM'], ['LM', 'CM1'], ['CM1', 'CM2'], ['CM2', 'RM'], ['LM', 'ST'], ['CM1', 'ST'], ['CM2', 'ST'], ['RM', 'ST']]
+            },
+            '4-2-4': {
+                name: '4-2-4 All-out Attack', desc: 'Devastating forward line, weak center.',
+                positions: [
+                    { id: 'LW', display: 'LW', top: '20%', left: '20%', role: 'WG' }, { id: 'LS', display: 'LS', top: '15%', left: '40%', role: 'ST' }, { id: 'RS', display: 'RS', top: '15%', left: '60%', role: 'ST' }, { id: 'RW', display: 'RW', top: '20%', left: '80%', role: 'WG' },
+                    { id: 'CM1', display: 'CM1', top: '50%', left: '35%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '50%', left: '65%', role: 'CM' },
+                    { id: 'LB', display: 'LB', top: '75%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '35%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '65%', role: 'CB' }, { id: 'RB', display: 'RB', top: '75%', left: '85%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['LB', 'LW'], ['CB1', 'CM1'], ['CB2', 'CM2'], ['RB', 'RW'], ['LW', 'CM1'], ['CM1', 'CM2'], ['CM2', 'RW'], ['CM1', 'LS'], ['CM2', 'RS'], ['LW', 'LS'], ['RW', 'RS'], ['LS', 'RS']]
+            },
+            '4-2-3-1': {
+                name: '4-2-3-1 Modern Control', desc: 'Solid double pivot, versatile attacks.',
+                positions: [
+                    { id: 'ST', display: 'ST', top: '15%', left: '50%', role: 'ST' },
+                    { id: 'LAM', display: 'LAM', top: '35%', left: '25%', role: 'WG' }, { id: 'CAM', display: 'CAM', top: '30%', left: '50%', role: 'CM' }, { id: 'RAM', display: 'RAM', top: '35%', left: '75%', role: 'WG' },
+                    { id: 'CDM1', display: 'CDM1', top: '55%', left: '35%', role: 'CM' }, { id: 'CDM2', display: 'CDM2', top: '55%', left: '65%', role: 'CM' },
+                    { id: 'LB', display: 'LB', top: '75%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '35%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '65%', role: 'CB' }, { id: 'RB', display: 'RB', top: '75%', left: '85%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['LB', 'CDM1'], ['CB1', 'CDM1'], ['CB2', 'CDM2'], ['RB', 'CDM2'], ['CDM1', 'CDM2'], ['CDM1', 'LAM'], ['CDM1', 'CAM'], ['CDM2', 'CAM'], ['CDM2', 'RAM'], ['LAM', 'CAM'], ['CAM', 'RAM'], ['LAM', 'ST'], ['CAM', 'ST'], ['RAM', 'ST']]
+            }
+        };
+
+        // CPU Opponents Heavily Buffed!
+        const opponents = [
+            { id: 1, name: "Pewter City FC", pools: { poss: 600, create: 500, prevent: 700, finish: 500, block: 750 }, names: ["Onix", "Geodude", "Graveler", "Kabutops", "Aerodactyl"] },
+            { id: 2, name: "Cerulean Utd", pools: { poss: 650, create: 600, prevent: 650, finish: 600, block: 650 }, names: ["Starmie", "Golduck", "Seaking", "Dewgong", "Lapras"] },
+            { id: 3, name: "Vermilion City", pools: { poss: 600, create: 750, prevent: 550, finish: 750, block: 550 }, names: ["Raichu", "Electabuzz", "Voltorb", "Electrode", "Jolteon"] },
+            { id: 4, name: "Celadon City", pools: { poss: 750, create: 700, prevent: 700, finish: 650, block: 650 }, names: ["Vileplume", "Victreebel", "Tangela", "Venusaur", "Exeggutor"] },
+            { id: 5, name: "Fuchsia Rovers", pools: { poss: 700, create: 650, prevent: 750, finish: 750, block: 700 }, names: ["Weezing", "Muk", "Arbok", "Venomoth", "Crobat"] },
+            { id: 6, name: "Saffron Control", pools: { poss: 950, create: 850, prevent: 700, finish: 700, block: 700 }, names: ["Alakazam", "Hypno", "Mr. Mime", "Slowbro", "Gengar"] },
+            { id: 7, name: "Indigo Plateau", pools: { poss: 900, create: 950, prevent: 900, finish: 1000, block: 950 }, names: ["Dragonite", "Machamp", "Gyarados", "Charizard", "Snorlax"] }
+        ];
+
+        const euroOpponents = [
+            { id: 101, name: "Bayern Mewnich", pools: { poss: 1100, create: 1050, prevent: 1000, finish: 1100, block: 1050 }, names: ["Mewtwo", "Mew", "Snorlax"] },
+            { id: 102, name: "Paras St. Germain", pools: { poss: 1200, create: 1200, prevent: 1150, finish: 1250, block: 1150 }, names: ["Paras", "Parasect"] }, 
+            { id: 103, name: "Spheal Madrid", pools: { poss: 1120, create: 1100, prevent: 1050, finish: 1150, block: 1100 }, names: ["Spheal", "Walrein", "Sealeo"] },
+            { id: 104, name: "Abracelona", pools: { poss: 1180, create: 1150, prevent: 950, finish: 1050, block: 950 }, names: ["Abra", "Kadabra", "Alakazam"] },
+            { id: 105, name: "Atletreecko Madrid", pools: { poss: 1000, create: 1000, prevent: 1180, finish: 1050, block: 1150 }, names: ["Treecko", "Grovyle", "Sceptile"] },
+            { id: 106, name: "Napoliwrath", pools: { poss: 1050, create: 1050, prevent: 1100, finish: 1100, block: 1100 }, names: ["Poliwag", "Poliwhirl", "Poliwrath"] },
+            { id: 107, name: "AC Miltank", pools: { poss: 1070, create: 1030, prevent: 1150, finish: 1050, block: 1150 }, names: ["Miltank"] },
+            { id: 108, name: "Manchester Skitty", pools: { poss: 1150, create: 1100, prevent: 1100, finish: 1130, block: 1100 }, names: ["Skitty", "Delcatty"] },
+            { id: 109, name: "Chelseadra", pools: { poss: 1030, create: 1050, prevent: 1130, finish: 1070, block: 1100 }, names: ["Horsea", "Seadra", "Kingdra"] },
+            { id: 110, name: "Aronsenal", pools: { poss: 1100, create: 1130, prevent: 1000, finish: 1100, block: 1030 }, names: ["Aron", "Lairon", "Aggron"] },
+            { id: 111, name: "Galladesaray", pools: { poss: 1050, create: 1100, prevent: 1050, finish: 1100, block: 1050 }, names: ["Ralts", "Kirlia", "Gallade"] },
+            { id: 112, name: "OAK Athens", pools: { poss: 1100, create: 1100, prevent: 1100, finish: 1100, block: 1100 }, names: ["Tauros", "Exeggutor", "Arcanine", "Gyarados"] },
+            { id: 113, name: "Bor. Wailordmund", pools: { poss: 1070, create: 1070, prevent: 1100, finish: 1130, block: 1070 }, names: ["Wailmer", "Wailord"] },
+            { id: 114, name: "Ashton Villa", pools: { poss: 1110, create: 1100, prevent: 1070, finish: 1140, block: 1050 }, names: ["Pikachu", "Charizard", "Snorlax", "Greninja", "Bulbasaur", "Squirtle"] },
+            { id: 115, name: "Inter Mewlan", pools: { poss: 1080, create: 1080, prevent: 1140, finish: 1090, block: 1120 }, names: ["Mew", "Persian"] }
+        ];
+
+        let activeFormation = null; let globalIdPool = []; let hasReroll = true;
+        let userTeamName = "My Team"; let userTeam = {}; let currentDraftPos = null;
+        let myTeamEnginePools = { poss: 0, create: 0, prevent: 0, finish: 0, block: 0 };
+        let teamChemScore = 0; let playerStats = {}; 
+        let standings = []; let seasonSchedule = [];
+        let continentalOpponents = []; let currentCupRound = 0;
+
+        window.onload = () => { initStartScreen(); };
+
+        function openHTP() { document.getElementById('htp-modal').classList.remove('hidden'); document.getElementById('htp-modal').classList.add('flex'); setTimeout(() => document.getElementById('htp-modal').classList.remove('opacity-0'), 10); }
+        function closeHTP() { document.getElementById('htp-modal').classList.add('opacity-0'); setTimeout(() => { document.getElementById('htp-modal').classList.add('hidden'); document.getElementById('htp-modal').classList.remove('flex'); }, 300); }
+
+        function selectAllGens() { genData.forEach(g => g.active = true); initStartScreen(); }
+        function deselectAllGens() { genData.forEach(g => g.active = false); genData[0].active = true; initStartScreen(); }
+
+        function initStartScreen() {
+            const grid = document.getElementById('gen-grid');
+            grid.innerHTML = '';
+            genData.forEach((g, index) => {
+                const btn = document.createElement('button');
+                btn.className = `gen-toggle flex flex-col items-center justify-center py-3 px-1 rounded-lg border-2 cursor-pointer ${g.active ? 'active' : 'border-slate-600 bg-slate-800 text-slate-400 hover:border-slate-500'}`;
+                btn.onclick = () => toggleGen(index);
+                btn.innerHTML = `<span class="font-black text-sm md:text-base">${g.name}</span>`;
+                grid.appendChild(btn);
+            });
+        }
+
+        function toggleGen(index) {
+            genData[index].active = !genData[index].active;
+            if (!genData.some(g => g.active)) genData[index].active = true;
+            initStartScreen();
+        }
+
+        function proceedToFormations() {
+            const nameInput = document.getElementById('team-name-input').value.trim();
+            if(nameInput) { 
+                userTeamName = nameInput;
+                document.getElementById('ui-team-name').innerText = userTeamName;
+            }
+
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            document.getElementById('step-2').classList.add('flex');
+            
+            const grid = document.getElementById('formation-draft-grid');
+            const loader = document.getElementById('formation-loader');
+            
+            grid.innerHTML = ''; grid.classList.add('hidden'); loader.classList.remove('hidden');
+            activeFormation = null; document.getElementById('btn-start-draft').disabled = true;
+
+            const allKeys = Object.keys(formations);
+            const shuffled = allKeys.sort(() => 0.5 - Math.random());
+            const draftChoices = shuffled.slice(0, 3);
+            
+            setTimeout(() => {
+                loader.classList.add('hidden'); grid.classList.remove('hidden');
+                
+                draftChoices.forEach((key, index) => {
+                    const f = formations[key];
+                    const btn = document.createElement('button');
+                    btn.className = `form-toggle formation-card flex flex-col items-start p-4 rounded-xl border-2 cursor-pointer text-left border-slate-600 bg-slate-800 text-slate-400 hover:border-slate-500`;
+                    btn.style.animationDelay = `${0.15 * index}s`;
+                    
+                    btn.onclick = () => {
+                        document.querySelectorAll('.form-toggle').forEach(b => {
+                            b.classList.remove('active'); b.classList.add('border-slate-600', 'bg-slate-800', 'text-slate-400');
+                        });
+                        btn.classList.add('active'); btn.classList.remove('border-slate-600', 'bg-slate-800', 'text-slate-400');
+                        activeFormation = key;
+                        document.getElementById('btn-start-draft').disabled = false;
+                    };
+                    btn.innerHTML = `<span class="font-black text-2xl text-white group-hover:text-current mb-1">${key}</span><span class="text-xs opacity-80 mb-2 leading-relaxed">${f.desc}</span>`;
+                    grid.appendChild(btn);
+                    requestAnimationFrame(() => { btn.classList.add('reveal-anim'); });
+                });
+            }, 800);
+        }
+
+        function backToGens() {
+            document.getElementById('step-2').classList.add('hidden'); document.getElementById('step-2').classList.remove('flex');
+            document.getElementById('step-1').classList.remove('hidden');
+        }
+
+        async function startGame() {
+            if(!activeFormation) return;
+            globalIdPool = [];
+            genData.forEach(g => { if (g.active) { for (let i = g.range[0]; i <= g.range[1]; i++) globalIdPool.push(i); } });
+
+            document.getElementById('start-screen').classList.add('opacity-0');
+            setTimeout(() => {
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('game-ui').classList.remove('hidden');
+                document.getElementById('game-ui').classList.add('flex');
+                initPitch();
+            }, 500);
+        }
+
+        function getGeneration(id) {
+            for (let g of genData) { if (id >= g.range[0] && id <= g.range[1]) return g.id; } return 1;
+        }
+
+        const scaleStat = (val) => Math.min(99, Math.round((val / 130) * 99));
+
+        async function fetchPokemonDetail(id) {
+            try {
+                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+                const d = await res.json();
+                let spriteUrl = d.sprites.other['official-artwork'].front_default || d.sprites.front_default;
+                
+                return {
+                    id: d.id, name: d.name.charAt(0).toUpperCase() + d.name.slice(1),
+                    generation: getGeneration(d.id), types: d.types.map(t => t.type.name.charAt(0).toUpperCase() + t.type.name.slice(1)),
+                    primaryType: d.types[0].type.name.charAt(0).toUpperCase() + d.types[0].type.name.slice(1),
+                    stats: { hp: d.stats[0].base_stat, atk: d.stats[1].base_stat, def: d.stats[2].base_stat, spa: d.stats[3].base_stat, spd: d.stats[4].base_stat, spe: d.stats[5].base_stat },
+                    normStats: { hp: scaleStat(d.stats[0].base_stat), atk: scaleStat(d.stats[1].base_stat), def: scaleStat(d.stats[2].base_stat), spa: scaleStat(d.stats[3].base_stat), spd: scaleStat(d.stats[4].base_stat), spe: scaleStat(d.stats[5].base_stat) },
+                    weight: d.weight, bst: d.stats.reduce((sum, s) => sum + s.base_stat, 0), sprite: spriteUrl
+                };
+            } catch (error) { console.error("Error fetching pokemon", error); return null; }
+        }
+
+        function calculatePlayerOVR(pokemon, role) {
+            const s = pokemon.normStats;
+            const w = {
+                'ST': { atk: 0.35, spe: 0.25, spa: 0.20, hp: 0.20, def: 0, spd: 0 },
+                'WG': { spe: 0.40, spa: 0.30, atk: 0.15, hp: 0.15, def: 0, spd: 0 },
+                'CM': { spa: 0.35, spd: 0.25, hp: 0.25, spe: 0.15, atk: 0, def: 0 },
+                'FB': { def: 0.40, spe: 0.35, spa: 0.15, hp: 0.10, spd: 0, atk: 0 },
+                'CB': { def: 0.40, hp: 0.30, spd: 0.20, atk: 0.10, spe: 0, spa: 0 },
+                'GK': { def: 0.40, spd: 0.30, hp: 0.20, spe: 0.10, atk: 0, spa: 0 }
+            }[role];
+            let ovr = (s.spe * w.spe) + (s.atk * w.atk) + (s.hp * w.hp) + (s.spa * w.spa) + (s.def * w.def) + (s.spd * w.spd);
+            return Math.min(99, Math.round(ovr));
+        }
+
+        function initPitch() {
+            userTeam = {};
+            formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
+            renderPitch(); updateScores();
+        }
+
+        function getTypeColorHex(type) {
+            const c = { Fire:'#dc2626', Water:'#2563eb', Grass:'#16a34a', Electric:'#ca8a04', Psychic:'#d946ef', Rock:'#57534e', Ground:'#ea580c', Fighting:'#ea580c', Flying:'#0ea5e9', Normal:'#64748b', Ghost:'#9333ea', Dragon:'#4f46e5', Ice:'#06b6d4', Bug:'#65a30d', Poison:'#9333ea', Dark:'#475569', Steel:'#64748b', Fairy:'#ec4899' };
+            return c[type] || '#64748b';
+        }
+
+        function renderPitch() {
+            const pitchContainer = document.getElementById('pitch-container');
+            pitchContainer.innerHTML = '';
+            
+            formations[activeFormation].positions.forEach(pos => {
+                const node = document.createElement('div');
+                node.className = 'player-node absolute flex flex-col items-center justify-center';
+                node.style.top = pos.top; node.style.left = pos.left;
+                
+                const player = userTeam[pos.id];
+                if (player) {
+                    const playerOVR = calculatePlayerOVR(player, pos.role);
+                    let statsHtml = '';
+                    if (playerStats[player.id] && playerStats[player.id].goals !== undefined && playerStats[player.id].goals > 0) {
+                        statsHtml = `<div class="absolute -top-4 -right-4 bg-[#0f172a] border-2 border-yellow-400 rounded-full px-2 py-0.5 flex items-center justify-center z-30 shadow-lg gap-1">
+                            <span class="text-[10px]">⚽</span><span class="text-xs font-black text-white">${playerStats[player.id].goals}</span>
+                        </div>`;
+                    }
+
+                    const typeHex = getTypeColorHex(player.primaryType);
+
+                    node.innerHTML = `
+                        <div class="relative flex flex-col items-center justify-end drop-shadow-2xl z-10 transition-transform hover:scale-110 h-28">
+                            ${statsHtml}
+                            <img src="${player.sprite}" class="w-24 h-24 md:w-28 md:h-28 object-contain drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] z-10 -mb-4" crossorigin="anonymous">
+                            <div class="ovr-label" style="background: #1e293b; color: white; font-weight: 900; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); font-size: 10px; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 20; margin-left: auto; margin-right: auto;">
+                                <span style="background-color: ${typeHex}; color: white; padding: 2px 6px;">${pos.display}</span>
+                                <span style="background-color: #0f172a; color: #facc15; padding: 2px 6px; border-left: 1px solid #475569;">${playerOVR}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    node.className += ' cursor-pointer';
+                    node.innerHTML = `
+                        <div class="w-10 h-10 md:w-12 md:h-12 bg-black/40 rounded-full border-2 border-dashed border-white/50 flex items-center justify-center hover:bg-white/20 transition-colors backdrop-blur-sm shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                            <span class="text-white/80 font-black text-xl md:text-2xl">+</span>
+                        </div>
+                        <span class="mt-1 bg-black/50 px-2 py-0.5 rounded text-[9px] md:text-[10px] font-bold text-yellow-400 uppercase tracking-wider">${pos.display}</span>
+                    `;
+                    node.onclick = () => openDraft(pos.id, pos.display, pos.role);
+                }
+                pitchContainer.appendChild(node);
+            });
+
+            const draftedCount = Object.values(userTeam).filter(p => p !== null).length;
+            document.getElementById('btn-simulate').disabled = draftedCount < 11;
+            drawChemistry();
+        }
+
+        function drawChemistry() {
+            let svgHTML = ''; teamChemScore = 0;
+            formations[activeFormation].links.forEach(link => {
+                const pos1 = formations[activeFormation].positions.find(p => p.id === link[0]);
+                const pos2 = formations[activeFormation].positions.find(p => p.id === link[1]);
+                const p1 = userTeam[link[0]]; const p2 = userTeam[link[1]];
+                
+                let strokeColor = 'rgba(255,255,255,0.1)'; let strokeWidth = 2;
+                if (p1 && p2) {
+                    const sameType = p1.types.some(t => p2.types.includes(t)); const sameGen = p1.generation === p2.generation;
+                    if (sameType && sameGen) { strokeColor = '#22c55e'; strokeWidth = 4; teamChemScore += 2; } 
+                    else if (sameType || sameGen) { strokeColor = '#facc15'; strokeWidth = 3; teamChemScore += 1; } // Clear Bright Yellow
+                    else { strokeColor = '#dc2626'; strokeWidth = 2; } // Dark/Bright Red
+                }
+                svgHTML += `<line x1="${pos1.left}" y1="${pos1.top}" x2="${pos2.left}" y2="${pos2.top}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" class="drop-shadow-md transition-all duration-300"/>`;
+            });
+            document.getElementById('chem-lines').innerHTML = svgHTML; document.getElementById('score-chem').innerText = teamChemScore;
+        }
+
+        function updateScores() {
+            let fwdOVRSum = 0, midOVRSum = 0, defOVRSum = 0; let fCount = 0, mCount = 0, dCount = 0;
+            let midSPA=0, midSPD=0, midHP=0; let atkSPA=0, atkHP=0, atkATK=0, atkSPE=0; let defSPD=0, defHP=0, defDEF=0;
+
+            formations[activeFormation].positions.forEach(pos => {
+                const p = userTeam[pos.id]; if (!p) return;
+                const ovr = calculatePlayerOVR(p, pos.role); const s = p.normStats;
+                if (pos.role === 'ST' || pos.role === 'WG') { fwdOVRSum += ovr; fCount++; atkSPA += s.spa; atkHP += s.hp; atkATK += s.atk; atkSPE += s.spe; } 
+                else if (pos.role === 'CM') { midOVRSum += ovr; mCount++; midSPA += s.spa; midSPD += s.spd; midHP += s.hp; } 
+                else if (pos.role === 'FB' || pos.role === 'CB' || pos.role === 'GK') { defOVRSum += ovr; dCount++; defSPD += s.spd; defHP += s.hp; defDEF += s.def; }
+            });
+
+            let chemMultiplier = 1 + (teamChemScore * 0.005); 
+            let uiAtk = fCount ? Math.min(99, Math.round((fwdOVRSum / fCount) * chemMultiplier)) : 0;
+            let uiMid = mCount ? Math.min(99, Math.round((midOVRSum / mCount) * chemMultiplier)) : 0;
+            let uiDef = dCount ? Math.min(99, Math.round((defOVRSum / dCount) * chemMultiplier)) : 0;
+
+            document.getElementById('score-atk').innerText = fCount ? uiAtk : '--';
+            document.getElementById('score-mid').innerText = mCount ? uiMid : '--';
+            document.getElementById('score-def').innerText = dCount ? uiDef : '--';
+
+            if(fCount && mCount && dCount) {
+                const midDiminish = Math.pow(mCount, 0.75); const atkDiminish = Math.pow(fCount, 0.75); const defDiminish = Math.pow(dCount, 0.75);
+                
+                myTeamEnginePools.poss = ((midSPA/mCount + midSPD/mCount + midHP/mCount) * midDiminish) * 1.5;
+                myTeamEnginePools.poss += ((defSPD/dCount + atkSPA/fCount) * 0.2);
+                
+                myTeamEnginePools.create = ((midSPA/mCount * 1.5 + midHP/mCount * 0.5) * midDiminish) + ((atkSPA/fCount * 1.0 + atkSPE/fCount * 1.5) * atkDiminish * 0.4);
+                myTeamEnginePools.prevent = ((defSPD/dCount * 1.5 + defHP/dCount * 0.5) * defDiminish) + ((midSPD/mCount + midHP/mCount) * midDiminish * 0.5);
+                
+                myTeamEnginePools.finish = ((atkATK/fCount * 1.5 + atkSPE/fCount * 1.5 + atkHP/fCount * 0.1) * atkDiminish);
+                myTeamEnginePools.block = ((defDEF/dCount * 1.5 + defHP/dCount * 0.5) * defDiminish);
+                
+                Object.keys(myTeamEnginePools).forEach(k => myTeamEnginePools[k] *= chemMultiplier);
+            }
+        }
+
+        async function openDraft(posId, displayPos, role) {
+            currentDraftPos = posId; document.getElementById('draft-position-label').innerText = displayPos;
+            const btnReroll = document.getElementById('btn-reroll');
+            if(hasReroll) { btnReroll.classList.remove('hidden'); btnReroll.classList.add('flex'); } else { btnReroll.classList.add('hidden'); btnReroll.classList.remove('flex'); }
+            const modal = document.getElementById('draft-modal');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            await rollOptions(role, displayPos);
+        }
+
+        function closeModal() { document.getElementById('draft-modal').classList.add('hidden'); document.getElementById('draft-modal').classList.remove('flex'); }
+
+        async function useReroll() {
+            if(!hasReroll) return; hasReroll = false;
+            document.getElementById('btn-reroll').classList.add('hidden'); document.getElementById('btn-reroll').classList.remove('flex');
+            const posConfig = formations[activeFormation].positions.find(f => f.id === currentDraftPos);
+            await rollOptions(posConfig.role, posConfig.display);
+        }
+
+        async function rollOptions(role, displayPos) {
+            const gacha = document.getElementById('gacha-container');
+            gacha.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-10"><div class="spinner mb-4"></div><p class="text-yellow-400 font-bold uppercase tracking-widest animate-pulse">Scouting...</p></div>`;
+            const draftedIds = Object.values(userTeam).filter(p => p !== null).map(p => p.id);
+            let availableIds = globalIdPool.filter(id => !draftedIds.includes(id));
+            let chosenIds = [];
+            for(let i=0; i<4; i++) {
+                if(availableIds.length === 0) break;
+                let r = Math.floor(Math.random() * availableIds.length);
+                chosenIds.push(availableIds[r]); availableIds.splice(r, 1);
+            }
+            const pokemonList = await Promise.all(chosenIds.map(id => fetchPokemonDetail(id)));
+            renderGachaCards(pokemonList.filter(p => p !== null), role);
+        }
+
+        function renderGachaCards(pokemonList, role) {
+            const gacha = document.getElementById('gacha-container');
+            gacha.innerHTML = '';
+            
+            const getBallSvg = (bst) => {
+                if (bst >= 600) { 
+                    return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl"><circle cx="50" cy="50" r="48" fill="#fff" stroke="#1e293b" stroke-width="4"/><path d="M2,50 A48,48 0 0,1 98,50 Z" fill="#9333ea" stroke="#1e293b" stroke-width="4"/><circle cx="25" cy="30" r="10" fill="#f472b6"/><circle cx="75" cy="30" r="10" fill="#f472b6"/><path d="M35,35 L45,20 L50,25 L55,20 L65,35" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><line x1="2" y1="50" x2="98" y2="50" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="14" fill="#fff" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="6" fill="#1e293b"/></svg>`;
+                } else if (bst >= 500) { 
+                    return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl"><circle cx="50" cy="50" r="48" fill="#fff" stroke="#1e293b" stroke-width="4"/><path d="M2,50 A48,48 0 0,1 98,50 Z" fill="#1e293b" stroke="#1e293b" stroke-width="4"/><path d="M 25 50 Q 25 20 50 15 Q 75 20 75 50" fill="none" stroke="#facc15" stroke-width="8" stroke-linecap="butt"/><line x1="2" y1="50" x2="98" y2="50" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="14" fill="#fff" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="6" fill="#1e293b"/></svg>`;
+                } else if (bst >= 420) { 
+                    return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl"><circle cx="50" cy="50" r="48" fill="#fff" stroke="#1e293b" stroke-width="4"/><path d="M2,50 A48,48 0 0,1 98,50 Z" fill="#3b82f6" stroke="#1e293b" stroke-width="4"/><path d="M15,50 A35,35 0 0,1 35,15" fill="none" stroke="#ef4444" stroke-width="10" stroke-linecap="round"/><path d="M85,50 A35,35 0 0,0 65,15" fill="none" stroke="#ef4444" stroke-width="10" stroke-linecap="round"/><line x1="2" y1="50" x2="98" y2="50" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="14" fill="#fff" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="6" fill="#1e293b"/></svg>`;
+                } else { 
+                    return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl"><circle cx="50" cy="50" r="48" fill="#fff" stroke="#1e293b" stroke-width="4"/><path d="M2,50 A48,48 0 0,1 98,50 Z" fill="#ef4444" stroke="#1e293b" stroke-width="4"/><line x1="2" y1="50" x2="98" y2="50" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="14" fill="#fff" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="6" fill="#1e293b"/></svg>`;
+                }
+            };
+            
+            pokemonList.forEach((p, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex flex-col items-center justify-center relative w-full h-[220px] md:h-[280px] max-w-[160px] md:max-w-[180px]';
+
+                const ballHtml = `<div id="ball-${idx}" class="pokeball-container dropping z-20">${getBallSvg(p.bst)}</div>`;
+                const typeHex = getTypeColorHex(p.primaryType);
+
+                const cardHtml = `
+                    <div id="card-${idx}" class="fut-card flex-col items-center p-2 md:p-3 rounded-xl w-full h-full absolute top-0" onclick='selectPokemon(${JSON.stringify(p)})'>
+                        <div class="flex justify-between items-center w-full mb-1 border-b border-slate-600 pb-1" style="white-space: nowrap;">
+                            <span class="font-bold text-[9px] md:text-[10px] uppercase" style="color: ${typeHex}">${p.primaryType}</span>
+                            <span class="font-black text-[9px] md:text-[10px] text-slate-300">BST ${p.bst}</span>
+                        </div>
+                        <div class="h-12 md:h-16 w-full flex items-center justify-center my-1 relative">
+                            <img src="${p.sprite}" class="h-full w-full object-contain scale-[1.3] md:scale-[1.35] drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] z-10">
+                        </div>
+                        <h3 class="font-black text-[10px] md:text-sm text-white text-center uppercase tracking-wide truncate w-full mb-1">${p.name}</h3>
+                        <div class="grid grid-cols-2 gap-x-1 md:gap-x-2 gap-y-0.5 w-full text-[7px] md:text-[9px] mb-1 font-mono bg-slate-900/50 p-1 md:p-1.5 rounded text-slate-400">
+                            <div class="flex justify-between"><span>SPE</span><span class="text-white font-bold">${p.stats.spe}</span></div>
+                            <div class="flex justify-between"><span>HP</span><span class="text-white font-bold">${p.stats.hp}</span></div>
+                            <div class="flex justify-between"><span>ATK</span><span class="text-white font-bold">${p.stats.atk}</span></div>
+                            <div class="flex justify-between"><span>DEF</span><span class="text-white font-bold">${p.stats.def}</span></div>
+                            <div class="flex justify-between"><span>Sp.A</span><span class="text-white font-bold">${p.stats.spa}</span></div>
+                            <div class="flex justify-between"><span>Sp.D</span><span class="text-white font-bold">${p.stats.spd}</span></div>
+                        </div>
+                        <div class="flex justify-between w-full text-[8px] md:text-[9px] text-slate-500 mt-auto border-t border-slate-700/50 pt-1">
+                            <span>Gen ${p.generation}</span><span>${calculatePlayerOVR(p, role)} OVR</span>
+                        </div>
+                    </div>
+                `;
+                wrapper.innerHTML = ballHtml + cardHtml;
+                gacha.appendChild(wrapper);
+            });
+
+            setTimeout(() => { for(let i=0; i<4; i++) { const b = document.getElementById(`ball-${i}`); if(b) b.className = 'pokeball-container shaking z-20'; } }, 600);
+            setTimeout(() => {
+                for(let i=0; i<4; i++) {
+                    const b = document.getElementById(`ball-${i}`); const c = document.getElementById(`card-${i}`);
+                    if(b) b.className = 'pokeball-container popping z-20';
+                    if(c) setTimeout(() => { c.classList.add('revealing'); }, 150);
+                }
+            }, 1800);
+        }
+
+        function selectPokemon(pData) {
+            if (currentDraftPos) {
+                userTeam[currentDraftPos] = pData;
+                if(!playerStats[pData.id]) playerStats[pData.id] = { p: pData, goals: 0, cleanSheets: 0, perfScore: 0 };
+                
+                const posConfig = formations[activeFormation].positions.find(p => p.id === currentDraftPos);
+                closeModal(); renderPitch(); updateScores();
+                
+                const nodes = document.querySelectorAll('.player-node');
+                nodes.forEach(n => {
+                    if(n.style.top === posConfig.top && n.style.left === posConfig.left) {
+                        n.classList.remove('cursor-pointer'); n.onclick = null;
+                    }
+                });
+            }
+        }
+
+        function getWeightedScorer() {
+            let pool = [];
+            formations[activeFormation].positions.forEach(pos => {
+                const p = userTeam[pos.id];
+                if(p) {
+                    let weight = 1; 
+                    if(pos.role === 'ST' || pos.role === 'WG') weight = 40;
+                    else if(pos.role === 'CM') weight = 15;
+                    else if(pos.role === 'CB' || pos.role === 'FB') weight = 4;
+                    else if(pos.role === 'GK') weight = 1; 
+                    for(let i=0; i<weight; i++) pool.push(p);
+                }
+            });
+            if(pool.length === 0) return { name: "Striker" };
+            return pool[Math.floor(Math.random() * pool.length)];
+        }
+
+        function getDefenders() { return formations[activeFormation].positions.filter(p => p.role === 'GK' || p.role === 'CB' || p.role === 'FB').map(p => userTeam[p.id]).filter(x=>x); }
+
+        function initStandings() {
+            standings = opponents.map(o => ({ id: o.id, name: o.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 }));
+            standings.push({ id: 0, name: userTeamName, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, isUser: true });
+            seasonSchedule = [...opponents].sort(() => 0.5 - Math.random());
+        }
+
+        async function startSeasonSimulation() {
+            document.getElementById('pitch-view').classList.add('hidden');
+            document.getElementById('match-center').classList.remove('hidden', 'flex');
+            document.getElementById('match-center').classList.add('flex');
+            
+            initStandings(); updateTableUI();
+            document.getElementById('results-feed').classList.remove('hidden');
+            document.getElementById('results-feed-list').innerHTML = ''; 
+            
+            for(let i=0; i<7; i++) await simulateMatchday(i + 1, seasonSchedule[i]);
+            showSeasonSummary();
+        }
+
+        async function simulateMatchday(matchday, cpuOp) {
+            document.getElementById('tv-matchday-text').innerText = `Matchday ${matchday}`;
+            document.getElementById('tv-status-text').innerText = 'LIVE';
+            document.getElementById('tv-status-dot').classList.add('animate-pulse');
+            document.getElementById('tv-home-team').innerText = userTeamName;
+            document.getElementById('tv-away-team').innerText = cpuOp.name;
+            document.getElementById('tv-home-score').innerText = '0'; document.getElementById('tv-away-score').innerText = '0';
+            document.getElementById('tv-home-scorers').innerHTML = ''; document.getElementById('tv-away-scorers').innerHTML = '';
+            
+            const totalChances = 7;
+            
+            // EXPONENTIAL MATH: This creates the skill gap!
+            const uPoss = Math.pow(myTeamEnginePools.poss, 1.5);
+            const cPoss = Math.pow(cpuOp.pools.poss, 1.5);
+            const possRatio = uPoss / (uPoss + cPoss);
+            
+            const userChances = Math.round(possRatio * totalChances); const cpuChances = totalChances - userChances;
+            
+            const userPossPct = Math.round(possRatio * 100);
+            document.getElementById('tv-home-poss').innerText = `${userPossPct}%`; document.getElementById('tv-away-poss').innerText = `${100 - userPossPct}%`;
+            document.getElementById('bar-home-poss').style.width = `${userPossPct}%`; document.getElementById('bar-away-poss').style.width = `${100 - userPossPct}%`;
+            document.getElementById('tv-home-shots').innerText = userChances; document.getElementById('tv-away-shots').innerText = cpuChances;
+            document.getElementById('bar-home-shots').style.width = `${(userChances/totalChances)*100}%`; document.getElementById('bar-away-shots').style.width = `${(cpuChances/totalChances)*100}%`;
+
+            let userGoals = [], cpuGoals = [];
+            
+            // EXPONENTIAL MATH FOR CREATION & FINISHING
+            const uCreate = Math.pow(myTeamEnginePools.create, 1.5); const cPrevent = Math.pow(cpuOp.pools.prevent, 1.5);
+            const cCreate = Math.pow(cpuOp.pools.create, 1.5); const uPrevent = Math.pow(myTeamEnginePools.prevent, 1.5);
+            const uFinish = Math.pow(myTeamEnginePools.finish, 1.5); const cBlock = Math.pow(cpuOp.pools.block, 1.5);
+            const cFinish = Math.pow(cpuOp.pools.finish, 1.5); const uBlock = Math.pow(myTeamEnginePools.block, 1.5);
+
+            const userCreateProb = Math.min(0.65, Math.max(0.10, uCreate / (uCreate + cPrevent)));
+            const userFinishProb = Math.min(0.60, Math.max(0.10, uFinish / (uFinish + cBlock)));
+            const cpuCreateProb = Math.min(0.65, Math.max(0.10, cCreate / (cCreate + uPrevent)));
+            const cpuFinishProb = Math.min(0.60, Math.max(0.10, cFinish / (cFinish + uBlock)));
+
+            for(let i=0; i<userChances; i++) {
+                if(Math.random() < userCreateProb && Math.random() < userFinishProb) {
+                    const scorer = getWeightedScorer();
+                    if(scorer) userGoals.push({ min: Math.floor(Math.random() * 89) + 1, name: scorer.name, p: scorer });
+                }
+            }
+            for(let i=0; i<cpuChances; i++) {
+                if(Math.random() < cpuCreateProb && Math.random() < cpuFinishProb) {
+                    const cpuScorers = cpuOp.names || ["Striker"];
+                    cpuGoals.push({ min: Math.floor(Math.random() * 89) + 1, name: cpuScorers[Math.floor(Math.random() * cpuScorers.length)] });
+                }
+            }
+
+            userGoals.sort((a,b)=>a.min-b.min); cpuGoals.sort((a,b)=>a.min-b.min);
+            await runLiveMatch([...userGoals], [...cpuGoals], 90, false);
+            processResult(0, cpuOp.id, userGoals.length, cpuGoals.length);
+            
+            userGoals.forEach(g => { if(g.p && playerStats[g.p.id]) { playerStats[g.p.id].goals += 1; playerStats[g.p.id].perfScore += 3; } });
+            if(cpuGoals.length === 0) getDefenders().forEach(d => { if(d && playerStats[d.id]) { playerStats[d.id].cleanSheets += 1; playerStats[d.id].perfScore += 4; } });
+
+            updateTableUI();
+            
+            const feed = document.getElementById('results-feed-list');
+            const newResult = document.createElement('div');
+            newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${userGoals.length > cpuGoals.length ? 'green' : (userGoals.length < cpuGoals.length ? 'red' : 'slate')}-500 shrink-0`;
+            newResult.innerHTML = `<span class="text-slate-400">Match ${matchday}</span><span class="font-bold text-white">${userTeamName} ${userGoals.length} - ${cpuGoals.length} ${cpuOp.name}</span>`;
+            feed.insertBefore(newResult, feed.firstChild);
+        }
+
+        async function runLiveMatch(homeGoals, awayGoals, maxMins = 90, isExtraTime = false) {
+            let hScore = parseInt(document.getElementById('tv-home-score').innerText);
+            let aScore = parseInt(document.getElementById('tv-away-score').innerText); 
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+            let startMin = isExtraTime ? 91 : 1;
+            
+            for(let min=startMin; min<=maxMins; min++) {
+                document.getElementById('tv-clock').innerText = `${min}'`;
+                let goalHappened = false;
+                while(homeGoals.length > 0 && homeGoals[0].min === min) {
+                    hScore++; document.getElementById('tv-home-score').innerText = hScore;
+                    document.getElementById('tv-home-scorers').innerHTML += `<div class="goal-item text-green-400 font-bold text-[10px] md:text-xs flex items-center gap-1">⚽ ${homeGoals.shift().name} <span class="text-slate-500 font-normal ml-auto">${min}'</span></div>`;
+                    goalHappened = true;
+                }
+                while(awayGoals.length > 0 && awayGoals[0].min === min) {
+                    aScore++; document.getElementById('tv-away-score').innerText = aScore;
+                    document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽ ${awayGoals.shift().name}</div>`;
+                    goalHappened = true;
+                }
+                if(goalHappened) await delay(1500); else await delay(15); 
+            }
+            if(!isExtraTime) {
+                document.getElementById('tv-status-text').innerText = 'FT'; document.getElementById('tv-status-dot').classList.remove('animate-pulse');
+            } else {
+                document.getElementById('tv-status-text').innerText = 'AET';
+            }
+            await delay(1500);
+            return { h: hScore, a: aScore };
+        }
+
+        function processResult(homeId, awayId, hGoals, aGoals) {
+            let h = standings.find(t => t.id === homeId); let a = standings.find(t => t.id === awayId);
+            h.p++; a.p++; h.gf += hGoals; h.ga += aGoals; a.gf += aGoals; a.ga += hGoals;
+            if (hGoals > aGoals) { h.w++; h.pts+=3; a.l++; } else if (hGoals < aGoals) { a.w++; a.pts+=3; h.l++; } else { h.d++; a.d++; h.pts++; a.pts++; }
+            
+            let otherTeams = standings.filter(t => t.id !== homeId && t.id !== awayId);
+            otherTeams.sort(() => 0.5 - Math.random());
+            for(let i=0; i<otherTeams.length; i+=2) {
+                let t1 = otherTeams[i]; let t2 = otherTeams[i+1];
+                if(t1 && t2 && t1.p < h.p) {
+                    t1.p++; t2.p++;
+                    let rng = Math.random(); let cpuGoalsA = Math.floor(rng * 2.5); let cpuGoalsB = Math.floor(Math.random() * 2.5);
+                    t1.gf += cpuGoalsA; t1.ga += cpuGoalsB; t2.gf += cpuGoalsB; t2.ga += cpuGoalsA;
+                    if (cpuGoalsA > cpuGoalsB) { t1.w++; t1.pts+=3; t2.l++; } else if (cpuGoalsA < cpuGoalsB) { t2.w++; t2.pts+=3; t1.l++; } else { t1.d++; t2.d++; t1.pts++; t2.pts++; }
+                }
+            }
+        }
+
+        function updateTableUI() {
+            standings.sort((a,b) => { if(b.pts !== a.pts) return b.pts - a.pts; return (b.gf - b.ga) - (a.gf - a.ga); });
+            const tbody = document.getElementById('live-table-body'); tbody.innerHTML = '';
+            standings.forEach((t, i) => {
+                const tr = document.createElement('tr');
+                let qualificationClass = "";
+                let qualLabel = "";
+                if(i < 2) {
+                    qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
+                    qualLabel = `<span class="ml-2 text-[8px] bg-blue-600 text-white px-1 py-0.5 rounded hidden sm:inline-block">QUAL</span>`;
+                }
+                
+                tr.className = `border-t border-slate-700/50 ${t.isUser ? 'bg-yellow-500/20 text-yellow-400 font-bold' : ''} ${qualificationClass}`;
+                tr.innerHTML = `<td class="px-3 py-3 flex items-center gap-1"><span class="w-4 text-center text-xs text-slate-500">${i+1}</span> <span class="truncate max-w-[100px] sm:max-w-none ${t.isUser && i < 2 ? 'text-blue-300' : ''}">${t.name}</span>${qualLabel}</td><td class="px-2 py-3 text-center">${t.p}</td><td class="px-2 py-3 text-center font-black ${t.isUser ? 'text-yellow-400' : 'text-white'}">${t.pts}</td><td class="px-2 py-3 text-center hidden sm:table-cell text-xs whitespace-nowrap">${t.w}-${t.d}-${t.l}</td><td class="px-2 py-3 text-center text-xs ${t.gf - t.ga > 0 ? 'text-green-400' : (t.gf - t.ga < 0 ? 'text-red-400' : '')}">${t.gf - t.ga > 0 ? '+' : ''}${t.gf - t.ga}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showSeasonSummary() {
+            document.getElementById('tv-scoreboard').classList.add('hidden');
+            let allPlayers = Object.values(playerStats);
+            let topScorer = allPlayers.sort((a,b) => b.goals - a.goals)[0];
+            let mvp = allPlayers.sort((a,b) => b.perfScore - a.perfScore)[0];
+            const finalPos = standings.findIndex(t => t.isUser) + 1;
+            const qualified = finalPos <= 2;
+            
+            let topScorerContent = topScorer && topScorer.goals > 0 ? `<img src="${topScorer.p.sprite}" class="w-16 h-16 object-contain bg-slate-800 rounded-full border-2 border-yellow-500 shrink-0"><div class="text-left"><p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">Top Scorer</p><p class="text-lg font-black text-white leading-tight">${topScorer.p.name}</p><p class="text-xs text-slate-400">${topScorer.goals} Goals</p></div>` : `<div class="w-16 h-16 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-2xl shrink-0">📉</div><div class="text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Attacking Woes</p><p class="text-lg font-black text-white leading-tight">No Goals</p><p class="text-xs text-slate-400">0 goals scored</p></div>`;
+            let mvpContent = mvp && mvp.perfScore > 0 ? `<img src="${mvp.p.sprite}" class="w-16 h-16 object-contain bg-slate-800 rounded-full border-2 border-purple-500 shrink-0"><div class="text-left"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">MVP</p><p class="text-lg font-black text-white leading-tight">${mvp.p.name}</p><p class="text-xs text-slate-400">${mvp.perfScore} Match Pts</p></div>` : `<div class="w-16 h-16 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-2xl shrink-0">😴</div><div class="text-left"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">MVP</p><p class="text-lg font-black text-white leading-tight">Nobody</p><p class="text-xs text-slate-400">0 Match Pts</p></div>`;
+            
+            let allScorersHtml = '';
+            let goalscorers = allPlayers.filter(p => p.goals > 0).sort((a,b) => b.goals - a.goals);
+            if(goalscorers.length > 0) {
+                allScorersHtml = `<div class="w-full mt-4 bg-slate-900 rounded-xl p-3 border border-slate-700 text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 border-b border-slate-700 pb-1">Team Goals</p><div class="flex flex-wrap gap-2">` + 
+                goalscorers.map(g => `<span class="bg-slate-800 text-xs px-2 py-1 rounded text-white shadow-inner">${g.p.name} <strong class="text-yellow-400 ml-1">${g.goals}</strong></span>`).join('') + `</div></div>`;
+            }
+
+            let qualificationHtml = qualified ? `<button onclick="startContinentalCup()" class="mt-4 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_30px_rgba(37,99,235,0.8)] uppercase tracking-widest text-lg w-full transform hover:scale-105 transition-all">🏆 PLAY CONTINENTAL CUP</button>` : `<p class="mt-4 text-xs text-slate-500 font-bold uppercase tracking-widest text-center">Did not qualify for Europe</p>`;
+
+            const awards = document.getElementById('post-season-awards');
+            awards.classList.remove('hidden'); awards.classList.add('flex');
+            awards.innerHTML = `<div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="text-2xl font-black text-white mb-1 uppercase tracking-wide">Season Finished</h2><p class="${qualified ? 'text-blue-400' : 'text-yellow-400'} text-sm font-bold mb-6">You finished in position ${finalPos}!</p><div class="flex flex-col md:flex-row gap-4 justify-center"><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full md:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full md:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${qualificationHtml}<button onclick="viewTeam()" class="mt-4 px-8 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Final Team</button></div>`;
+
+            setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        }
+
+        function startContinentalCup() {
+            document.getElementById('pitch-view').classList.add('hidden');
+            document.getElementById('match-center').classList.remove('hidden');
+            document.getElementById('match-center').classList.add('flex');
+            
+            document.getElementById('btn-play-cup-pitch').classList.add('hidden');
+            document.getElementById('btn-back-to-stats').classList.add('hidden');
+
+            document.getElementById('post-season-awards').classList.add('hidden');
+            document.getElementById('post-season-awards').classList.remove('flex');
+            
+            document.getElementById('tv-scoreboard').classList.remove('hidden');
+            
+            continentalOpponents = [...euroOpponents].sort(() => 0.5 - Math.random());
+            currentCupRound = 0;
+            
+            setupNextCupRound();
+        }
+
+        function setupNextCupRound() {
+            const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
+            const cupOp = continentalOpponents[currentCupRound];
+            
+            document.getElementById('tv-scoreboard').classList.add('cup-theme');
+            
+            document.getElementById('tv-matchday-text').innerText = roundNames[currentCupRound];
+            document.getElementById('tv-matchday-text').classList.remove('hidden');
+            document.getElementById('tv-status-text').innerText = 'PRE-MATCH';
+            document.getElementById('tv-status-dot').classList.remove('animate-pulse');
+            
+            document.getElementById('tv-home-team').innerText = userTeamName;
+            document.getElementById('tv-away-team').innerText = cupOp.name;
+            
+            document.getElementById('tv-home-score').innerText = '0'; 
+            document.getElementById('tv-away-score').innerText = '0';
+            document.getElementById('tv-home-scorers').innerHTML = ''; 
+            document.getElementById('tv-away-scorers').innerHTML = '';
+            
+            document.getElementById('tv-home-poss').innerText = `50%`; document.getElementById('tv-away-poss').innerText = `50%`;
+            document.getElementById('bar-home-poss').style.width = `50%`; document.getElementById('bar-away-poss').style.width = `50%`;
+            document.getElementById('tv-home-shots').innerText = 0; document.getElementById('tv-away-shots').innerText = 0;
+            document.getElementById('bar-home-shots').style.width = `0%`; document.getElementById('bar-away-shots').style.width = `0%`;
+            
+            const overlay = document.getElementById('kickoff-overlay');
+            document.getElementById('kickoff-title').innerText = roundNames[currentCupRound];
+            document.getElementById('kickoff-home').innerText = userTeamName;
+            document.getElementById('kickoff-away').innerText = cupOp.name;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            setTimeout(() => { document.getElementById('tv-scoreboard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        }
+
+        async function startCupMatchLoop() {
+            const overlay = document.getElementById('kickoff-overlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+
+            document.getElementById('tv-status-text').innerText = 'LIVE';
+            document.getElementById('tv-status-dot').classList.add('animate-pulse');
+
+            const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
+            const cupOp = continentalOpponents[currentCupRound];
+
+            const totalChances = 8; 
+            
+            // EXPONENTIAL MATH FOR EUROPE
+            const uPoss = Math.pow(myTeamEnginePools.poss, 1.5); const cPoss = Math.pow(cupOp.pools.poss, 1.5);
+            const possRatio = uPoss / (uPoss + cPoss);
+            
+            const userChances = Math.round(possRatio * totalChances); const cpuChances = totalChances - userChances;
+            
+            const userPossPct = Math.round(possRatio * 100);
+            document.getElementById('tv-home-poss').innerText = `${userPossPct}%`; document.getElementById('tv-away-poss').innerText = `${100 - userPossPct}%`;
+            document.getElementById('bar-home-poss').style.width = `${userPossPct}%`; document.getElementById('bar-away-poss').style.width = `${100 - userPossPct}%`;
+            document.getElementById('tv-home-shots').innerText = userChances; document.getElementById('tv-away-shots').innerText = cpuChances;
+            document.getElementById('bar-home-shots').style.width = `${(userChances/totalChances)*100}%`; document.getElementById('bar-away-shots').style.width = `${(cpuChances/totalChances)*100}%`;
+
+            let userGoals = [], cpuGoals = [];
+            const uCreate = Math.pow(myTeamEnginePools.create, 1.5); const cPrevent = Math.pow(cupOp.pools.prevent, 1.5);
+            const cCreate = Math.pow(cupOp.pools.create, 1.5); const uPrevent = Math.pow(myTeamEnginePools.prevent, 1.5);
+            const uFinish = Math.pow(myTeamEnginePools.finish, 1.5); const cBlock = Math.pow(cupOp.pools.block, 1.5);
+            const cFinish = Math.pow(cupOp.pools.finish, 1.5); const uBlock = Math.pow(myTeamEnginePools.block, 1.5);
+
+            const userCreateProb = Math.min(0.65, Math.max(0.10, uCreate / (uCreate + cPrevent)));
+            const userFinishProb = Math.min(0.60, Math.max(0.10, uFinish / (uFinish + cBlock)));
+            const cpuCreateProb = Math.min(0.65, Math.max(0.10, cCreate / (cCreate + uPrevent)));
+            const cpuFinishProb = Math.min(0.60, Math.max(0.10, cFinish / (cFinish + uBlock)));
+
+            for(let i=0; i<userChances; i++) {
+                if(Math.random() < userCreateProb && Math.random() < userFinishProb) {
+                    const scorer = getWeightedScorer();
+                    if(scorer) userGoals.push({ min: Math.floor(Math.random() * 89) + 1, name: scorer.name, p: scorer });
+                }
+            }
+            for(let i=0; i<cpuChances; i++) {
+                if(Math.random() < cpuCreateProb && Math.random() < cpuFinishProb) {
+                    const cpuScorers = cupOp.names;
+                    cpuGoals.push({ min: Math.floor(Math.random() * 89) + 1, name: cpuScorers[Math.floor(Math.random() * cpuScorers.length)] });
+                }
+            }
+
+            userGoals.sort((a,b)=>a.min-b.min); cpuGoals.sort((a,b)=>a.min-b.min);
+            let finalScore = await runLiveMatch([...userGoals], [...cpuGoals], 90, false);
+            
+            if (finalScore.h === finalScore.a) {
+                document.getElementById('tv-status-text').innerText = 'EXTRA TIME';
+                document.getElementById('tv-status-dot').classList.add('animate-pulse');
+                
+                let userET = [], cpuET = [];
+                for(let i=0; i<3; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) { let s = getWeightedScorer(); userET.push({min: Math.floor(Math.random()*29)+91, name:s.name, p:s}); } }
+                for(let i=0; i<3; i++) { if(Math.random() < cpuCreateProb && Math.random() < cpuFinishProb) { cpuET.push({min: Math.floor(Math.random()*29)+91, name: cupOp.names[Math.floor(Math.random() * cupOp.names.length)]}); } }
+                userET.sort((a,b)=>a.min-b.min); cpuET.sort((a,b)=>a.min-b.min);
+                
+                finalScore = await runLiveMatch([...userET], [...cpuET], 120, true);
+            }
+
+            if (finalScore.h === finalScore.a) {
+                document.getElementById('tv-status-text').innerText = 'PENALTIES';
+                document.getElementById('tv-status-dot').classList.add('animate-pulse');
+                document.getElementById('tv-clock').innerText = 'PENS';
+                finalScore = await simulatePenalties(finalScore.h, finalScore.a, cupOp);
+            }
+
+            const feed = document.getElementById('results-feed-list');
+            const newResult = document.createElement('div');
+            newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${finalScore.h > finalScore.a ? 'blue' : 'red'}-500 shrink-0`;
+            newResult.innerHTML = `<span class="text-blue-400 font-bold">${roundNames[currentCupRound]}</span><span class="font-bold text-white">${userTeamName} ${finalScore.h} - ${finalScore.a} ${cupOp.name}</span>`;
+            feed.insertBefore(newResult, feed.firstChild);
+
+            if (finalScore.h > finalScore.a) {
+                currentCupRound++;
+                if (currentCupRound > 3) {
+                    celebrateCupWin();
+                } else {
+                    document.getElementById('post-season-awards').classList.remove('hidden');
+                    document.getElementById('post-season-awards').classList.add('flex');
+                    document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-blue-500 p-6 text-center shadow-[0_0_30px_rgba(59,130,246,0.3)]"><h2 class="text-2xl font-black text-white mb-2 uppercase tracking-wide">Victory!</h2><p class="text-blue-400 font-bold mb-6">You advanced to the ${roundNames[currentCupRound]}!</p><button onclick="document.getElementById('post-season-awards').classList.add('hidden'); setupNextCupRound();" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full">Play Next Match</button></div>`;
+                    setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+                }
+            } else {
+                document.getElementById('post-season-awards').classList.remove('hidden');
+                document.getElementById('post-season-awards').classList.add('flex');
+                document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-red-500 p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="text-2xl font-black text-white mb-2 uppercase tracking-wide">Eliminated</h2><p class="text-red-400 font-bold mb-6">Knocked out in the ${roundNames[currentCupRound]}.</p><button onclick="viewTeam()" class="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full">View Final Team</button></div>`;
+                setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            }
+        }
+
+        async function simulatePenalties(baseHome, baseAway, cupOp) {
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+            let hPens = 0, aPens = 0; let hTaken = 0, aTaken = 0;
+            
+            document.getElementById('tv-home-scorers').innerHTML = '<div class="text-center w-full text-blue-400 text-xs font-bold mb-2 border-b border-slate-700 pb-1">Shootout</div>';
+            document.getElementById('tv-away-scorers').innerHTML = '<div class="text-center w-full text-red-400 text-xs font-bold mb-2 border-b border-slate-700 pb-1">Shootout</div>';
+
+            for(let round=1; round<=10; round++) { 
+                hTaken++;
+                const isHomeGoal = Math.random() > 0.3; 
+                if(isHomeGoal) hPens++;
+                document.getElementById('tv-home-scorers').innerHTML += `<div class="goal-item text-white text-[10px] md:text-xs">${isHomeGoal ? '✅ Goal' : '❌ Miss'} <span class="text-slate-500">(${hPens})</span></div>`;
+                document.getElementById('tv-home-score').innerText = `${baseHome} (${hPens})`;
+                await delay(1200);
+
+                if(round <= 5) { if (hPens > aPens + (5 - aTaken)) break; if (aPens > hPens + (5 - hTaken)) break; } else if (hPens > aPens) break; 
+
+                aTaken++;
+                const isAwayGoal = Math.random() > 0.3;
+                if(isAwayGoal) aPens++;
+                document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-white text-[10px] md:text-xs text-right"><span class="text-slate-500">(${aPens})</span> ${isAwayGoal ? '✅ Goal' : '❌ Miss'}</div>`;
+                document.getElementById('tv-away-score').innerText = `${baseAway} (${aPens})`;
+                await delay(1200);
+
+                if(round <= 5) { if (hPens > aPens + (5 - aTaken)) break; if (aPens > hPens + (5 - hTaken)) break; } else if (hPens !== aPens) break; 
+            }
+            
+            document.getElementById('tv-status-text').innerText = 'FT (PENS)';
+            document.getElementById('tv-status-dot').classList.remove('animate-pulse');
+            await delay(1500);
+            return { h: baseHome + (hPens > aPens ? 1 : 0), a: baseAway + (aPens > hPens ? 1 : 0) }; 
+        }
+
+        function celebrateCupWin() {
+            confetti({ particleCount: 150, spread: 180, origin: { y: 0.1 }, colors: ['#3b82f6', '#facc15', '#ffffff'] });
+            document.getElementById('post-season-awards').classList.remove('hidden');
+            document.getElementById('post-season-awards').classList.add('flex');
+            document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border-4 border-yellow-400 p-8 text-center shadow-[0_0_50px_rgba(234,179,8,0.5)] animate-bounce"><span class="text-6xl mb-2 block">🏆✨</span><h2 class="text-3xl font-black text-yellow-400 mb-2 uppercase tracking-wide">CHAMPIONS!</h2><p class="text-white font-bold mb-6">You won the Continental Cup!</p><button onclick="viewTeam()" class="px-8 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-full transition-colors uppercase tracking-wide w-full">View Champion Team</button></div>`;
+            setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+        }
+
+        function viewTeam() {
+            document.getElementById('match-center').classList.add('hidden'); document.getElementById('match-center').classList.remove('flex');
+            document.getElementById('pitch-view').classList.remove('hidden');
+            renderPitch(); 
+            document.getElementById('btn-simulate').classList.add('hidden');
+            document.getElementById('btn-download').classList.remove('hidden'); document.getElementById('btn-download').classList.add('block');
+            document.getElementById('btn-share').classList.remove('hidden'); document.getElementById('btn-share').classList.add('flex');
+            document.getElementById('btn-new-draft').classList.remove('hidden'); document.getElementById('btn-new-draft').classList.add('block');
+            
+            const finalPos = standings.findIndex(t => t.isUser) + 1;
+            if(finalPos <= 2 && currentCupRound === 0) {
+                document.getElementById('btn-play-cup-pitch').classList.remove('hidden'); 
+                document.getElementById('btn-play-cup-pitch').classList.add('block');
+            }
+
+            document.getElementById('btn-back-to-stats').classList.remove('hidden'); document.getElementById('btn-back-to-stats').classList.add('flex');
+        }
+
+        function startNewDraft() {
+            document.getElementById('game-ui').classList.add('hidden'); document.getElementById('game-ui').classList.remove('flex');
+            document.getElementById('step-2').classList.add('hidden'); document.getElementById('step-2').classList.remove('flex');
+            document.getElementById('step-1').classList.remove('hidden');
+            document.getElementById('start-screen').classList.remove('hidden', 'opacity-0');
+            document.getElementById('post-season-awards').classList.add('hidden'); document.getElementById('post-season-awards').classList.remove('flex');
+            document.getElementById('results-feed-list').innerHTML = '';
+            
+            document.getElementById('tv-scoreboard').classList.remove('cup-theme');
+            document.getElementById('tv-scoreboard').classList.remove('hidden');
+            
+            document.getElementById('btn-simulate').classList.remove('hidden'); document.getElementById('btn-simulate').disabled = true;
+            document.getElementById('btn-download').classList.add('hidden'); document.getElementById('btn-download').classList.remove('block');
+            document.getElementById('btn-share').classList.add('hidden'); document.getElementById('btn-share').classList.remove('flex');
+            document.getElementById('btn-play-cup-pitch').classList.add('hidden'); document.getElementById('btn-play-cup-pitch').classList.remove('block');
+            document.getElementById('btn-new-draft').classList.add('hidden'); document.getElementById('btn-new-draft').classList.remove('block');
+            document.getElementById('btn-back-to-stats').classList.add('hidden'); document.getElementById('btn-back-to-stats').classList.remove('flex');
+            document.getElementById('btn-reroll').innerHTML = `<span>🔄</span> Reroll <span class="text-xs font-normal opacity-80">(1 Left)</span>`;
+            hasReroll = true; playerStats = {}; standings = []; teamChemScore = 0; activeFormation = null;
+        }
+
+        function backToStandings() {
+            document.getElementById('pitch-view').classList.add('hidden');
+            document.getElementById('btn-back-to-stats').classList.add('hidden'); document.getElementById('btn-back-to-stats').classList.remove('flex');
+            document.getElementById('match-center').classList.remove('hidden'); document.getElementById('match-center').classList.add('flex');
+        }
+
+        async function generateShareCanvas() {
+            const originalPitch = document.getElementById('pitch-capture-area');
+            document.querySelectorAll('.player-node.cursor-pointer').forEach(n => n.style.display = 'none');
+
+            const poster = document.createElement('div');
+            poster.style.position = 'absolute'; poster.style.left = '-9999px'; poster.style.top = '0';
+            poster.style.width = '1000px'; poster.style.backgroundColor = '#0f172a';
+            poster.style.display = 'flex'; poster.style.gap = '24px'; poster.style.padding = '30px';
+            poster.className = 'font-sans'; 
+
+            const pitchClone = originalPitch.cloneNode(true);
+            pitchClone.style.width = '70%'; pitchClone.style.flexShrink = '0'; pitchClone.style.backgroundColor = 'transparent';
+
+            const statsSidebar = document.createElement('div');
+            statsSidebar.style.width = '30%'; statsSidebar.style.display = 'flex';
+            statsSidebar.style.flexDirection = 'column'; statsSidebar.style.gap = '20px';
+
+            const finalPos = standings.findIndex(t => t.isUser) + 1;
+            const myStats = standings.find(t => t.isUser);
+            const topScorer = Object.values(playerStats).sort((a,b) => b.goals - a.goals)[0];
+            const scorerText = (topScorer && topScorer.goals > 0) ? `${topScorer.p.name} (${topScorer.goals} ⚽)` : 'None';
+            
+            const headerHtml = `
+                <div style="background: #1e293b; padding: 20px; border-radius: 16px; border: 2px solid #eab308; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                    <h1 style="font-size: 26px; font-weight: 900; color: #facc15; margin: 0; text-transform: uppercase; letter-spacing: 1px;">Pokémon Draft FC</h1>
+                    <p style="font-size: 18px; font-weight: 800; color: #ffffff; margin: 10px 0 0 0;">Finished: Position ${finalPos}</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 15px; font-size: 12px; font-weight: bold; white-space: nowrap;">
+                        <span style="background: #0f172a; padding: 6px 12px; border-radius: 6px; color: #38bdf8;">${myStats.pts} PTS</span>
+                        <span style="background: #0f172a; padding: 6px 12px; border-radius: 6px; color: #22c55e;">W-D-L: ${myStats.w}-${myStats.d}-${myStats.l}</span>
+                        <span style="background: #0f172a; padding: 6px 12px; border-radius: 6px; color: #facc15;">MVP: ${scorerText}</span>
+                    </div>
+                </div>
+            `;
+            statsSidebar.innerHTML = headerHtml;
+
+            const resultsOriginal = document.getElementById('results-feed');
+            if (resultsOriginal) {
+                const resultsClone = resultsOriginal.cloneNode(true);
+                resultsClone.classList.remove('hidden');
+                resultsClone.style.maxHeight = 'none'; resultsClone.style.flexShrink = '0';
+                
+                const listContainer = resultsClone.querySelector('#results-feed-list');
+                if (listContainer) { listContainer.style.overflow = 'visible'; listContainer.style.maxHeight = 'none'; }
+                resultsClone.querySelectorAll('.text-xs').forEach(el => el.style.whiteSpace = 'nowrap');
+                statsSidebar.appendChild(resultsClone);
+            }
+
+            poster.appendChild(pitchClone); poster.appendChild(statsSidebar);
+            document.body.appendChild(poster);
+
+            const canvas = await html2canvas(poster, { scale: 2, backgroundColor: '#0f172a', useCORS: true, allowTaint: true });
+            
+            document.body.removeChild(poster);
+            document.querySelectorAll('.player-node.cursor-pointer').forEach(n => n.style.display = 'flex');
+            return canvas;
+        }
+
+        async function downloadTeam() {
+            const btn = document.getElementById('btn-download'); const originalText = btn.innerText; btn.innerText = "Generating...";
+            const canvas = await generateShareCanvas();
+            const link = document.createElement('a'); link.download = 'PokemonDraft_Season_Summary.png'; link.href = canvas.toDataURL(); link.click();
+            btn.innerText = originalText;
+        }
+
+        async function shareTeam() {
+            const btn = document.getElementById('btn-share'); const originalText = btn.innerHTML; btn.innerHTML = "Generating...";
+            const canvas = await generateShareCanvas();
+            const finalPos = standings.findIndex(t => t.isUser) + 1; const myStats = standings.find(t => t.isUser);
+
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], 'PokemonDraft_Season_Summary.png', { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    try { await navigator.share({ title: 'Pokémon Draft FC', text: `I finished in position ${finalPos} with ${myStats.pts} points in Pokémon Draft FC! Beat my score!`, files: [file] }); } 
+                    catch (err) { console.log("Share cancelled or failed.", err); }
+                } else { alert("Native sharing is not supported on your current browser/device. Please use the 'Download Image' button instead!"); }
+                btn.innerHTML = originalText;
+            });
+        }
+    </script>
+</body>
+</html>
