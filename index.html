@@ -87,7 +87,7 @@
 <body class="min-h-screen flex flex-col relative">
 
     <!-- How To Play Modal -->
-    <div id="htp-modal" class="fixed inset-0 bg-slate-900/95 z-[300] hidden flex-col items-center justify-center p-4 overflow-y-auto backdrop-blur-sm transition-opacity duration-300 opacity-0">
+    <div id="htp-modal" class="fixed inset-0 bg-slate-900/95 z-[400] hidden flex-col items-center justify-center p-4 overflow-y-auto backdrop-blur-sm transition-opacity duration-300 opacity-0">
         <div class="max-w-2xl w-full bg-slate-800 rounded-2xl border border-slate-600 p-6 shadow-2xl relative my-auto">
             <button onclick="closeHTP()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center font-bold transition-colors">✕</button>
             
@@ -99,8 +99,8 @@
                     <p class="mb-2">Matches aren't decided by raw OVR, but by a 3-phase simulation:</p>
                     <ul class="list-disc pl-5 space-y-1">
                         <li><strong class="text-blue-400">Phase 1 (Possession):</strong> Midfield controls the ball. High <span class="text-white">HP</span> (Physicality) and <span class="text-white">Sp. Def</span> (Tactics) win the midfield battle.</li>
-                        <li><strong class="text-green-400">Phase 2 (Creation):</strong> Turning possession into chances. Your team's <span class="text-white">Sp. Atk</span> (Vision/Passing) vs their <span class="text-white">Sp. Def</span>.</li>
-                        <li><strong class="text-red-400">Phase 3 (Finishing):</strong> Scoring the goal. Strikers use <span class="text-white">Attack</span> (Finishing) & <span class="text-white">Speed</span> vs Defenders' <span class="text-white">Defense</span> & <span class="text-white">HP</span>.</li>
+                        <li><strong class="text-green-400">Phase 2 (Creation):</strong> Turning possession into chances. Your team's <span class="text-white">Sp. Atk</span> (Vision/Passing) vs their <span class="text-white">Sp. Def</span>. <span class="text-white font-bold">Wingers (WG) are crucial here!</span></li>
+                        <li><strong class="text-red-400">Phase 3 (Finishing):</strong> Scoring the goal. <span class="text-white font-bold">Strikers (ST)</span> use <span class="text-white">Attack</span> (Finishing) & <span class="text-white">Speed</span> vs Defenders' <span class="text-white">Defense</span> & <span class="text-white">HP</span>.</li>
                     </ul>
                 </div>
 
@@ -120,6 +120,10 @@
                     <h3 class="text-lg font-bold text-white mb-2 uppercase">3. Tactics & Chemistry</h3>
                     <p class="mb-2">Don't just pick the highest OVR! A slow midfielder with high Sp.A and HP is a great playmaker. A fast winger with 0 HP can still outrun the defense.</p>
                     <p><strong>Chemistry:</strong> Link players of the same <span class="text-yellow-400">Generation</span> or <span class="text-yellow-400">Type</span> to boost your team's overall performance. <span class="text-green-400">Green lines</span> give the biggest boost!</p>
+                    <div class="bg-slate-900/50 border border-slate-700 rounded p-3 mt-2">
+                        <p class="text-yellow-400 font-bold text-xs uppercase mb-1">🎁 Diversity Bonus</p>
+                        <p class="text-xs">Playing with multiple generations active? You receive a <strong>free base Chemistry bonus</strong> (+2 points per extra generation) to compensate for the higher difficulty of finding matching links!</p>
+                    </div>
                 </div>
             </div>
             
@@ -217,7 +221,7 @@
 
         <main class="flex-grow max-w-6xl w-full mx-auto relative mb-24 z-10 flex flex-col" id="main-view">
             <div id="pitch-view" class="w-full max-w-3xl mx-auto pitch-wrapper block pb-10 relative">
-                <div id="pitch-capture-area" class="bg-[#0f172a] p-4 rounded-xl">
+                <div id="pitch-capture-area" class="bg-[#0f172a] p-4 rounded-xl relative">
                     <div class="pitch w-full aspect-[2/3] md:aspect-[3/4] rounded-xl relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] mx-auto">
                         <div class="pitch-lines">
                             <div class="half-way-line"></div>
@@ -272,7 +276,7 @@
                 </div>
 
                 <div id="right-panel" class="w-full lg:w-1/2 flex flex-col gap-4 relative">
-                    <div id="post-season-awards" class="hidden flex-col gap-4 order-first"></div>
+                    <div id="post-season-awards" class="hidden flex-col gap-4"></div>
                     
                     <div id="tv-scoreboard" class="tv-glass rounded-2xl overflow-hidden shadow-2xl relative w-full border border-slate-600">
                         
@@ -335,8 +339,10 @@
                     </div>
 
                     <div id="results-feed" class="bg-slate-800 rounded-2xl border border-slate-700 shadow-inner flex flex-col hidden h-[250px] overflow-hidden">
-                        <h4 class="text-slate-400 uppercase tracking-widest text-xs font-bold p-3 border-b border-slate-700 bg-slate-900 m-0 shrink-0">Your Results</h4>
-                        <div id="results-feed-list" class="flex flex-col gap-2 p-3 overflow-y-auto flex-grow"></div>
+                        <div class="bg-slate-900 border-b border-slate-700 shrink-0 z-10">
+                            <h4 class="text-slate-400 uppercase tracking-widest text-xs font-bold p-3 m-0">Your Results</h4>
+                        </div>
+                        <div id="results-feed-list" class="flex flex-col gap-2 p-3 overflow-y-auto flex-grow relative"></div>
                     </div>
                 </div>
             </div>
@@ -345,8 +351,8 @@
 
     <div id="draft-modal" class="fixed inset-0 bg-black/90 hidden z-[60] flex-col items-center justify-center p-4 backdrop-blur-sm">
         
-        <button onclick="openHTP()" class="absolute top-4 right-4 md:top-8 md:right-8 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2 shadow-lg z-[100]">
-            <span class="text-blue-400 font-black text-sm">?</span> Rules & Tactics
+        <button onclick="openHTP()" class="absolute top-4 right-4 md:top-8 md:right-8 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2 shadow-lg z-[310]">
+            <span class="text-blue-400 font-black text-sm">?</span> Rules
         </button>
 
         <h2 class="text-3xl font-black mb-1 text-white uppercase tracking-wider drop-shadow-lg text-center mt-6">Scout Player</h2>
@@ -393,7 +399,7 @@
                 name: '4-4-2 Classic', desc: 'Solid wide lines, dual strikers.',
                 positions: [
                     { id: 'LS', display: 'LS', top: '15%', left: '35%', role: 'ST' }, { id: 'RS', display: 'RS', top: '15%', left: '65%', role: 'ST' },
-                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WG' }, { id: 'CM1', display: 'CM1', top: '45%', left: '40%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '60%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WG' },
+                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WM' }, { id: 'CM1', display: 'CM1', top: '45%', left: '40%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '60%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WM' },
                     { id: 'LB', display: 'LB', top: '75%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '35%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '65%', role: 'CB' }, { id: 'RB', display: 'RB', top: '75%', left: '85%', role: 'FB' },
                     { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
                 ],
@@ -403,7 +409,7 @@
                 name: '3-5-2 Overload', desc: 'Heavy possession, weak flanks.',
                 positions: [
                     { id: 'LS', display: 'LS', top: '15%', left: '35%', role: 'ST' }, { id: 'RS', display: 'RS', top: '15%', left: '65%', role: 'ST' },
-                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WG' }, { id: 'CM1', display: 'CM1', top: '45%', left: '35%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '35%', left: '50%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '65%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WG' },
+                    { id: 'LM', display: 'LM', top: '40%', left: '20%', role: 'WM' }, { id: 'CM1', display: 'CM1', top: '45%', left: '35%', role: 'CM' }, { id: 'CAM', display: 'CAM', top: '35%', left: '50%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '65%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '80%', role: 'WM' },
                     { id: 'CB1', display: 'CB1', top: '75%', left: '25%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '50%', role: 'CB' }, { id: 'CB3', display: 'CB3', top: '75%', left: '75%', role: 'CB' },
                     { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
                 ],
@@ -413,7 +419,7 @@
                 name: '5-4-1 Park the Bus', desc: 'Massive defense wall. Counter attacks.',
                 positions: [
                     { id: 'ST', display: 'ST', top: '15%', left: '50%', role: 'ST' },
-                    { id: 'LM', display: 'LM', top: '40%', left: '25%', role: 'WG' }, { id: 'CM1', display: 'CM1', top: '45%', left: '40%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '60%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '75%', role: 'WG' },
+                    { id: 'LM', display: 'LM', top: '40%', left: '25%', role: 'WM' }, { id: 'CM1', display: 'CM1', top: '45%', left: '40%', role: 'CM' }, { id: 'CM2', display: 'CM2', top: '45%', left: '60%', role: 'CM' }, { id: 'RM', display: 'RM', top: '40%', left: '75%', role: 'WM' },
                     { id: 'LWB', display: 'LWB', top: '65%', left: '15%', role: 'FB' }, { id: 'CB1', display: 'CB1', top: '78%', left: '30%', role: 'CB' }, { id: 'CB2', display: 'CB2', top: '78%', left: '50%', role: 'CB' }, { id: 'CB3', display: 'CB3', top: '78%', left: '70%', role: 'CB' }, { id: 'RWB', display: 'RWB', top: '65%', left: '85%', role: 'FB' },
                     { id: 'GK', display: 'GK', top: '90%', left: '50%', role: 'GK' }
                 ],
@@ -443,31 +449,31 @@
         };
 
         const opponents = [
-            { id: 1, name: "Pewter City FC", pools: { poss: 750, create: 650, prevent: 800, finish: 650, block: 800 }, names: ["Onix", "Geodude", "Graveler", "Kabutops", "Aerodactyl"] },
-            { id: 2, name: "Cerulean Utd", pools: { poss: 800, create: 750, prevent: 750, finish: 750, block: 750 }, names: ["Starmie", "Golduck", "Seaking", "Dewgong", "Lapras"] },
-            { id: 3, name: "Vermilion City", pools: { poss: 750, create: 850, prevent: 700, finish: 850, block: 700 }, names: ["Raichu", "Electabuzz", "Voltorb", "Electrode", "Jolteon"] },
-            { id: 4, name: "Celadon City", pools: { poss: 850, create: 800, prevent: 800, finish: 750, block: 750 }, names: ["Vileplume", "Victreebel", "Tangela", "Venusaur", "Exeggutor"] },
-            { id: 5, name: "Fuchsia Rovers", pools: { poss: 800, create: 750, prevent: 850, finish: 850, block: 800 }, names: ["Weezing", "Muk", "Arbok", "Venomoth", "Crobat"] },
-            { id: 6, name: "Saffron Control", pools: { poss: 1100, create: 1000, prevent: 900, finish: 900, block: 900 }, names: ["Alakazam", "Hypno", "Mr. Mime", "Slowbro", "Gengar"] },
-            { id: 7, name: "Indigo Plateau", pools: { poss: 1050, create: 1100, prevent: 1100, finish: 1200, block: 1150 }, names: ["Dragonite", "Machamp", "Gyarados", "Charizard", "Snorlax"] }
+            { id: 1, name: "Pewter City FC", pools: { poss: 1000, create: 900, prevent: 1100, finish: 900, block: 1100 }, names: ["Onix", "Geodude", "Graveler", "Kabutops", "Aerodactyl"] },
+            { id: 2, name: "Cerulean Utd", pools: { poss: 1050, create: 1000, prevent: 1000, finish: 1000, block: 1000 }, names: ["Starmie", "Golduck", "Seaking", "Dewgong", "Lapras"] },
+            { id: 3, name: "Vermilion City", pools: { poss: 1000, create: 1100, prevent: 950, finish: 1100, block: 950 }, names: ["Raichu", "Electabuzz", "Voltorb", "Electrode", "Jolteon"] },
+            { id: 4, name: "Celadon City", pools: { poss: 1100, create: 1050, prevent: 1050, finish: 1000, block: 1000 }, names: ["Vileplume", "Victreebel", "Tangela", "Venusaur", "Exeggutor"] },
+            { id: 5, name: "Fuchsia Rovers", pools: { poss: 1050, create: 1000, prevent: 1100, finish: 1100, block: 1050 }, names: ["Weezing", "Muk", "Arbok", "Venomoth", "Crobat"] },
+            { id: 6, name: "Saffron Control", pools: { poss: 1450, create: 1300, prevent: 1200, finish: 1200, block: 1200 }, names: ["Alakazam", "Hypno", "Mr. Mime", "Slowbro", "Gengar"] },
+            { id: 7, name: "Indigo Plateau", pools: { poss: 1400, create: 1450, prevent: 1450, finish: 1550, block: 1450 }, names: ["Dragonite", "Machamp", "Gyarados", "Charizard", "Snorlax"] }
         ];
 
         const euroOpponents = [
-            { id: 101, name: "Bayern Mewnich", pools: { poss: 1100, create: 1050, prevent: 1000, finish: 1100, block: 1050 }, names: ["Mewtwo", "Mew", "Snorlax"] },
-            { id: 102, name: "Paras St. Germain", pools: { poss: 1300, create: 1300, prevent: 1250, finish: 1350, block: 1250 }, names: ["Paras", "Parasect"] }, 
-            { id: 103, name: "Spheal Madrid", pools: { poss: 1120, create: 1100, prevent: 1050, finish: 1150, block: 1100 }, names: ["Spheal", "Walrein", "Sealeo"] },
-            { id: 104, name: "Abracelona", pools: { poss: 1180, create: 1150, prevent: 950, finish: 1050, block: 950 }, names: ["Abra", "Kadabra", "Alakazam"] },
-            { id: 105, name: "Atletreecko Madrid", pools: { poss: 1000, create: 1000, prevent: 1180, finish: 1050, block: 1150 }, names: ["Treecko", "Grovyle", "Sceptile"] },
-            { id: 106, name: "Napoliwrath", pools: { poss: 1050, create: 1050, prevent: 1100, finish: 1100, block: 1100 }, names: ["Poliwag", "Poliwhirl", "Poliwrath"] },
-            { id: 107, name: "AC Miltank", pools: { poss: 1070, create: 1030, prevent: 1150, finish: 1050, block: 1150 }, names: ["Miltank"] },
-            { id: 108, name: "Manchester Skitty", pools: { poss: 1150, create: 1100, prevent: 1100, finish: 1130, block: 1100 }, names: ["Skitty", "Delcatty"] },
-            { id: 109, name: "Chelseadra", pools: { poss: 1030, create: 1050, prevent: 1130, finish: 1070, block: 1100 }, names: ["Horsea", "Seadra", "Kingdra"] },
-            { id: 110, name: "Aronsenal", pools: { poss: 1100, create: 1130, prevent: 1000, finish: 1100, block: 1030 }, names: ["Aron", "Lairon", "Aggron"] },
-            { id: 111, name: "Galladesaray", pools: { poss: 1050, create: 1100, prevent: 1050, finish: 1100, block: 1050 }, names: ["Ralts", "Kirlia", "Gallade"] },
-            { id: 112, name: "OAK Athens", pools: { poss: 1150, create: 1150, prevent: 1150, finish: 1150, block: 1150 }, names: ["Tauros", "Exeggutor", "Arcanine", "Gyarados"] },
-            { id: 113, name: "Bor. Wailordmund", pools: { poss: 1070, create: 1070, prevent: 1100, finish: 1130, block: 1070 }, names: ["Wailmer", "Wailord"] },
-            { id: 114, name: "Ashton Villa", pools: { poss: 1110, create: 1100, prevent: 1070, finish: 1140, block: 1050 }, names: ["Pikachu", "Charizard", "Snorlax", "Greninja", "Bulbasaur", "Squirtle"] },
-            { id: 115, name: "Inter Mewlan", pools: { poss: 1080, create: 1080, prevent: 1140, finish: 1090, block: 1120 }, names: ["Mew", "Persian"] }
+            { id: 101, name: "Bayern Mewnich", pools: { poss: 1350, create: 1300, prevent: 1250, finish: 1350, block: 1300 }, names: ["Mewtwo", "Mew", "Snorlax"] },
+            { id: 102, name: "Paras St. Germain", pools: { poss: 1650, create: 1650, prevent: 1600, finish: 1700, block: 1600 }, names: ["Paras", "Parasect"] }, 
+            { id: 103, name: "Spheal Madrid", pools: { poss: 1400, create: 1350, prevent: 1300, finish: 1400, block: 1350 }, names: ["Spheal", "Walrein", "Sealeo"] },
+            { id: 104, name: "Abracelona", pools: { poss: 1450, create: 1400, prevent: 1200, finish: 1300, block: 1200 }, names: ["Abra", "Kadabra", "Alakazam"] },
+            { id: 105, name: "Atletreecko Madrid", pools: { poss: 1250, create: 1250, prevent: 1450, finish: 1300, block: 1400 }, names: ["Treecko", "Grovyle", "Sceptile"] },
+            { id: 106, name: "Napoliwrath", pools: { poss: 1300, create: 1300, prevent: 1350, finish: 1350, block: 1350 }, names: ["Poliwag", "Poliwhirl", "Poliwrath"] },
+            { id: 107, name: "AC Miltank", pools: { poss: 1320, create: 1280, prevent: 1400, finish: 1300, block: 1400 }, names: ["Miltank"] },
+            { id: 108, name: "Manchester Skitty", pools: { poss: 1400, create: 1350, prevent: 1350, finish: 1380, block: 1350 }, names: ["Skitty", "Delcatty"] },
+            { id: 109, name: "Chelseadra", pools: { poss: 1280, create: 1300, prevent: 1380, finish: 1320, block: 1350 }, names: ["Horsea", "Seadra", "Kingdra"] },
+            { id: 110, name: "Aronsenal", pools: { poss: 1350, create: 1380, prevent: 1250, finish: 1350, block: 1280 }, names: ["Aron", "Lairon", "Aggron"] },
+            { id: 111, name: "Galladesaray", pools: { poss: 1300, create: 1350, prevent: 1300, finish: 1350, block: 1300 }, names: ["Ralts", "Kirlia", "Gallade"] },
+            { id: 112, name: "OAK Athens", pools: { poss: 1400, create: 1400, prevent: 1400, finish: 1400, block: 1400 }, names: ["Tauros", "Exeggutor", "Arcanine", "Gyarados"] },
+            { id: 113, name: "Bor. Wailordmund", pools: { poss: 1320, create: 1320, prevent: 1350, finish: 1380, block: 1320 }, names: ["Wailmer", "Wailord"] },
+            { id: 114, name: "Ashton Villa", pools: { poss: 1360, create: 1350, prevent: 1320, finish: 1390, block: 1300 }, names: ["Pikachu", "Charizard", "Snorlax", "Greninja", "Bulbasaur", "Squirtle"] },
+            { id: 115, name: "Inter Mewlan", pools: { poss: 1330, create: 1330, prevent: 1390, finish: 1340, block: 1370 }, names: ["Mew", "Persian"] }
         ];
 
         let activeFormation = null; let globalIdPool = []; let hasReroll = true;
@@ -595,6 +601,7 @@
             const w = {
                 'ST': { atk: 0.35, spe: 0.25, spa: 0.20, hp: 0.20, def: 0, spd: 0 },
                 'WG': { spe: 0.40, spa: 0.30, atk: 0.15, hp: 0.15, def: 0, spd: 0 },
+                'WM': { spe: 0.35, spa: 0.25, spd: 0.15, hp: 0.15, atk: 0.05, def: 0.05 },
                 'CM': { spa: 0.35, spd: 0.25, hp: 0.25, spe: 0.15, atk: 0, def: 0 },
                 'FB': { def: 0.40, spe: 0.35, spa: 0.15, hp: 0.10, spd: 0, atk: 0 },
                 'CB': { def: 0.40, hp: 0.30, spd: 0.20, atk: 0.10, spe: 0, spa: 0 },
@@ -666,6 +673,11 @@
 
         function drawChemistry() {
             let svgHTML = ''; teamChemScore = 0;
+            
+            const activeGensCount = genData.filter(g => g.active).length;
+            const diversityBonus = (activeGensCount - 1) * 2;
+            teamChemScore += diversityBonus;
+
             formations[activeFormation].links.forEach(link => {
                 const pos1 = formations[activeFormation].positions.find(p => p.id === link[0]);
                 const pos2 = formations[activeFormation].positions.find(p => p.id === link[1]);
@@ -675,7 +687,7 @@
                 if (p1 && p2) {
                     const sameType = p1.types.some(t => p2.types.includes(t)); const sameGen = p1.generation === p2.generation;
                     if (sameType && sameGen) { strokeColor = '#22c55e'; strokeWidth = 4; teamChemScore += 2; } 
-                    else if (sameType || sameGen) { strokeColor = '#facc15'; strokeWidth = 3; teamChemScore += 1; } // Fel Zonlicht-Geel/Goud
+                    else if (sameType || sameGen) { strokeColor = '#facc15'; strokeWidth = 3; teamChemScore += 1; } // Fel Zonlicht-Geel
                     else { strokeColor = '#dc2626'; strokeWidth = 2; } // Diep Bloedrood
                 }
                 svgHTML += `<line x1="${pos1.left}" y1="${pos1.top}" x2="${pos2.left}" y2="${pos2.top}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round" class="drop-shadow-md transition-all duration-300"/>`;
@@ -684,15 +696,35 @@
         }
 
         function updateScores() {
-            let fwdOVRSum = 0, midOVRSum = 0, defOVRSum = 0; let fCount = 0, mCount = 0, dCount = 0;
-            let midSPA=0, midSPD=0, midHP=0; let atkSPA=0, atkHP=0, atkATK=0, atkSPE=0; let defSPD=0, defHP=0, defDEF=0;
+            let fwdOVRSum = 0, midOVRSum = 0, defOVRSum = 0; 
+            let fCount = 0, mCount = 0, dCount = 0;
+            let stCount = 0, wgCount = 0; // WG VS ST SPLIT
+
+            let midSPA=0, midSPD=0, midHP=0, midSPE=0; 
+            let stSPA=0, stHP=0, stATK=0, stSPE=0; // Strikers stats
+            let wgSPA=0, wgHP=0, wgATK=0, wgSPE=0; // Wingers stats
+            let defSPD=0, defHP=0, defDEF=0;
 
             formations[activeFormation].positions.forEach(pos => {
                 const p = userTeam[pos.id]; if (!p) return;
                 const ovr = calculatePlayerOVR(p, pos.role); const s = p.normStats;
-                if (pos.role === 'ST' || pos.role === 'WG') { fwdOVRSum += ovr; fCount++; atkSPA += s.spa; atkHP += s.hp; atkATK += s.atk; atkSPE += s.spe; } 
-                else if (pos.role === 'CM') { midOVRSum += ovr; mCount++; midSPA += s.spa; midSPD += s.spd; midHP += s.hp; } 
-                else if (pos.role === 'FB' || pos.role === 'CB' || pos.role === 'GK') { defOVRSum += ovr; dCount++; defSPD += s.spd; defHP += s.hp; defDEF += s.def; }
+                
+                if (pos.role === 'ST') { 
+                    fwdOVRSum += ovr; fCount++; stCount++; 
+                    stSPA += s.spa; stHP += s.hp; stATK += s.atk; stSPE += s.spe; 
+                } 
+                else if (pos.role === 'WG') { 
+                    fwdOVRSum += ovr; fCount++; wgCount++; 
+                    wgSPA += s.spa; wgHP += s.hp; wgATK += s.atk; wgSPE += s.spe; 
+                }
+                else if (pos.role === 'CM' || pos.role === 'WM') { 
+                    midOVRSum += ovr; mCount++; 
+                    midSPA += s.spa; midSPD += s.spd; midHP += s.hp; midSPE += s.spe; 
+                } 
+                else if (pos.role === 'FB' || pos.role === 'CB' || pos.role === 'GK') { 
+                    defOVRSum += ovr; dCount++; 
+                    defSPD += s.spd; defHP += s.hp; defDEF += s.def; 
+                }
             });
 
             let chemMultiplier = 1 + (teamChemScore * 0.005); 
@@ -705,15 +737,27 @@
             document.getElementById('score-def').innerText = dCount ? uiDef : '--';
 
             if(fCount && mCount && dCount) {
-                const midDiminish = Math.pow(mCount, 0.75); const atkDiminish = Math.pow(fCount, 0.75); const defDiminish = Math.pow(dCount, 0.75);
+                const midDiminish = Math.pow(mCount, 0.75); const defDiminish = Math.pow(dCount, 0.75);
                 
+                // Fase 1: Ball Possession (Midfield dominance)
                 myTeamEnginePools.poss = ((midSPA/mCount + midSPD/mCount + midHP/mCount) * midDiminish) * 1.5;
-                myTeamEnginePools.poss += ((defSPD/dCount + atkSPA/fCount) * 0.2);
+                myTeamEnginePools.poss += ((defSPD/dCount) * 0.5);
                 
-                myTeamEnginePools.create = ((midSPA/mCount * 1.5 + midHP/mCount * 0.5) * midDiminish) + ((atkSPA/fCount * 1.0 + atkSPE/fCount * 1.5) * atkDiminish * 0.4);
+                // Fase 2: Chance Creation (Midfield + Wingers heavily + Strikers slightly)
+                let midCreation = ((midSPA/mCount * 1.5 + midSPE/mCount * 0.5 + midHP/mCount * 0.25) * midDiminish);
+                let wgCreation = wgCount ? ((wgSPA/wgCount * 1.5 + wgSPE/wgCount * 1.5) * Math.pow(wgCount, 0.75) * 0.4) : 0;
+                let stCreation = stCount ? ((stSPA/stCount * 0.5 + stSPE/stCount * 0.5) * Math.pow(stCount, 0.75) * 0.2) : 0;
+                myTeamEnginePools.create = midCreation + wgCreation + stCreation;
+                
+                // Fase 2 Defense: Preventing Chances
                 myTeamEnginePools.prevent = ((defSPD/dCount * 1.5 + defHP/dCount * 0.5) * defDiminish) + ((midSPD/mCount + midHP/mCount) * midDiminish * 0.5);
                 
-                myTeamEnginePools.finish = ((atkATK/fCount * 1.5 + atkSPE/fCount * 1.5 + atkHP/fCount * 0.1) * atkDiminish);
+                // Fase 3: Finishing (Strikers heavily + Wingers moderately)
+                let stFinish = stCount ? ((stATK/stCount * 1.8 + stSPE/stCount * 1.0 + stHP/stCount * 0.2) * Math.pow(stCount, 0.75)) : 0;
+                let wgFinish = wgCount ? ((wgATK/wgCount * 1.0 + wgSPE/wgCount * 1.2) * Math.pow(wgCount, 0.75) * 0.6) : 0;
+                myTeamEnginePools.finish = stFinish + wgFinish;
+                
+                // Fase 3 Defense: Blocking Shots
                 myTeamEnginePools.block = ((defDEF/dCount * 1.5 + defHP/dCount * 0.5) * defDiminish);
                 
                 Object.keys(myTeamEnginePools).forEach(k => myTeamEnginePools[k] *= chemMultiplier);
@@ -771,31 +815,31 @@
             
             pokemonList.forEach((p, idx) => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'flex flex-col items-center justify-center relative w-full h-[260px] md:h-[360px] max-w-[200px] md:max-w-[240px]';
+                wrapper.className = 'flex flex-col items-center justify-center relative w-full h-[280px] md:h-[450px] max-w-[220px] md:max-w-[300px]';
 
                 const ballHtml = `<div id="ball-${idx}" class="pokeball-container dropping z-20">${getBallSvg(p.bst)}</div>`;
                 const typeHex = getTypeColorHex(p.primaryType);
 
                 const cardHtml = `
-                    <div id="card-${idx}" class="fut-card flex-col items-center p-3 md:p-5 rounded-xl w-full h-full absolute top-0" onclick='selectPokemon(${JSON.stringify(p)})'>
-                        <div class="flex justify-between items-center w-full mb-2 border-b border-slate-600 pb-2" style="white-space: nowrap;">
-                            <span class="font-bold text-xs md:text-base uppercase" style="color: ${typeHex}">${p.primaryType}</span>
-                            <span class="font-black text-xs md:text-base text-slate-300">BST ${p.bst}</span>
+                    <div id="card-${idx}" class="fut-card flex-col items-center p-3 md:p-6 rounded-xl w-full h-full absolute top-0" onclick='selectPokemon(${JSON.stringify(p)})'>
+                        <div class="flex justify-between items-center w-full mb-2 border-b border-slate-600 pb-2 md:pb-3" style="white-space: nowrap;">
+                            <span class="font-bold text-xs md:text-xl uppercase" style="color: ${typeHex}">${p.primaryType}</span>
+                            <span class="font-black text-xs md:text-xl text-slate-300">BST ${p.bst}</span>
                         </div>
-                        <div class="h-20 md:h-28 w-full flex items-center justify-center my-2 relative">
+                        <div class="h-20 md:h-40 w-full flex items-center justify-center my-2 md:my-4 relative">
                             <img src="${p.sprite}" class="h-full w-full object-contain scale-[1.3] md:scale-[1.2] drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] z-10">
                         </div>
-                        <h3 class="font-black text-sm md:text-xl text-white text-center uppercase tracking-wide truncate w-full mb-3 mt-1">${p.name}</h3>
-                        <div class="grid grid-cols-2 gap-x-3 gap-y-1 w-full text-[10px] md:text-sm mb-3 font-mono bg-slate-900/50 p-2 md:p-3 rounded-lg text-slate-400">
-                            <div class="flex justify-between"><span>SPE</span><span class="text-white font-bold">${p.stats.spe}</span></div>
-                            <div class="flex justify-between"><span>HP</span><span class="text-white font-bold">${p.stats.hp}</span></div>
-                            <div class="flex justify-between"><span>ATK</span><span class="text-white font-bold">${p.stats.atk}</span></div>
-                            <div class="flex justify-between"><span>DEF</span><span class="text-white font-bold">${p.stats.def}</span></div>
-                            <div class="flex justify-between"><span>Sp.A</span><span class="text-white font-bold">${p.stats.spa}</span></div>
-                            <div class="flex justify-between"><span>Sp.D</span><span class="text-white font-bold">${p.stats.spd}</span></div>
+                        <h3 class="font-black text-sm md:text-2xl lg:text-3xl text-white text-center uppercase tracking-wide truncate w-full mb-3 md:mb-5 mt-1">${p.name}</h3>
+                        <div class="grid grid-cols-2 gap-x-3 md:gap-x-5 gap-y-1 md:gap-y-2 w-full text-[10px] md:text-sm lg:text-base mb-3 md:mb-4 font-mono bg-slate-900/50 p-2 md:p-4 rounded-lg text-slate-400">
+                            <div class="flex justify-between"><span>SPE</span><span class="text-white font-bold text-xs md:text-sm lg:text-lg">${p.stats.spe}</span></div>
+                            <div class="flex justify-between"><span>HP</span><span class="text-white font-bold text-xs md:text-sm lg:text-lg">${p.stats.hp}</span></div>
+                            <div class="flex justify-between"><span>ATK</span><span class="text-white font-bold text-xs md:text-sm lg:text-lg">${p.stats.atk}</span></div>
+                            <div class="flex justify-between"><span>DEF</span><span class="text-white font-bold text-xs md:text-sm lg:text-lg">${p.stats.def}</span></div>
+                            <div class="flex justify-between"><span>Sp.A</span><span class="text-white font-bold text-xs md:text-sm lg:text-lg">${p.stats.spa}</span></div>
+                            <div class="flex justify-between"><span>Sp.D</span><span class="text-white font-bold text-xs md:text-sm lg:text-lg">${p.stats.spd}</span></div>
                         </div>
-                        <div class="flex justify-between w-full text-xs md:text-sm font-bold text-slate-400 mt-auto border-t border-slate-700/50 pt-2">
-                            <span>Gen ${p.generation}</span><span class="text-yellow-400">${calculatePlayerOVR(p, role)} OVR</span>
+                        <div class="flex justify-between w-full text-xs md:text-base font-bold text-slate-400 mt-auto border-t border-slate-700/50 pt-2 md:pt-4">
+                            <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black">${calculatePlayerOVR(p, role)} OVR</span>
                         </div>
                     </div>
                 `;
@@ -836,8 +880,9 @@
                 const p = userTeam[pos.id];
                 if(p) {
                     let weight = 1; 
-                    if(pos.role === 'ST' || pos.role === 'WG') weight = 40;
-                    else if(pos.role === 'CM') weight = 15;
+                    if(pos.role === 'ST') weight = 50;
+                    else if(pos.role === 'WG') weight = 25;
+                    else if(pos.role === 'CM' || pos.role === 'WM') weight = 15;
                     else if(pos.role === 'CB' || pos.role === 'FB') weight = 4;
                     else if(pos.role === 'GK') weight = 1; 
                     for(let i=0; i<weight; i++) pool.push(p);
@@ -883,7 +928,8 @@
             const cPoss = Math.pow(cpuOp.pools.poss, 1.5);
             const possRatio = uPoss / (uPoss + cPoss);
             
-            const userChances = Math.round(possRatio * totalChances); const cpuChances = totalChances - userChances;
+            const userChances = Math.round(possRatio * totalChances); 
+            const cpuChances = totalChances - userChances;
             
             const userPossPct = Math.round(possRatio * 100);
             document.getElementById('tv-home-poss').innerText = `${userPossPct}%`; document.getElementById('tv-away-poss').innerText = `${100 - userPossPct}%`;
@@ -1016,7 +1062,7 @@
                 goalscorers.map(g => `<span class="bg-slate-800 text-xs px-2 py-1 rounded text-white shadow-inner">${g.p.name} <strong class="text-yellow-400 ml-1">${g.goals}</strong></span>`).join('') + `</div></div>`;
             }
 
-            // ADVANCED TACTICAL FEEDBACK GENERATOR
+            // Real Stats Analysis for Scout Report (Ignoring OVR)
             let defHP = 0, defDEF = 0, defSPE = 0, dCount = 0;
             let midHP = 0, midSPD = 0, midSPA = 0, mCount = 0;
             let atkATK = 0, atkSPE = 0, atkHP = 0, fCount = 0;
@@ -1025,7 +1071,7 @@
                 const p = userTeam[pos.id]; if(!p) return;
                 if (pos.role === 'CB' || pos.role === 'FB' || pos.role === 'GK') {
                     defHP += p.normStats.hp; defDEF += p.normStats.def; defSPE += p.normStats.spe; dCount++;
-                } else if (pos.role === 'CM') {
+                } else if (pos.role === 'CM' || pos.role === 'WM') {
                     midHP += p.normStats.hp; midSPD += p.normStats.spd; midSPA += p.normStats.spa; mCount++;
                 } else if (pos.role === 'ST' || pos.role === 'WG') {
                     atkATK += p.normStats.atk; atkSPE += p.normStats.spe; atkHP += p.normStats.hp; fCount++;
@@ -1070,7 +1116,7 @@
             let qualificationHtml = qualified ? `<button onclick="startContinentalCup()" class="mt-4 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_30px_rgba(37,99,235,0.8)] uppercase tracking-widest text-lg w-full transform hover:scale-105 transition-all">🏆 PLAY CONTINENTAL CUP</button>` : `<p class="mt-4 text-xs text-slate-500 font-bold uppercase tracking-widest text-center">DID NOT QUALIFY FOR EUROPE</p>`;
 
             const awards = document.getElementById('post-season-awards');
-            awards.classList.remove('hidden'); awards.classList.add('flex');
+            awards.classList.remove('hidden'); awards.classList.add('flex', 'order-first');
             awards.innerHTML = `<div class="bg-slate-800 rounded-2xl border border-slate-700 p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="text-2xl font-black text-white mb-1 uppercase tracking-wide">Season Finished</h2><p class="${qualified ? 'text-blue-400' : 'text-yellow-400'} text-sm font-bold mb-6">You finished in position ${finalPos}!</p><div class="flex flex-col md:flex-row gap-4 justify-center"><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full md:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full md:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${adviceHtml}${qualificationHtml}<button onclick="viewTeam()" class="mt-4 px-8 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Final Team</button></div>`;
 
             setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
@@ -1142,10 +1188,12 @@
 
             const totalChances = 9; 
             
-            const uPoss = Math.pow(myTeamEnginePools.poss, 1.5); const cPoss = Math.pow(cupOp.pools.poss, 1.5);
+            const uPoss = Math.pow(myTeamEnginePools.poss, 1.5); 
+            const cPoss = Math.pow(cupOp.pools.poss, 1.5);
             const possRatio = uPoss / (uPoss + cPoss);
             
-            const userChances = Math.round(possRatio * totalChances); const cpuChances = totalChances - userChances;
+            const userChances = Math.round(possRatio * totalChances); 
+            const cpuChances = totalChances - userChances;
             
             const userPossPct = Math.round(possRatio * 100);
             document.getElementById('tv-home-poss').innerText = `${userPossPct}%`; document.getElementById('tv-away-poss').innerText = `${100 - userPossPct}%`;
@@ -1212,13 +1260,13 @@
                     celebrateCupWin();
                 } else {
                     document.getElementById('post-season-awards').classList.remove('hidden');
-                    document.getElementById('post-season-awards').classList.add('flex');
+                    document.getElementById('post-season-awards').classList.add('flex', 'order-first');
                     document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-blue-500 p-6 text-center shadow-[0_0_30px_rgba(59,130,246,0.3)]"><h2 class="text-2xl font-black text-white mb-2 uppercase tracking-wide">Victory!</h2><p class="text-blue-400 font-bold mb-6">You advanced to the ${roundNames[currentCupRound]}!</p><button onclick="document.getElementById('post-season-awards').classList.add('hidden'); setupNextCupRound();" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full">Play Next Match</button></div>`;
                     setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
                 }
             } else {
                 document.getElementById('post-season-awards').classList.remove('hidden');
-                document.getElementById('post-season-awards').classList.add('flex');
+                document.getElementById('post-season-awards').classList.add('flex', 'order-first');
                 document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-red-500 p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="text-2xl font-black text-white mb-2 uppercase tracking-wide">Eliminated</h2><p class="text-red-400 font-bold mb-6">Knocked out in the ${roundNames[currentCupRound]}.</p><button onclick="viewTeam()" class="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full">View Final Team</button></div>`;
                 setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             }
@@ -1260,7 +1308,7 @@
         function celebrateCupWin() {
             confetti({ particleCount: 150, spread: 180, origin: { y: 0.1 }, colors: ['#3b82f6', '#facc15', '#ffffff'] });
             document.getElementById('post-season-awards').classList.remove('hidden');
-            document.getElementById('post-season-awards').classList.add('flex');
+            document.getElementById('post-season-awards').classList.add('flex', 'order-first');
             document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border-4 border-yellow-400 p-8 text-center shadow-[0_0_50px_rgba(234,179,8,0.5)] animate-bounce"><span class="text-6xl mb-2 block">🏆✨</span><h2 class="text-3xl font-black text-yellow-400 mb-2 uppercase tracking-wide">CHAMPIONS!</h2><p class="text-white font-bold mb-6">You won the Continental Cup!</p><button onclick="viewTeam()" class="px-8 py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-full transition-colors uppercase tracking-wide w-full">View Champion Team</button></div>`;
             setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
         }
@@ -1319,11 +1367,11 @@
             poster.style.position = 'absolute';
             poster.style.left = '-9999px';
             poster.style.top = '0';
-            poster.style.width = '1200px'; 
-            poster.style.backgroundColor = '#0f172a';
+            poster.style.width = '1000px'; 
+            poster.style.backgroundColor = '#0f172a'; 
             poster.style.display = 'flex';
-            poster.style.gap = '24px';
-            poster.style.padding = '30px';
+            poster.style.gap = '30px';
+            poster.style.padding = '40px';
             poster.className = 'font-sans'; 
 
             const pitchClone = originalPitch.cloneNode(true);
@@ -1332,7 +1380,7 @@
             pitchClone.style.backgroundColor = 'transparent';
 
             const statsSidebar = document.createElement('div');
-            statsSidebar.style.width = '516px';
+            statsSidebar.style.width = '300px'; 
             statsSidebar.style.display = 'flex';
             statsSidebar.style.flexDirection = 'column';
             statsSidebar.style.gap = '20px';
@@ -1343,13 +1391,14 @@
             const scorerText = (topScorer && topScorer.goals > 0) ? `${topScorer.p.name} (${topScorer.goals} ⚽)` : 'None';
             
             const headerHtml = `
-                <div style="background: #1e293b; padding: 20px; border-radius: 16px; border: 2px solid #eab308; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                    <h1 style="font-size: 32px; font-weight: 900; color: #facc15; margin: 0; text-transform: uppercase; letter-spacing: 2px;">Pokémon Draft FC</h1>
-                    <p style="font-size: 22px; font-weight: 800; color: #ffffff; margin: 10px 0 0 0;">Finished: Position ${finalPos}</p>
-                    <div style="display: flex; justify-content: center; gap: 15px; margin-top: 10px; font-size: 14px; font-weight: bold;">
-                        <span style="background: #0f172a; padding: 5px 10px; border-radius: 6px; color: #38bdf8;">${myStats.pts} PTS</span>
-                        <span style="background: #0f172a; padding: 5px 10px; border-radius: 6px; color: #22c55e;">W-D-L: ${myStats.w}-${myStats.d}-${myStats.l}</span>
-                        <span style="background: #0f172a; padding: 5px 10px; border-radius: 6px; color: #facc15;">MVP: ${scorerText}</span>
+                <div style="background: transparent; border: 3px solid #facc15; border-radius: 16px; padding: 25px 20px; text-align: center;">
+                    <h1 style="font-size: 32px; font-weight: 900; color: #facc15; margin: 0; text-transform: uppercase; letter-spacing: 1px; line-height: 1.1;">POKÉMON<br>DRAFT FC</h1>
+                    <p style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 15px 0 20px 0;">Finished: Position ${finalPos}</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="background: #1e293b; padding: 8px 15px; border-radius: 8px; color: #38bdf8; font-weight: bold; font-size: 16px;">${myStats.pts} PTS</div>
+                        <div style="background: #1e293b; padding: 8px 15px; border-radius: 8px; color: #22c55e; font-weight: bold; font-size: 16px;">W-D-L: ${myStats.w}-${myStats.d}-${myStats.l}</div>
+                        <div style="background: #1e293b; padding: 8px 15px; border-radius: 8px; color: #facc15; font-weight: bold; font-size: 14px;">MVP: ${scorerText}</div>
                     </div>
                 </div>
             `;
@@ -1361,6 +1410,11 @@
                 resultsClone.classList.remove('hidden');
                 resultsClone.style.maxHeight = 'none';
                 resultsClone.style.flexShrink = '0';
+                
+                // Zorg ervoor dat tekst op de foto op 1 lijn blijft
+                const resultItems = resultsClone.querySelectorAll('div > span');
+                resultItems.forEach(el => el.style.whiteSpace = 'nowrap');
+                
                 statsSidebar.appendChild(resultsClone);
             }
 
