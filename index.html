@@ -753,31 +753,31 @@
                     tFinish += (s.atk * 0.6 + s.spe * 0.2 + s.hp * 0.2) * m;
                 }
                 if (['GK', 'CB', 'FB', 'DM', 'CM'].includes(pos.role)) {
-                    let m = (['GK', 'CB'].includes(pos.role)) ? 1.5 : (['FB', 'DM'].includes(pos.role) ? 1.2 : 0.8);
-                    tBlock += (s.def * 0.6 + s.hp * 0.2 + s.spd * 0.2) * m;
-                }
-            });
-
-            let chemMultiplier = 1 + (teamChemScore * 0.015); 
-            
-            let uiAtk = fCount ? Math.min(99, Math.round((fwdOVRSum / fCount) * chemMultiplier)) : 0;
-            let uiMid = mCount ? Math.min(99, Math.round((midOVRSum / mCount) * chemMultiplier)) : 0;
-            let uiDef = dCount ? Math.min(99, Math.round((defOVRSum / dCount) * chemMultiplier)) : 0;
-
-            document.getElementById('score-atk').innerText = fCount ? uiAtk : '--';
-            document.getElementById('score-mid').innerText = mCount ? uiMid : '--';
-            document.getElementById('score-def').innerText = dCount ? uiDef : '--';
-
-            if(pCount > 0) {
-                myTeamEnginePools.poss = (tPoss / pCount) * 14 * chemMultiplier;
-                myTeamEnginePools.create = (tCreate / pCount) * 15 * chemMultiplier;
-                myTeamEnginePools.prevent = (tPrevent / pCount) * 15 * chemMultiplier;
-                myTeamEnginePools.finish = (tFinish / (pCount/2)) * 13 * chemMultiplier;
-                myTeamEnginePools.block = (tBlock / (pCount/2)) * 13 * chemMultiplier;
+                let m = (['GK', 'CB'].includes(pos.role)) ? 1.5 : (['FB', 'DM'].includes(pos.role) ? 1.2 : 0.8);
+                tBlock += (s.def * 0.6 + s.hp * 0.2 + s.spd * 0.2) * m;
             }
-        }
+        });
 
-        function initPitch() {
+        let chemMultiplier = 1 + (teamChemScore * 0.015); 
+        
+        let uiAtk = fCount ? Math.min(99, Math.round((fwdOVRSum / fCount) * chemMultiplier)) : 0;
+        let uiMid = mCount ? Math.min(99, Math.round((midOVRSum / mCount) * chemMultiplier)) : 0;
+        let uiDef = dCount ? Math.min(99, Math.round((defOVRSum / dCount) * chemMultiplier)) : 0;
+
+        document.getElementById('score-atk').innerText = fCount ? uiAtk : '--';
+        document.getElementById('score-mid').innerText = mCount ? uiMid : '--';
+        document.getElementById('score-def').innerText = dCount ? uiDef : '--';
+
+        if(pCount > 0) {
+            myTeamEnginePools.poss = (tPoss / pCount) * 9.5 * chemMultiplier;
+            myTeamEnginePools.create = (tCreate / pCount) * 12.5 * chemMultiplier;
+            myTeamEnginePools.prevent = (tPrevent / pCount) * 12.5 * chemMultiplier;
+            myTeamEnginePools.finish = (tFinish / (pCount / 2.2)) * 11.5 * chemMultiplier;
+            myTeamEnginePools.block = (tBlock / (pCount / 2.2)) * 11.5 * chemMultiplier;
+        }
+    }
+
+    function initPitch() {
             if(Object.keys(userTeam).length === 0) {
                 formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
             }
