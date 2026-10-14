@@ -758,20 +758,31 @@
 
         function calculatePool(scores) {
             if(scores.length === 0) return 0;
-            let totalWeight = 0;
-            let sumInverse = 0; // For harmonic-like penalty
+            
+            let primaryWeight = 0;
+            let primarySumInverse = 0;
+            let secondaryContribution = 0;
             
             scores.forEach(s => {
-                totalWeight += s.weight;
                 let val = Math.max(1, s.val); // Prevent division by zero
-                sumInverse += (s.weight / val);
+                if (s.weight >= 1.0) {
+                    // Primary task: Apply strict harmonic penalty
+                    primaryWeight += s.weight;
+                    primarySumInverse += (s.weight / val);
+                } else {
+                    // Secondary task: Safe linear addition (Harmonic Isolation)
+                    // This prevents specialists (like low DEF strikers) from ruining the pool
+                    secondaryContribution += (val * s.weight);
+                }
             });
             
-            // Harmonic Mean = totalWeight / Sum(weight / val)
-            let harmonicMean = totalWeight / sumInverse;
+            let harmonicMean = 0;
+            if (primaryWeight > 0) {
+                harmonicMean = primaryWeight / primarySumInverse;
+            }
             
-            // Final Pool = Harmonic Mean * Volume (totalWeight)
-            return harmonicMean * totalWeight;
+            // Final Pool = (Harmonic Mean * Primary Volume) + Secondary Contributions
+            return (harmonicMean * primaryWeight) + secondaryContribution;
         }
 
         function updateScores() {
