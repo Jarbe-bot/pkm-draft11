@@ -1529,6 +1529,7 @@
             document.getElementById('tv-status-dot').classList.add('animate-pulse');
 
             const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
+            
             const cupOp = continentalOpponents[currentCupRound];
 
             const totalChances = 9; 
@@ -1554,7 +1555,7 @@
             let userET = [], cpuET = [];
             
             const uCreate = myTeamEnginePools.create || 0; const cPrevent = cupOp.pools.prevent || 0;
-            const cCreate = cpuOp.pools.create || 0; const uPrevent = myTeamEnginePools.prevent || 0;
+            const cCreate = cupOp.pools.create || 0; const uPrevent = myTeamEnginePools.prevent || 0;
             const uFinish = myTeamEnginePools.finish || 0; const cBlock = cupOp.pools.block || 0;
             const cFinish = cupOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
 
