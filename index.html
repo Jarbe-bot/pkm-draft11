@@ -880,12 +880,12 @@
                 document.getElementById('score-mid').innerText = teamMidfield;
                 document.getElementById('score-def').innerText = teamDefense;
 
-                // De nieuwe transparante stats vertaald naar de bestaande CPU pools
-                myTeamEnginePools.poss = teamMidfield * 10;
-                myTeamEnginePools.create = teamAttack * 10;
-                myTeamEnginePools.finish = teamAttack * 10;
-                myTeamEnginePools.prevent = teamDefense * 10;
-                myTeamEnginePools.block = teamDefense * 10;
+                // De nieuwe transparante stats eerlijk geschaald naar de zware CPU pools
+                myTeamEnginePools.poss = Math.round(teamMidfield * 12.5);
+                myTeamEnginePools.create = Math.round(teamAttack * 12.5);
+                myTeamEnginePools.finish = Math.round(teamAttack * 12.5);
+                myTeamEnginePools.prevent = Math.round(teamDefense * 12.5);
+                myTeamEnginePools.block = Math.round(teamDefense * 12.5);
             } else {
                 document.getElementById('score-atk').innerText = '--';
                 document.getElementById('score-mid').innerText = '--';
