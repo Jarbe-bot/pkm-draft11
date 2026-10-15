@@ -94,32 +94,24 @@
             <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-4 md:mb-6 uppercase tracking-wider text-center border-b border-slate-700 pb-3">Tactics & Rules</h2>
             <div class="space-y-5 text-xs md:text-sm text-slate-300">
                 <div>
-                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">1. The Engine (3 Phases)</h3>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">1. The 3 Phases</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-green-400">Phase 1 (Midfield):</strong> Ball possession. Based on <span class="text-white">Sp.Atk</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span> (Strength). Central midfielders dictate the play!</li>
-                        <li><strong class="text-red-400">Phase 2 (Attack):</strong> Chance creation and finishing. Attackers and Wingers rule here. Strikers use <span class="text-white">ATK</span> + <span class="text-white">Speed</span> (Fast) or <span class="text-white">ATK</span> + <span class="text-white">HP</span> (Target Man).</li>
-                        <li><strong class="text-blue-400">Phase 3 (Defense):</strong> The wall. Defenders and CDM's use <span class="text-white">DEF</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span> to block and intercept.</li>
+                        <li><strong class="text-green-400">Phase 1 (Midfield):</strong> Ball possession. Based on <span class="text-white">Sp.Atk</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span> (Strength).</li>
+                        <li><strong class="text-red-400">Phase 2 (Attack):</strong> Chance creation and finishing. Attackers and Wingers rule here.</li>
+                        <li><strong class="text-blue-400">Phase 3 (Defense):</strong> The wall. Defenders and CDM's use <span class="text-white">DEF</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span>.</li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">2. Football Attributes</h3>
-                    <div class="grid grid-cols-2 gap-2 md:gap-3">
-                        <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-green-400">HP:</strong> Physicality, Target Man, Shielding.</div>
-                        <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-red-400">ATK:</strong> Finishing, Shot Power, Penalties.</div>
-                        <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-blue-400">DEF:</strong> Tackling, Marking, Shot Stopping.</div>
-                        <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-purple-400">Sp.A:</strong> Technique, Vision, Passing.</div>
-                        <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-pink-400">Sp.D:</strong> Tactical Awareness, Interceptions.</div>
-                        <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-yellow-400">SPE:</strong> Pace, Agility, Wing Play.</div>
-                    </div>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">2. "Systeemvoetbal" Chemistry</h3>
+                    <p class="mb-2">Green lines = Type & Generation match (2 points). Yellow line = Type OR Gen match (1 point). Each point bridges <strong>5% of the gap</strong> between a player's raw stat and the maximum (99). This means average players get massive boosts from teamwork, while 99-rated super-legendaries barely benefit. Build a balanced squad!</p>
                 </div>
                 <div>
-                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">3. Individual Chemistry</h3>
-                    <p class="mb-2">Chemistry boosts apply <span class="text-green-400 font-bold">ONLY</span> to the specific player with the links! Their OVR will turn green on the pitch if boosted. Link adjacent players of the same <span class="text-yellow-400">Generation</span> (+1) or <span class="text-yellow-400">Type</span> (+1). <span class="text-green-400">Green lines</span> = Massive stat boost!</p>
-                    <p class="text-red-400 font-bold">Note: If you only select 1 Generation in the setup, Generation links are DISABLED. You must link by Type!</p>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">3. The 100% Tactical Pie</h3>
+                    <p>No more "weak link" penalties! Your team's score per phase is a clean weighted average based on the positions you chose. A speedy Winger perfectly contributes to the Attack score, but a Defender does not drag it down.</p>
                 </div>
                 <div>
-                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">4. The 100% Tactical Pie</h3>
-                    <p>No more "weak link" penalties! Your team's score per phase is a clean weighted average based on the positions you chose. A speedy Winger perfectly contributes to the Attack score, but a Defender does not drag it down. Put the right players in the right positions!</p>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">4. Training Camps</h3>
+                    <p>Between seasons, you earn <strong>1 Training Session</strong>. Select a player and roll the dice to permanently upgrade a specific stat. The worse the stat is, the higher the dice roll (weak stats can gain +8, top-tier stats only gain +1 or +2). Develop your youngsters!</p>
                 </div>
             </div>
             <button onclick="closeHTP()" class="mt-6 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-xl transition-colors uppercase tracking-wide">Got it, Let's Play!</button>
@@ -236,14 +228,14 @@
             
             <div id="transfer-banner" class="hidden w-full max-w-3xl mx-auto bg-gradient-to-r from-purple-700 to-purple-600 text-white font-black px-3.5 py-2.5 md:px-5 md:py-3 rounded-xl mb-2.5 shadow-xl border-2 border-purple-400 items-center justify-between gap-2">
                 <div class="flex flex-col">
-                    <span class="uppercase tracking-widest text-xs md:text-base leading-tight">Transfer Window</span>
-                    <span class="text-[10px] md:text-xs text-purple-200 font-medium">Tap a player on the pitch to swap them out</span>
+                    <span class="uppercase tracking-widest text-xs md:text-base leading-tight">Off-Season</span>
+                    <span class="text-[10px] md:text-xs text-purple-200 font-medium">Swap players or Train them</span>
                 </div>
-                <span class="bg-slate-900 px-2.5 md:px-3.5 py-1.5 rounded-lg text-yellow-400 shadow-inner text-xs md:text-base shrink-0">Left: <span id="transfer-count">2</span></span>
+                <span class="bg-slate-900 px-2.5 md:px-3.5 py-1.5 rounded-lg text-yellow-400 shadow-inner text-xs md:text-sm shrink-0 whitespace-nowrap">Swaps: <span id="transfer-count">2</span> | Trains: <span id="train-count">1</span></span>
             </div>
             
             <button id="btn-finish-transfers" onclick="finishTransfers()" class="hidden w-full max-w-3xl mx-auto mb-3 px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs md:text-sm rounded-xl transition-all uppercase tracking-wide border border-slate-600 text-center shadow">
-                Skip Remaining Transfers &rarr;
+                Finish Off-Season &rarr;
             </button>
 
             <div id="pitch-view" class="w-full max-w-3xl mx-auto pitch-wrapper block pb-8 relative">
@@ -554,6 +546,7 @@
         let currentSeason = 1;
         let isTransferWindow = false;
         let transfersLeft = 0;
+        let trainingsLeft = 0;
         let gameMode = 'classic';
         let isPeeking = false;
 
@@ -671,6 +664,8 @@
             hasPlayedCup = false;
             isTransferWindow = false;
             hasReroll = true;
+            transfersLeft = 0;
+            trainingsLeft = 0;
             userTeam = {};
             playerStats = {};
             formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
@@ -714,27 +709,11 @@
             } catch (error) { console.error("Error fetching pokemon", error); return null; }
         }
 
-        function calculatePlayerOVR(pokemon, role, multiplier = 1.0) {
-            const s = pokemon.normStats;
-            const w = {
-                'ST': { atk: 0.35, spe: 0.25, spa: 0.20, hp: 0.20, def: 0, spd: 0 },
-                'WG': { spe: 0.40, spa: 0.30, atk: 0.15, hp: 0.15, def: 0, spd: 0 },
-                'WM': { spe: 0.35, spa: 0.25, spd: 0.15, hp: 0.15, atk: 0.05, def: 0.05 },
-                'AM': { spa: 0.35, spe: 0.20, atk: 0.20, hp: 0.15, spd: 0.10, def: 0 },
-                'CM': { spa: 0.35, spd: 0.25, hp: 0.25, spe: 0.15, atk: 0, def: 0 },
-                'DM': { spd: 0.35, hp: 0.25, def: 0.25, spa: 0.10, spe: 0.05, atk: 0 },
-                'FB': { def: 0.40, spe: 0.35, spa: 0.15, hp: 0.10, spd: 0, atk: 0 },
-                'CB': { def: 0.40, hp: 0.30, spd: 0.20, atk: 0.10, spe: 0, spa: 0 },
-                'GK': { def: 0.40, spd: 0.30, hp: 0.20, spe: 0.10, atk: 0, spa: 0 }
-            }[role];
-            let ovr = ((s.spe*multiplier) * w.spe) + ((s.atk*multiplier) * w.atk) + ((s.hp*multiplier) * w.hp) + ((s.spa*multiplier) * w.spa) + ((s.def*multiplier) * w.def) + ((s.spd*multiplier) * w.spd);
-            return Math.min(99, Math.round(ovr));
-        }
-
+        // DE NIEUWE CHEMIE-REGEL (Afnemend Meerrendement)
         function getPlayerChem(posId) {
             let chem = 0;
             const player = userTeam[posId];
-            if (!player) return { score: 0, multiplier: 1 };
+            if (!player) return { score: 0, factor: 0 };
             
             const activeGensCount = genData.filter(g => g.active).length;
             const isSingleGen = activeGensCount === 1;
@@ -747,13 +726,45 @@
                         const sameType = player.types.some(t => otherPlayer.types.includes(t));
                         const sameGen = player.generation === otherPlayer.generation;
                         
-                        if (sameType) chem += 1;
-                        if (sameGen && !isSingleGen) chem += 1; // Gen 1 Only Fix: No free links!
+                        if (sameType && sameGen && !isSingleGen) chem += 2; // Groene lijn = 2 pnt
+                        else if (sameType || (sameGen && !isSingleGen)) chem += 1; // Gele lijn = 1 pnt
                     }
                 }
             });
-            // 5% boost per individual chem point
-            return { score: chem, multiplier: 1 + (chem * 0.05) };
+            // Elk chemiepunt dicht 5% van het gat tot de maximale 99 rating
+            return { score: chem, factor: chem * 0.05 };
+        }
+
+        // HULPFUNCTIE: Dicht het gat naar 99
+        function applyChemToStat(baseStat, factor) {
+            return Math.min(99, Math.round(baseStat + ((99 - baseStat) * factor)));
+        }
+
+        function calculatePlayerOVR(pokemon, role, chemFactor = 0) {
+            const s = pokemon.normStats;
+            const boostedStats = {
+                spe: applyChemToStat(s.spe, chemFactor),
+                atk: applyChemToStat(s.atk, chemFactor),
+                hp: applyChemToStat(s.hp, chemFactor),
+                spa: applyChemToStat(s.spa, chemFactor),
+                def: applyChemToStat(s.def, chemFactor),
+                spd: applyChemToStat(s.spd, chemFactor)
+            };
+
+            const w = {
+                'ST': { atk: 0.35, spe: 0.25, spa: 0.20, hp: 0.20, def: 0, spd: 0 },
+                'WG': { spe: 0.40, spa: 0.30, atk: 0.15, hp: 0.15, def: 0, spd: 0 },
+                'WM': { spe: 0.35, spa: 0.25, spd: 0.15, hp: 0.15, atk: 0.05, def: 0.05 },
+                'AM': { spa: 0.35, spe: 0.20, atk: 0.20, hp: 0.15, spd: 0.10, def: 0 },
+                'CM': { spa: 0.35, spd: 0.25, hp: 0.25, spe: 0.15, atk: 0, def: 0 },
+                'DM': { spd: 0.35, hp: 0.25, def: 0.25, spa: 0.10, spe: 0.05, atk: 0 },
+                'FB': { def: 0.40, spe: 0.35, spa: 0.15, hp: 0.10, spd: 0, atk: 0 },
+                'CB': { def: 0.40, hp: 0.30, spd: 0.20, atk: 0.10, spe: 0, spa: 0 },
+                'GK': { def: 0.40, spd: 0.30, hp: 0.20, spe: 0.10, atk: 0, spa: 0 }
+            }[role];
+            
+            let ovr = (boostedStats.spe * w.spe) + (boostedStats.atk * w.atk) + (boostedStats.hp * w.hp) + (boostedStats.spa * w.spa) + (boostedStats.def * w.def) + (boostedStats.spd * w.spd);
+            return Math.min(99, Math.round(ovr));
         }
 
         function calculateTeamPhaseScore(phase) {
@@ -765,23 +776,20 @@
                 if (!player) return;
 
                 const chemInfo = getPlayerChem(pos.id);
-                const m = chemInfo.multiplier;
+                const f = chemInfo.factor;
                 
-                const att = player.normStats.atk * m;
-                const def = player.normStats.def * m;
-                const spa = player.normStats.spa * m;
-                const spd = player.normStats.spd * m;
-                const spe = player.normStats.spe * m;
-                const hp = player.normStats.hp * m;
+                // Pas de nieuwe chemie-regel direct toe op de stats voor de match-engine
+                const att = applyChemToStat(player.normStats.atk, f);
+                const def = applyChemToStat(player.normStats.def, f);
+                const spa = applyChemToStat(player.normStats.spa, f);
+                const spd = applyChemToStat(player.normStats.spd, f);
+                const spe = applyChemToStat(player.normStats.spe, f);
+                const hp  = applyChemToStat(player.normStats.hp, f);
                 
                 const role = pos.role; 
-                
                 let playerScore = 0;
                 let playerWeight = 0;
 
-                // ==========================================
-                // FASE 1: MIDDENVELD (Balbezit & Controle)
-                // ==========================================
                 if (phase === 'midfield') {
                     const midScore = (spa * 0.4) + (spd * 0.3) + (hp * 0.3);
                     if (['CM'].includes(role)) playerWeight = 1.0;
@@ -790,9 +798,6 @@
                     else if (['WG'].includes(role)) playerWeight = 0.4;
                     playerScore = midScore;
                 } 
-                // ==========================================
-                // FASE 2: AANVAL (Kanscreatie & Afwerking)
-                // ==========================================
                 else if (phase === 'attack') {
                     if (['ST'].includes(role)) {
                         const targetScore = (att * 0.6) + (hp * 0.4);
@@ -821,9 +826,6 @@
                         playerWeight = 0.3; 
                     }
                 }
-                // ==========================================
-                // FASE 3: VERDEDIGING (De Muur)
-                // ==========================================
                 else if (phase === 'defense') {
                     if (['CB'].includes(role)) {
                         playerScore = (def * 0.5) + (hp * 0.3) + (spd * 0.2);
@@ -880,7 +882,7 @@
                 document.getElementById('score-mid').innerText = teamMidfield;
                 document.getElementById('score-def').innerText = teamDefense;
 
-                // De nieuwe transparante stats eerlijk geschaald naar de zware CPU pools
+                // Scaled Engine Pools (De x12.5 multiplier!)
                 myTeamEnginePools.poss = Math.round(teamMidfield * 12.5);
                 myTeamEnginePools.create = Math.round(teamAttack * 12.5);
                 myTeamEnginePools.finish = Math.round(teamAttack * 12.5);
@@ -925,9 +927,9 @@
                 
                 const player = userTeam[pos.id];
                 if (player) {
-                    const baseOVR = calculatePlayerOVR(player, pos.role);
+                    const baseOVR = calculatePlayerOVR(player, pos.role, 0);
                     const chemInfo = getPlayerChem(pos.id);
-                    const boostedOVR = calculatePlayerOVR(player, pos.role, chemInfo.multiplier);
+                    const boostedOVR = calculatePlayerOVR(player, pos.role, chemInfo.factor);
                     const isBoosted = boostedOVR > baseOVR;
 
                     let statsHtml = '';
@@ -937,16 +939,15 @@
                         </div>`;
                     }
 
-                    if (isTransferWindow && transfersLeft > 0) {
+                    if (isTransferWindow && (transfersLeft > 0 || trainingsLeft > 0)) {
                         node.classList.add('transfer-target');
-                        statsHtml += `<div class="swap-badge absolute -top-1.5 -left-2 bg-purple-600 border border-white rounded-full px-1.5 py-0.2 flex items-center justify-center z-40 shadow-md text-[7px] sm:text-[9px] font-black text-white transition-all">SWAP</div>`;
+                        statsHtml += `<div class="swap-badge absolute -top-1.5 -left-2 bg-purple-600 border border-white rounded-full px-1.5 py-0.2 flex items-center justify-center z-40 shadow-md text-[7px] sm:text-[9px] font-black text-white transition-all">MANAGE</div>`;
                     }
 
                     node.onclick = () => openDraft(pos.id, pos.display, pos.role);
 
                     const typeHex = getTypeColorHex(player.primaryType);
 
-                    // Green text and arrow to indicate individual chemistry is working
                     node.innerHTML = `
                         <div class="relative flex flex-col items-center justify-center drop-shadow-xl z-10 transition-transform">
                             ${statsHtml}
@@ -1052,6 +1053,11 @@
             }
         }
 
+        function updateTransferBanner() {
+            document.getElementById('transfer-count').innerText = transfersLeft;
+            document.getElementById('train-count').innerText = trainingsLeft;
+        }
+
         async function openDraft(posId, displayPos, role) {
             currentDraftPos = posId; 
             document.getElementById('draft-position-label').innerText = displayPos;
@@ -1067,7 +1073,7 @@
             modal.classList.add('flex');
 
             if (userTeam[posId] !== null) {
-                modalTitle.innerText = "Current Player";
+                modalTitle.innerText = "Manage Player";
                 btnReroll.classList.add('hidden');
                 btnReroll.classList.remove('flex');
                 rerollWrapper.classList.add('hidden');
@@ -1076,11 +1082,19 @@
                 
                 const p = userTeam[posId];
                 const typeHex = getTypeColorHex(p.primaryType);
-                const playerOVR = calculatePlayerOVR(p, role);
+                
+                const chemInfo = getPlayerChem(posId);
+                const playerOVR = calculatePlayerOVR(p, role, chemInfo.factor);
                 
                 const transferBtnHtml = (isTransferWindow && transfersLeft > 0) ? `
-                    <button onclick="confirmTransferOut('${role}', '${displayPos}')" class="mt-4 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 text-white font-black rounded-full shadow-[0_0_20px_rgba(220,38,38,0.5)] uppercase tracking-widest transform hover:-translate-y-0.5 transition-all text-sm sm:text-base">
-                        Transfer Out (${transfersLeft} Left)
+                    <button onclick="confirmTransferOut('${role}', '${displayPos}')" class="mt-4 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 text-white font-black rounded-full shadow-[0_0_20px_rgba(220,38,38,0.5)] uppercase tracking-widest transform hover:-translate-y-0.5 transition-all text-sm sm:text-base w-full flex justify-between items-center">
+                        <span>Transfer Out</span> <span class="text-xs bg-red-700 px-2 py-1 rounded">${transfersLeft} Left</span>
+                    </button>
+                ` : '';
+
+                const trainBtnHtml = (isTransferWindow && trainingsLeft > 0) ? `
+                    <button onclick="showTrainingOptions('${posId}')" class="mt-2 px-8 py-3.5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] uppercase tracking-widest transform hover:-translate-y-0.5 transition-all text-sm sm:text-base w-full flex justify-between items-center">
+                        <span>Train Player</span> <span class="text-xs bg-blue-700 px-2 py-1 rounded">${trainingsLeft} Left</span>
                     </button>
                 ` : '';
                 
@@ -1097,19 +1111,22 @@
                                 </div>
                                 <h3 class="font-black text-lg sm:text-2xl text-white text-center uppercase tracking-wide w-full shrink-0 mb-3 leading-tight truncate">${p.name}</h3>
                                 <div class="grid grid-cols-2 gap-x-5 gap-y-2.5 w-full text-sm sm:text-base font-mono bg-slate-950 p-4 rounded-lg text-slate-300 shrink-0">
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spe}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-base sm:text-lg">${p.stats.hp}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-base sm:text-lg">${p.stats.atk}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-base sm:text-lg">${p.stats.def}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spa}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spd}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spe}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.hp}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.atk}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.def}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spa}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spd}</span></div>
                                 </div>
                                 <div class="flex justify-between items-center w-full text-sm sm:text-base font-bold text-slate-400 mt-3 border-t border-slate-700/50 pt-3 shrink-0">
-                                    <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-base sm:text-lg">${playerOVR} Base OVR</span>
+                                    <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-base sm:text-lg">${playerOVR} OVR</span>
                                 </div>
                             </div>
                         </div>
-                        ${transferBtnHtml}
+                        <div class="w-full max-w-[240px] sm:max-w-[280px]">
+                            ${transferBtnHtml}
+                            ${trainBtnHtml}
+                        </div>
                     </div>
                 `;
             } else {
@@ -1125,6 +1142,61 @@
                 btnCancel.classList.add('hidden');
                 await rollOptions(role, displayPos);
             }
+        }
+
+        window.showTrainingOptions = function(posId) {
+            const p = userTeam[posId];
+            const gacha = document.getElementById('gacha-container');
+            document.getElementById('draft-modal-title').innerText = `Train ${p.name}`;
+            
+            const stats = [
+                { id: 'spe', label: 'Speed', val: p.normStats.spe },
+                { id: 'hp', label: 'HP', val: p.normStats.hp },
+                { id: 'atk', label: 'Attack', val: p.normStats.atk },
+                { id: 'def', label: 'Defense', val: p.normStats.def },
+                { id: 'spa', label: 'Sp.Atk', val: p.normStats.spa },
+                { id: 'spd', label: 'Sp.Def', val: p.normStats.spd }
+            ];
+
+            let html = `<div class="col-span-full w-full max-w-lg mx-auto bg-slate-900 p-6 rounded-xl border-2 border-blue-500 text-center shadow-2xl">
+                <p class="text-blue-400 font-bold mb-4 uppercase tracking-widest text-sm">Select a stat to improve</p>
+                <div class="grid grid-cols-2 gap-3 w-full">`;
+            
+            stats.forEach(s => {
+                html += `<button onclick="executeTraining('${posId}', '${s.id}', ${s.val})" class="flex justify-between items-center bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg p-3 transition-colors group transform hover:scale-105">
+                    <span class="text-slate-400 font-bold group-hover:text-white transition-colors">${s.label}</span>
+                    <span class="text-white font-black text-lg">${s.val}</span>
+                </button>`;
+            });
+
+            html += `</div></div>`;
+            gacha.innerHTML = html;
+        }
+
+        window.executeTraining = function(posId, statId, oldVal) {
+            if(trainingsLeft <= 0) return;
+            trainingsLeft--;
+            
+            let minRoll, maxRoll;
+            if(oldVal < 60) { minRoll = 4; maxRoll = 8; }
+            else if(oldVal <= 89) { minRoll = 2; maxRoll = 5; }
+            else { minRoll = 0; maxRoll = 2; }
+            
+            let gain = Math.floor(Math.random() * (maxRoll - minRoll + 1)) + minRoll;
+            let newVal = Math.min(99, oldVal + gain);
+            let actualGain = newVal - oldVal;
+
+            userTeam[posId].normStats[statId] = newVal;
+            
+            const gacha = document.getElementById('gacha-container');
+            gacha.innerHTML = `<div class="col-span-full w-full max-w-lg mx-auto bg-slate-900 p-6 rounded-xl border-2 border-green-500 text-center shadow-2xl">
+                <span class="text-5xl block mb-4">💪✨</span>
+                <h3 class="text-2xl font-black text-white uppercase tracking-widest mb-2">Training Complete!</h3>
+                <p class="text-green-400 font-bold text-lg mb-6">${statId.toUpperCase()} increased by +${actualGain} (Now ${newVal})</p>
+                <button onclick="closeModal(); renderPitch(); updateScores(); updateTransferBanner();" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-full uppercase tracking-wide">Awesome</button>
+            </div>`;
+            
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#4ade80', '#ffffff'] });
         }
 
         function closeModal() { 
@@ -1190,7 +1262,7 @@
 
                 const ballHtml = `<div id="ball-${idx}" class="pokeball-container dropping z-20 my-auto">${getBallSvg(p.bst)}</div>`;
                 const typeHex = getTypeColorHex(p.primaryType);
-                const ovr = calculatePlayerOVR(p, role);
+                const ovr = calculatePlayerOVR(p, role, 0);
 
                 const cardHtml = `
                     <div id="card-${idx}" class="fut-card flex-col items-center p-3 sm:p-4 rounded-xl w-full h-full justify-between flex-grow" onclick="selectPokemonByIndex(${idx})">
@@ -1253,8 +1325,8 @@
             
             if (isReplacing && isTransferWindow) {
                 transfersLeft--;
-                document.getElementById('transfer-count').innerText = transfersLeft;
-                if(transfersLeft <= 0) {
+                updateTransferBanner();
+                if(transfersLeft <= 0 && trainingsLeft <= 0) {
                     finishTransfers();
                 }
             }
@@ -1468,7 +1540,7 @@
             const feed = document.getElementById('results-feed-list');
             const newResult = document.createElement('div');
             newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${userGoals.length > cpuGoals.length ? 'green' : (userGoals.length < cpuGoals.length ? 'red' : 'slate')}-500 shrink-0`;
-            newResult.innerHTML = `<span class="text-slate-400">Match ${matchday}</span><span class="font-bold text-white">${userTeamName}${userGoals.length} - ${cpuGoals.length}${cpuOp.name}</span>`;
+            newResult.innerHTML = `<span class="text-slate-400">Match ${matchday}</span><span class="font-bold text-white">${userTeamName} ${userGoals.length} - ${cpuGoals.length} ${cpuOp.name}</span>`;
             feed.insertBefore(newResult, feed.firstChild);
         }
 
@@ -1504,7 +1576,7 @@
                 while(awayGoals.length > 0 && awayGoals[0].min === min) {
                     aScore++;
                     document.getElementById('tv-away-score').innerText = aScore;
-                    document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽${awayGoals.shift().name}</div>`;
+                    document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽ ${awayGoals.shift().name}</div>`;
                     goalHappened = true;
                 }
                 if(goalHappened) await delay(1400); else await delay(25); 
@@ -1524,647 +1596,4 @@
             let a = standings.find(t => t.id === awayId);
             h.p++; a.p++; h.gf += hGoals; h.ga += aGoals; a.gf += aGoals; a.ga += hGoals;
             if (hGoals > aGoals) { h.w++; h.pts+=3; a.l++; }
-            else if (hGoals < aGoals) { a.w++; a.pts+=3; h.l++; }
-            else { h.d++; a.d++; h.pts++; a.pts++; }
-            
-            let otherTeams = standings.filter(t => t.id !== homeId && t.id !== awayId);
-            otherTeams.sort(() => 0.5 - Math.random());
-            for(let i=0; i<otherTeams.length; i+=2) {
-                let t1 = otherTeams[i]; let t2 = otherTeams[i+1];
-                if(t1 && t2 && t1.p < h.p) {
-                    t1.p++; t2.p++;
-                    
-                    let s1 = (t1.pools.poss + t1.pools.create + t1.pools.prevent + t1.pools.finish + t1.pools.block) || 3500;
-                    let s2 = (t2.pools.poss + t2.pools.create + t2.pools.prevent + t2.pools.finish + t2.pools.block) || 3500;
-                    let prob = Math.pow(s1, 1.5) / (Math.pow(s1, 1.5) + Math.pow(s2, 1.5));
-                    
-                    let cpuGoalsA = 0; let cpuGoalsB = 0;
-                    for(let c=0; c<4; c++) {
-                        if(Math.random() < prob * 0.9) cpuGoalsA++;
-                        if(Math.random() < (1 - prob) * 0.9) cpuGoalsB++;
-                    }
-                    if(s1 > 4200 && Math.random() < 0.25) cpuGoalsA++;
-                    if(s2 > 4200 && Math.random() < 0.25) cpuGoalsB++;
-
-                    t1.gf += cpuGoalsA; t1.ga += cpuGoalsB; t2.gf += cpuGoalsB; t2.ga += cpuGoalsA;
-                    if (cpuGoalsA > cpuGoalsB) { t1.w++; t1.pts+=3; t2.l++; }
-                    else if (cpuGoalsA < cpuGoalsB) { t2.w++; t2.pts+=3; t1.l++; }
-                    else { t1.d++; t2.d++; t1.pts++; t2.pts++; }
-                }
-            }
-        }
-
-        function updateTableUI() {
-            standings.sort((a,b) => { if(b.pts !== a.pts) return b.pts - a.pts; return (b.gf - b.ga) - (a.gf - a.ga); });
-            const tbody = document.getElementById('live-table-body');
-            tbody.innerHTML = '';
-            
-            standings.forEach((t, i) => {
-                const tr = document.createElement('tr');
-                let qualificationClass = "";
-                let qualLabel = "";
-                
-                if(i < 2) {
-                    qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
-                    qualLabel = `<span class="ml-1.5 text-[8px] bg-blue-600 text-white px-1 py-0.5 rounded font-bold">QUAL</span>`;
-                } else if (gameMode === 'rtg' && i === standings.length - 1) { 
-                    qualificationClass = "border-l-4 border-l-red-500 bg-red-900/20";
-                    qualLabel = `<span class="ml-1.5 text-[8px] bg-red-600 text-white px-1 py-0.5 rounded font-bold">DROP</span>`;
-                }
-                
-                tr.className = `border-t border-slate-700/50 ${t.isUser ? 'bg-yellow-500/20 text-yellow-400 font-bold' : ''} ${qualificationClass}`;
-                tr.innerHTML = `<td class="px-3 py-3 flex items-center gap-1"><span class="w-4 text-center text-xs text-slate-500">${i+1}</span> <span class="truncate max-w-[115px] sm:max-w-none ${t.isUser && i < 2 ? 'text-blue-300' : ''}">${t.name}</span>${qualLabel}</td><td class="px-2 py-3 text-center">${t.p}</td><td class="px-2 py-3 text-center font-black ${t.isUser ? 'text-yellow-400' : 'text-white'}">${t.pts}</td><td class="px-2 py-3 text-center hidden sm:table-cell text-xs whitespace-nowrap">${t.w}-${t.d}-${t.l}</td><td class="px-2 py-3 text-center text-xs ${t.gf - t.ga > 0 ? 'text-green-400' : (t.gf - t.ga < 0 ? 'text-red-400' : '')}">${t.gf - t.ga > 0 ? '+' : ''}${t.gf - t.ga}</td>`;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function showSeasonSummary() {
-            document.getElementById('tv-scoreboard').classList.add('hidden');
-            let currentSquadIds = Object.values(userTeam).filter(p => p !== null).map(p => p.id);
-            let allPlayers = Object.values(playerStats).filter(ps => currentSquadIds.includes(ps.p.id));
-            
-            let topScorer = [...allPlayers].sort((a,b) => b.seasonGoals - a.seasonGoals)[0];
-            let mvp = [...allPlayers].sort((a,b) => b.seasonPerfScore - a.seasonPerfScore)[0];
-            
-            const finalPos = standings.findIndex(t => t.isUser) + 1;
-            const qualified = finalPos <= 2;
-            const isSacked = (gameMode === 'rtg' && finalPos === standings.length);
-            
-            let topScorerContent = topScorer && topScorer.seasonGoals > 0 ? `<img src="${topScorer.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-yellow-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">Season Scorer</p><p class="text-base font-black text-white leading-tight truncate">${topScorer.p.name}</p><p class="text-xs text-slate-400">${topScorer.seasonGoals} Goals <span class="opacity-75">(${topScorer.goals} Tot)</span></p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">📉</div><div class="text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Attacking Woes</p><p class="text-base font-black text-white leading-tight">No Goals</p><p class="text-xs text-slate-400">0 goals scored</p></div>`;
-            let mvpContent = mvp && mvp.seasonPerfScore > 0 ? `<img src="${mvp.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-purple-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight truncate">${mvp.p.name}</p><p class="text-xs text-slate-400">${mvp.seasonPerfScore} Match Pts</p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">😴</div><div class="text-left"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight">Nobody</p><p class="text-xs text-slate-400">0 Match Pts</p></div>`;
-            
-            let allScorersHtml = '';
-            let goalscorers = [...allPlayers].filter(p => p.seasonGoals > 0 || p.goals > 0).sort((a,b) => b.seasonGoals - a.seasonGoals);
-            if(goalscorers.length > 0) {
-                allScorersHtml = `<div class="w-full mt-4 bg-slate-900 rounded-xl p-3 border border-slate-700 text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 border-b border-slate-700 pb-1">Squad Goalscorers (Season / Career)</p><div class="flex flex-wrap gap-2">` + 
-                goalscorers.map(g => `<span class="bg-slate-800 text-xs px-2.5 py-1 rounded text-white shadow-inner">${g.p.name} <strong class="text-yellow-400 ml-1">${g.seasonGoals}</strong> <span class="text-slate-400 text-[10px]">(${g.goals} Tot)</span></span>`).join('') + `</div></div>`;
-            }
-
-            let actionHtml = '';
-            if (isSacked) {
-                actionHtml = `
-                    <div class="mt-5 bg-red-900/40 border border-red-600 rounded-xl p-4 text-center shadow-inner">
-                        <span class="text-3xl mb-1 block">📉❌</span>
-                        <p class="text-lg text-red-500 font-black uppercase tracking-widest mb-1">You Have Been Sacked!</p>
-                        <p class="text-xs text-red-200 font-medium mb-4">Finishing dead last resulted in relegation. The club board has terminated your contract.</p>
-                        <button onclick="startNewDraft()" class="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] uppercase tracking-widest text-sm md:text-base w-full transition-all">START NEW CAREER</button>
-                    </div>
-                `;
-            } else if (qualified) {
-                actionHtml = `<button onclick="startContinentalCup()" class="mt-4 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_30px_rgba(37,99,235,0.8)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">🏆 PLAY CONTINENTAL CUP</button>`;
-            } else {
-                actionHtml = `<p class="mt-4 text-xs text-slate-400 font-bold uppercase tracking-widest text-center">DID NOT QUALIFY FOR CONTINENTAL CUP</p>
-                   <button onclick="startTransferWindow()" class="mt-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_30px_rgba(168,85,247,0.7)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">START NEXT SEASON (TRANSFERS)</button>`;
-            }
-
-            const awards = document.getElementById('post-season-awards');
-            awards.classList.remove('hidden');
-            awards.classList.add('flex', 'order-first');
-            awards.innerHTML = `<div class="bg-slate-800 rounded-2xl border border-slate-700 p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="text-xl md:text-2xl font-black text-white mb-1 uppercase tracking-wide">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : 'text-yellow-400')} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${actionHtml}<button onclick="viewTeam()" class="mt-3 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
-
-            setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        }
-
-        function startContinentalCup() {
-            hasPlayedCup = true;
-            document.getElementById('pitch-view').classList.add('hidden');
-            document.getElementById('match-center').classList.remove('hidden');
-            document.getElementById('match-center').classList.add('flex');
-            
-            document.getElementById('btn-play-cup-pitch').classList.add('hidden');
-            document.getElementById('btn-play-cup-pitch').classList.remove('block');
-            document.getElementById('btn-back-to-stats').classList.add('hidden');
-            document.getElementById('btn-back-to-stats').classList.remove('flex');
-
-            document.getElementById('post-season-awards').classList.add('hidden');
-            document.getElementById('post-season-awards').classList.remove('flex');
-            
-            document.getElementById('tv-scoreboard').classList.remove('hidden');
-            
-            continentalOpponents = [...euroOpponents].sort(() => 0.5 - Math.random());
-            currentCupRound = 0;
-            
-            setupNextCupRound();
-        }
-
-        function setupNextCupRound() {
-            const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
-            const cupOp = continentalOpponents[currentCupRound];
-            
-            document.getElementById('tv-scoreboard').classList.add('cup-theme');
-            
-            document.getElementById('tv-matchday-text').innerText = roundNames[currentCupRound];
-            document.getElementById('tv-matchday-text').classList.remove('hidden');
-            document.getElementById('tv-status-text').innerText = 'PRE-MATCH';
-            document.getElementById('tv-status-dot').classList.remove('animate-pulse');
-            
-            document.getElementById('tv-home-team').innerText = userTeamName;
-            document.getElementById('tv-away-team').innerText = cupOp.name;
-            
-            document.getElementById('tv-home-score').innerText = '0'; 
-            document.getElementById('tv-away-score').innerText = '0';
-            document.getElementById('tv-home-scorers').innerHTML = ''; 
-            document.getElementById('tv-away-scorers').innerHTML = '';
-            
-            document.getElementById('tv-home-poss').innerText = `50%`; document.getElementById('tv-away-poss').innerText = `50%`;
-            document.getElementById('bar-home-poss').style.width = `50%`; document.getElementById('bar-away-poss').style.width = `50%`;
-            document.getElementById('tv-home-shots').innerText = 0; document.getElementById('tv-away-shots').innerText = 0;
-            document.getElementById('bar-home-shots').style.width = `0%`; document.getElementById('bar-away-shots').style.width = `0%`;
-            
-            const overlay = document.getElementById('kickoff-overlay');
-            document.getElementById('kickoff-title').innerText = roundNames[currentCupRound];
-            document.getElementById('kickoff-home').innerText = userTeamName;
-            document.getElementById('kickoff-away').innerText = cupOp.name;
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-            
-            setTimeout(() => { document.getElementById('tv-scoreboard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        }
-
-        async function startCupMatchLoop() {
-            const overlay = document.getElementById('kickoff-overlay');
-            overlay.classList.add('hidden');
-            overlay.classList.remove('flex');
-
-            document.getElementById('tv-status-text').innerText = 'LIVE';
-            document.getElementById('tv-status-dot').classList.add('animate-pulse');
-
-            const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
-            const cupOp = continentalOpponents[currentCupRound];
-
-            const totalChances = 9; 
-            
-            const uPoss = myTeamEnginePools.poss || 0; 
-            const cPoss = cupOp.pools.poss || 0;
-            const possRatio = (Math.pow(uPoss, 1.2)) / (Math.pow(uPoss, 1.2) + Math.pow(cPoss, 1.2));
-            
-            const userChances = Math.round(possRatio * totalChances) || 0; 
-            const cpuChances = totalChances - userChances;
-            
-            const userPossPct = Math.round(possRatio * 100) || 50;
-            document.getElementById('tv-home-poss').innerText = `${userPossPct}%`;
-            document.getElementById('tv-away-poss').innerText = `${100 - userPossPct}%`;
-            document.getElementById('bar-home-poss').style.width = `${userPossPct}%`;
-            document.getElementById('bar-away-poss').style.width = `${100 - userPossPct}%`;
-            document.getElementById('tv-home-shots').innerText = userChances;
-            document.getElementById('tv-away-shots').innerText = cpuChances;
-            document.getElementById('bar-home-shots').style.width = `${(userChances/totalChances)*100}%`;
-            document.getElementById('bar-away-shots').style.width = `${(cpuChances/totalChances)*100}%`;
-
-            let userGoals = [], cpuGoals = [];
-            let userET = [], cpuET = [];
-            
-            const uCreate = myTeamEnginePools.create || 0; const cPrevent = cupOp.pools.prevent || 0;
-            const cCreate = cupOp.pools.create || 0; const uPrevent = myTeamEnginePools.prevent || 0;
-            const uFinish = myTeamEnginePools.finish || 0; const cBlock = cupOp.pools.block || 0;
-            const cFinish = cupOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
-
-            const userCreateProb = Math.min(0.70, Math.max(0.20, uCreate / (uCreate + cPrevent)));
-            const userFinishProb = Math.min(0.70, Math.max(0.20, uFinish / (uFinish + cBlock)));
-            const cpuCreateProb = Math.min(0.70, Math.max(0.20, cCreate / (cCreate + uPrevent)));
-            const cpuFinishProb = Math.min(0.70, Math.max(0.20, cFinish / (cFinish + uBlock)));
-
-            let rawUserGoals = 0, rawCpuGoals = 0;
-            for(let i=0; i<userChances; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rawUserGoals++; }
-            for(let i=0; i<cpuChances; i++) { if(Math.random() < cpuCreateProb && Math.random() < cpuFinishProb) rawCpuGoals++; }
-
-            const usedMins = new Set();
-            const userGoalMins = getUniqueMinutes(rawUserGoals, 1, 89, usedMins);
-            const cpuGoalMins = getUniqueMinutes(rawCpuGoals, 1, 89, usedMins);
-
-            for(let m of userGoalMins) {
-                const scorer = getWeightedScorer();
-                if(scorer) userGoals.push({ min: m, name: scorer.name, p: scorer });
-            }
-            for(let m of cpuGoalMins) {
-                const cpuScorers = cupOp.names;
-                cpuGoals.push({ min: m, name: cpuScorers[Math.floor(Math.random() * cpuScorers.length)] });
-            }
-
-            userGoals.sort((a,b)=>a.min-b.min);
-            cpuGoals.sort((a,b)=>a.min-b.min);
-            let finalScore = await runLiveMatch([...userGoals], [...cpuGoals], 90, false);
-            
-            if (finalScore.h === finalScore.a) {
-                document.getElementById('tv-status-text').innerText = 'EXTRA TIME';
-                document.getElementById('tv-status-dot').classList.add('animate-pulse');
-                
-                let rUET = 0, rCET = 0;
-                for(let i=0; i<3; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rUET++; }
-                for(let i=0; i<3; i++) { if(Math.random() < cpuCreateProb && Math.random() < cpuFinishProb) rCET++; }
-                
-                const usedETMins = new Set();
-                let uETMins = getUniqueMinutes(rUET, 91, 119, usedETMins);
-                let cETMins = getUniqueMinutes(rCET, 91, 119, usedETMins);
-
-                for(let m of uETMins) { let s = getWeightedScorer(); userET.push({min: m, name:s.name, p:s}); }
-                for(let m of cETMins) { cpuET.push({min: m, name: cupOp.names[Math.floor(Math.random() * cupOp.names.length)]}); }
-
-                userET.sort((a,b)=>a.min-b.min);
-                cpuET.sort((a,b)=>a.min-b.min);
-                
-                finalScore = await runLiveMatch([...userET], [...cpuET], 120, true);
-            }
-            
-            [...userGoals, ...userET].forEach(g => { 
-                if(g.p && playerStats[g.p.id]) { 
-                    playerStats[g.p.id].goals += 1; 
-                    playerStats[g.p.id].seasonGoals += 1;
-                    playerStats[g.p.id].perfScore += 3; 
-                    playerStats[g.p.id].seasonPerfScore += 3;
-                } 
-            });
-            if(finalScore.a === 0) {
-                getDefenders().forEach(d => { 
-                    if(d && playerStats[d.id]) { 
-                        playerStats[d.id].cleanSheets += 1; 
-                        playerStats[d.id].perfScore += 4; 
-                        playerStats[d.id].seasonPerfScore += 4;
-                    } 
-                });
-            }
-
-            if (finalScore.h === finalScore.a) {
-                document.getElementById('tv-status-text').innerText = 'PENALTIES';
-                document.getElementById('tv-status-dot').classList.add('animate-pulse');
-                document.getElementById('tv-clock').innerText = 'PENS';
-                finalScore = await simulatePenalties(finalScore.h, finalScore.a, cupOp);
-            }
-
-            const feed = document.getElementById('results-feed-list');
-            const newResult = document.createElement('div');
-            newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${finalScore.h > finalScore.a ? 'blue' : 'red'}-500 shrink-0`;
-            newResult.innerHTML = `<span class="text-blue-400 font-bold">${roundNames[currentCupRound]}</span><span class="font-bold text-white">${userTeamName}${finalScore.h} - ${finalScore.a}${cupOp.name}</span>`;
-            feed.insertBefore(newResult, feed.firstChild);
-
-            if (finalScore.h > finalScore.a) {
-                currentCupRound++;
-                if (currentCupRound > 3) {
-                    celebrateGloryWin();
-                } else {
-                    document.getElementById('post-season-awards').classList.remove('hidden');
-                    document.getElementById('post-season-awards').classList.add('flex', 'order-first');
-                    document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-blue-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(59,130,246,0.3)]"><h2 class="text-xl md:text-2xl font-black text-white mb-2 uppercase tracking-wide">Victory!</h2><p class="text-blue-400 font-bold mb-5 text-sm">You advanced to the ${roundNames[currentCupRound]}!</p><button onclick="document.getElementById('post-season-awards').classList.add('hidden'); setupNextCupRound();" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-sm md:text-base">Play Next Match</button></div>`;
-                    setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-                }
-            } else {
-                document.getElementById('post-season-awards').classList.remove('hidden');
-                document.getElementById('post-season-awards').classList.add('flex', 'order-first');
-                
-                let lossActionHtml = gameMode === 'rtg' ? 
-                    `<button onclick="startTransferWindow()" class="mt-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_30px_rgba(168,85,247,0.8)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">START NEXT SEASON (TRANSFERS)</button>`
-                    : ``;
-
-                document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-red-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="text-xl md:text-2xl font-black text-white mb-1 uppercase tracking-wide">Eliminated</h2><p class="text-red-400 font-bold mb-5 text-sm">Knocked out in the ${roundNames[currentCupRound]}.</p>${lossActionHtml}<button onclick="viewTeam()" class="mt-3 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-xs md:text-sm">View Team</button></div>`;
-                setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-            }
-        }
-
-        async function simulatePenalties(baseHome, baseAway, cupOp) {
-            const delay = ms => new Promise(res => setTimeout(res, ms));
-            let hPens = 0, aPens = 0; let hTaken = 0, aTaken = 0;
-            
-            let userTakers = Object.values(userTeam).filter(p => p !== null).sort((a, b) => b.normStats.atk - a.normStats.atk);
-            let cpuTakers = [...cupOp.names].sort(() => 0.5 - Math.random()); 
-            
-            let userGk = userTeam['GK'];
-            let userGkDef = userGk ? userGk.normStats.def : 50;
-            let cpuGkDef = Math.min(99, Math.round(cupOp.pools.block / 20)); 
-
-            document.getElementById('tv-home-scorers').innerHTML = '<div class="text-center w-full text-blue-400 text-xs font-bold mb-2 border-b border-slate-700 pb-1">Shootout</div>';
-            document.getElementById('tv-away-scorers').innerHTML = '<div class="text-center w-full text-red-400 text-xs font-bold mb-2 border-b border-slate-700 pb-1">Shootout</div>';
-
-            for(let round=1; round<=11; round++) { 
-                let taker = userTakers[hTaken % userTakers.length];
-                let takerName = taker ? taker.name : "Player";
-                let takerAtk = taker ? taker.normStats.atk : 70;
-                
-                let chance = 0.75 + ((takerAtk - cpuGkDef) / 200);
-                chance = Math.max(0.45, Math.min(0.92, chance)); 
-                
-                hTaken++;
-                const isHomeGoal = Math.random() < chance; 
-                if(isHomeGoal) hPens++;
-                document.getElementById('tv-home-scorers').innerHTML += `<div class="goal-item text-white text-[10px] md:text-xs">${isHomeGoal ? '✅' : '❌'} ${takerName}</div>`;
-                document.getElementById('tv-home-score').innerText = `${baseHome} (${hPens})`;
-                await delay(1000);
-
-                if(round <= 5) { if (hPens > aPens + (5 - aTaken)) break; if (aPens > hPens + (5 - hTaken)) break; }
-
-                let cpuTakerName = cpuTakers[aTaken % cpuTakers.length];
-                let cpuChance = 0.75 + ((78 - userGkDef) / 200); 
-                cpuChance = Math.max(0.45, Math.min(0.92, cpuChance));
-
-                aTaken++;
-                const isAwayGoal = Math.random() < cpuChance;
-                if(isAwayGoal) aPens++;
-                document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-white text-[10px] md:text-xs text-right">${cpuTakerName} ${isAwayGoal ? '✅' : '❌'}</div>`;
-                document.getElementById('tv-away-score').innerText = `${baseAway} (${aPens})`;
-                await delay(1000);
-
-                if(round <= 5) { if (hPens > aPens + (5 - aTaken)) break; if (aPens > hPens + (5 - hTaken)) break; } else if (hPens !== aPens) break; 
-            }
-
-            if (hPens === aPens) {
-                hPens++;
-                document.getElementById('tv-home-score').innerText = `${baseHome} (${hPens})`;
-            }
-            
-            document.getElementById('tv-status-text').innerText = 'FT (PENS)';
-            document.getElementById('tv-status-dot').classList.remove('animate-pulse');
-            await delay(1200);
-            return { h: baseHome + (hPens > aPens ? 1 : 0), a: baseAway + (aPens > hPens ? 1 : 0) }; 
-        }
-
-        function startTransferWindow() {
-            currentSeason++;
-            document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
-            isTransferWindow = true;
-            transfersLeft = 2;
-            hasReroll = false;
-
-            document.getElementById('match-center').classList.add('hidden');
-            document.getElementById('match-center').classList.remove('flex');
-            document.getElementById('btn-back-to-stats').classList.add('hidden');
-            document.getElementById('btn-back-to-stats').classList.remove('flex');
-            
-            document.getElementById('btn-simulate').classList.add('hidden');
-            document.getElementById('btn-play-cup-pitch').classList.add('hidden');
-            document.getElementById('btn-play-cup-pitch').classList.remove('block');
-            document.getElementById('btn-next-season-pitch').classList.add('hidden');
-            document.getElementById('btn-next-season-pitch').classList.remove('block');
-
-            document.getElementById('btn-download').classList.add('hidden');
-            document.getElementById('btn-share').classList.add('hidden');
-            
-            document.getElementById('btn-resign').classList.remove('hidden');
-            document.getElementById('btn-resign').classList.add('block');
-            
-            document.getElementById('transfer-count').innerText = transfersLeft;
-            document.getElementById('transfer-banner').classList.remove('hidden');
-            document.getElementById('transfer-banner').classList.add('flex');
-            
-            document.getElementById('btn-finish-transfers').classList.remove('hidden');
-            document.getElementById('btn-finish-transfers').classList.add('block');
-
-            document.getElementById('pitch-view').classList.remove('hidden');
-            
-            renderPitch();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function finishTransfers() {
-            isTransferWindow = false;
-            document.getElementById('transfer-banner').classList.add('hidden');
-            document.getElementById('transfer-banner').classList.remove('flex');
-            document.getElementById('btn-finish-transfers').classList.add('hidden');
-            document.getElementById('btn-finish-transfers').classList.remove('block');
-            
-            document.getElementById('btn-simulate').classList.remove('hidden');
-            document.getElementById('btn-simulate').disabled = false;
-            
-            document.getElementById('btn-resign').classList.remove('hidden');
-            document.getElementById('btn-resign').classList.add('block');
-            
-            renderPitch();
-        }
-
-        function celebrateGloryWin() {
-            confetti({ particleCount: 250, spread: 180, origin: { y: 0.1 }, colors: ['#3b82f6', '#facc15', '#ffffff'] });
-            document.getElementById('post-season-awards').classList.remove('hidden');
-            document.getElementById('post-season-awards').classList.add('flex', 'order-first');
-            
-            const winText = gameMode === 'rtg' ? `You won the Continental Cup in ${currentSeason} ${currentSeason === 1 ? 'season' : 'seasons'}!` : `You won the Continental Cup with your drafted team!`;
-            const titleText = gameMode === 'rtg' ? `ROAD TO GLORY COMPLETED!` : `CHAMPIONS OF EUROPE!`;
-
-            document.getElementById('post-season-awards').innerHTML = `
-                <div class="bg-slate-800 rounded-2xl border-4 border-yellow-400 p-6 md:p-8 text-center shadow-[0_0_50px_rgba(234,179,8,0.5)]">
-                    <span class="text-5xl md:text-6xl mb-2 block">🏆✨</span>
-                    <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-2 uppercase tracking-wide">${titleText}</h2>
-                    <p class="text-white font-bold mb-6 text-sm md:text-base">${winText}</p>
-                    <button onclick="viewTeam()" class="px-8 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-full transition-colors uppercase tracking-wide w-full">View Champion Team</button>
-                </div>`;
-            setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        }
-
-        function viewTeam() {
-            document.getElementById('match-center').classList.add('hidden');
-            document.getElementById('match-center').classList.remove('flex');
-            document.getElementById('pitch-view').classList.remove('hidden');
-            renderPitch(); 
-            document.getElementById('btn-simulate').classList.add('hidden');
-            
-            const finishTransBtn = document.getElementById('btn-finish-transfers');
-            if(finishTransBtn) { finishTransBtn.classList.add('hidden'); finishTransBtn.classList.remove('block'); }
-            
-            document.getElementById('btn-download').classList.remove('hidden'); document.getElementById('btn-download').classList.add('block');
-            document.getElementById('btn-share').classList.remove('hidden'); document.getElementById('btn-share').classList.add('flex');
-            document.getElementById('btn-resign').classList.remove('hidden'); document.getElementById('btn-resign').classList.add('block');
-            
-            document.getElementById('btn-play-cup-pitch').classList.add('hidden');
-            document.getElementById('btn-play-cup-pitch').classList.remove('block');
-            document.getElementById('btn-next-season-pitch').classList.add('hidden');
-            document.getElementById('btn-next-season-pitch').classList.remove('block');
-            
-            const finalPos = standings.findIndex(t => t.isUser) + 1;
-            const wonCup = currentCupRound > 3;
-            const isSacked = (gameMode === 'rtg' && finalPos === standings.length);
-
-            if (!isSacked) {
-                if (wonCup) {
-                } else if (finalPos <= 2 && !hasPlayedCup) {
-                    document.getElementById('btn-play-cup-pitch').classList.remove('hidden'); 
-                    document.getElementById('btn-play-cup-pitch').classList.add('block');
-                } else {
-                    document.getElementById('btn-next-season-pitch').classList.remove('hidden');
-                    document.getElementById('btn-next-season-pitch').classList.add('block');
-                }
-            }
-
-            document.getElementById('btn-back-to-stats').classList.remove('hidden');
-            document.getElementById('btn-back-to-stats').classList.add('flex');
-        }
-
-        function startNewDraft() {
-            document.getElementById('game-ui').classList.add('hidden');
-            document.getElementById('game-ui').classList.remove('flex');
-            document.getElementById('match-center').classList.add('hidden');
-            document.getElementById('match-center').classList.remove('flex');
-            document.getElementById('pitch-view').classList.remove('hidden');
-
-            document.getElementById('transfer-banner').classList.add('hidden');
-            document.getElementById('transfer-banner').classList.remove('flex');
-            document.getElementById('btn-finish-transfers').classList.add('hidden');
-            document.getElementById('btn-finish-transfers').classList.remove('block');
-
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-2').classList.remove('flex');
-            document.getElementById('step-1').classList.remove('hidden');
-            document.getElementById('start-screen').classList.remove('hidden', 'opacity-0');
-            document.getElementById('post-season-awards').classList.add('hidden');
-            document.getElementById('post-season-awards').classList.remove('flex');
-            document.getElementById('results-feed-list').innerHTML = '';
-            
-            document.getElementById('tv-scoreboard').classList.remove('cup-theme', 'hidden');
-            
-            document.getElementById('btn-simulate').classList.remove('hidden');
-            document.getElementById('btn-simulate').disabled = true;
-            document.getElementById('btn-download').classList.add('hidden'); document.getElementById('btn-download').classList.remove('block');
-            document.getElementById('btn-share').classList.add('hidden'); document.getElementById('btn-share').classList.remove('flex');
-            
-            document.getElementById('btn-play-cup-pitch').classList.add('hidden'); document.getElementById('btn-play-cup-pitch').classList.remove('block');
-            document.getElementById('btn-next-season-pitch').classList.add('hidden'); document.getElementById('btn-next-season-pitch').classList.remove('block');
-            
-            document.getElementById('btn-resign').classList.remove('hidden'); document.getElementById('btn-resign').classList.add('block');
-            document.getElementById('btn-back-to-stats').classList.add('hidden'); document.getElementById('btn-back-to-stats').classList.remove('flex');
-            
-            hasReroll = true;
-            userTeam = {};
-            playerStats = {};
-            standings = [];
-            teamChemScore = 0;
-            activeFormation = null; 
-            currentSeason = 1;
-            currentCupRound = 0;
-            isTransferWindow = false;
-            hasPlayedCup = false;
-            setGameMode(gameMode);
-        }
-
-        function backToStandings() {
-            document.getElementById('pitch-view').classList.add('hidden');
-            document.getElementById('btn-back-to-stats').classList.add('hidden');
-            document.getElementById('btn-back-to-stats').classList.remove('flex');
-            document.getElementById('match-center').classList.remove('hidden');
-            document.getElementById('match-center').classList.add('flex');
-        }
-
-        async function generateShareCanvas() {
-            const originalPitch = document.getElementById('pitch-capture-area');
-
-            const poster = document.createElement('div');
-            poster.style.position = 'fixed';
-            poster.style.top = '-9999px';
-            poster.style.left = '0';
-            poster.style.width = '1050px'; 
-            poster.style.backgroundColor = '#0f172a'; 
-            poster.style.display = 'flex';
-            poster.style.gap = '30px';
-            poster.style.padding = '40px';
-            poster.style.fontFamily = "'Inter', sans-serif";
-            poster.style.boxSizing = 'border-box';
-
-            const pitchClone = originalPitch.cloneNode(true);
-            pitchClone.style.width = '600px';
-            pitchClone.style.flexShrink = '0';
-            pitchClone.style.backgroundColor = 'transparent';
-            pitchClone.querySelectorAll('.swap-badge').forEach(b => b.remove());
-
-            const statsSidebar = document.createElement('div');
-            statsSidebar.style.width = '350px'; 
-            statsSidebar.style.display = 'flex';
-            statsSidebar.style.flexDirection = 'column';
-            statsSidebar.style.gap = '20px';
-
-            const finalPos = standings.findIndex(t => t.isUser) + 1;
-            const myStats = standings.find(t => t.isUser) || { pts: 0, w: 0, d: 0, l: 0 };
-            const topScorer = Object.values(playerStats).sort((a,b) => b.seasonGoals - a.seasonGoals)[0];
-            const scorerText = (topScorer && topScorer.seasonGoals > 0) ? `${topScorer.p.name} (${topScorer.seasonGoals} ⚽)` : 'None';
-            
-            const headerHtml = `
-                <div style="background: transparent; border: 3px solid #facc15; border-radius: 16px; padding: 25px 20px; text-align: center;">
-                    <h1 style="font-size: 32px; font-weight: 900; color: #facc15; margin: 0; text-transform: uppercase; letter-spacing: 1px; line-height: 1.1;">POKÉMON<br>DRAFT FC</h1>
-                    <p style="font-size: 16px; font-weight: 800; color: #94a3b8; margin: 8px 0 0 0; text-transform: uppercase;">${userTeamName}</p>
-                    <p style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 10px 0 20px 0;">Finished: Position ${finalPos}</p>
-                    
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                        <div style="background: #1e293b; padding: 8px 15px; border-radius: 8px; color: #38bdf8; font-weight: bold; font-size: 14px;">${myStats.pts} PTS</div>
-                        <div style="background: #1e293b; padding: 8px 15px; border-radius: 8px; color: #22c55e; font-weight: bold; font-size: 14px;">W-D-L: ${myStats.w}-${myStats.d}-${myStats.l}</div>
-                        <div style="background: #1e293b; padding: 8px 15px; border-radius: 8px; color: #facc15; font-weight: bold; font-size: 14px; width: 100%;">Top Scorer: ${scorerText}</div>
-                    </div>
-                </div>
-            `;
-
-            let resultsHtml = `<div style="background: #1e293b; border-radius: 16px; padding: 20px; border: 1px solid #334155; margin-top: 10px;">`;
-            const seasonTitle = gameMode === 'rtg' ? `(Season ${currentSeason})` : `(Classic)`;
-            resultsHtml += `<h3 style="color: #94a3b8; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 15px; font-weight: bold; margin-top:0;">Your Results ${seasonTitle}</h3>`;
-            resultsHtml += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
-            
-            const rawFeed = document.getElementById('results-feed-list').childNodes;
-            const matchNodesArray = Array.from(rawFeed);
-            
-            matchNodesArray.forEach(node => {
-                const matchText = node.children[0].innerText;
-                const scoreText = node.children[1].innerText;
-                const borderColor = node.className.match(/border-[a-z]+-500/)?.[0] || 'border-slate-500';
-                const colorMap = { 'border-green-500': '#22c55e', 'border-red-500': '#ef4444', 'border-slate-500': '#64748b', 'border-blue-500': '#3b82f6' };
-                const hexColor = colorMap[borderColor] || '#64748b';
-                
-                resultsHtml += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(15, 23, 42, 0.5); border-left: 4px solid ${hexColor}; border-radius: 6px; font-size: 13px;">
-                    <span style="color: #94a3b8;">${matchText}</span>
-                    <span style="color: white; font-weight: bold;">${scoreText}</span>
-                </div>`;
-            });
-            resultsHtml += `</div></div>`;
-
-            statsSidebar.innerHTML = headerHtml + resultsHtml;
-
-            poster.appendChild(pitchClone);
-            poster.appendChild(statsSidebar);
-            document.body.appendChild(poster);
-
-            const canvas = await html2canvas(poster, { 
-                scale: 2, 
-                backgroundColor: '#0f172a', 
-                useCORS: true, 
-                allowTaint: true,
-                logging: false
-            });
-            
-            document.body.removeChild(poster);
-            return canvas;
-        }
-
-        async function downloadTeam() {
-            const btn = document.getElementById('btn-download');
-            const originalText = btn.innerText;
-            btn.innerText = "Generating...";
-            
-            const canvas = await generateShareCanvas();
-            const link = document.createElement('a'); 
-            link.download = `PokemonDraft_S${currentSeason}_Summary.png`; 
-            link.href = canvas.toDataURL(); 
-            link.click();
-            
-            btn.innerText = originalText;
-        }
-
-        async function shareTeam() {
-            const btn = document.getElementById('btn-share');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "Generating...";
-
-            const canvas = await generateShareCanvas();
-            const finalPos = standings.findIndex(t => t.isUser) + 1;
-            const myStats = standings.find(t => t.isUser);
-
-            canvas.toBlob(async (blob) => {
-                const file = new File([blob], `PokemonDraft_S${currentSeason}_Summary.png`, { type: 'image/png' });
-                
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            title: 'Pokémon Draft FC',
-                            text: `I finished in position ${finalPos} with ${myStats.pts} points in Season ${currentSeason} of Pokémon Draft FC!`,
-                            files: [file]
-                        });
-                    } catch (err) { console.log("Share cancelled or failed.", err); }
-                } else {
-                    alert("Native sharing is not supported on your current browser/device. Please use the 'Download Image' button instead!");
-                }
-                btn.innerHTML = originalText;
-            });
-        }
-    </script>
-</body>
-</html>
+            else if (hGoals < aGoals) { a
