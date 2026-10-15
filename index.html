@@ -96,9 +96,9 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">1. The Engine (3 Phases)</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-blue-400">Phase 1 (Possession):</strong> Mids lead (65%), Defenders (20%), Forwards (12%), GK (3%). HP & Sp.Def are crucial here.</li>
-                        <li><strong class="text-green-400">Phase 2 (Creation vs Defending):</strong> Attackers use <span class="text-white">Sp. Atk</span> & <span class="text-white">Speed</span>. Defenders use <span class="text-white">DEF</span> & <span class="text-white">Sp. Def</span> to stop them!</li>
-                        <li><strong class="text-red-400">Phase 3 (Finishing vs Blocking):</strong> Strikers need <span class="text-white">Attack</span> + <span class="text-white">Speed</span> against the Defenders/GK's <span class="text-white">DEF</span> + <span class="text-white">HP</span>.</li>
+                        <li><strong class="text-green-400">Phase 1 (Midfield):</strong> Ball possession. Based on <span class="text-white">Sp.Atk</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span> (Strength). Central midfielders dictate the play!</li>
+                        <li><strong class="text-red-400">Phase 2 (Attack):</strong> Chance creation and finishing. Attackers and Wingers rule here. Strikers use <span class="text-white">ATK</span> + <span class="text-white">Speed</span> (Fast) or <span class="text-white">ATK</span> + <span class="text-white">HP</span> (Target Man).</li>
+                        <li><strong class="text-blue-400">Phase 3 (Defense):</strong> The wall. Defenders and CDM's use <span class="text-white">DEF</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span> to block and intercept.</li>
                     </ul>
                 </div>
                 <div>
@@ -118,8 +118,8 @@
                     <p class="text-red-400 font-bold">Note: If you only select 1 Generation in the setup, Generation links are DISABLED. You must link by Type!</p>
                 </div>
                 <div>
-                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">4. The "Carry" Penalty</h3>
-                    <p>A single God-tier Pokémon can carry a team, but there's a limit. The engine uses a <span class="text-yellow-400">90/10 Blended Penalty</span>: 90% of a line's strength is pure average, but 10% is dragged down by the weakest link. Build a balanced team!</p>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">4. The 100% Tactical Pie</h3>
+                    <p>No more "weak link" penalties! Your team's score per phase is a clean weighted average based on the positions you chose. A speedy Winger perfectly contributes to the Attack score, but a Defender does not drag it down. Put the right players in the right positions!</p>
                 </div>
             </div>
             <button onclick="closeHTP()" class="mt-6 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-xl transition-colors uppercase tracking-wide">Got it, Let's Play!</button>
@@ -756,131 +756,142 @@
             return { score: chem, multiplier: 1 + (chem * 0.05) };
         }
 
-        function calculatePool(scores) {
-            if(scores.length === 0) return 0;
-            
-            let primaryWeight = 0;
-            let primarySumInverse = 0;
-            let primarySum = 0;
-            let secondaryContribution = 0;
-            
-            scores.forEach(s => {
-                let val = Math.max(1, s.val); // Prevent division by zero
-                if (s.weight >= 1.0) {
-                    // Primary task
-                    primaryWeight += s.weight;
-                    primarySumInverse += (s.weight / val);
-                    primarySum += (val * s.weight);
-                } else {
-                    // Secondary task: Safe linear addition (Harmonic Isolation)
-                    secondaryContribution += (val * s.weight);
+        function calculateTeamPhaseScore(phase) {
+            let totalScore = 0;
+            let totalWeight = 0;
+
+            formations[activeFormation].positions.forEach(pos => {
+                const player = userTeam[pos.id];
+                if (!player) return;
+
+                const chemInfo = getPlayerChem(pos.id);
+                const m = chemInfo.multiplier;
+                
+                const att = player.normStats.atk * m;
+                const def = player.normStats.def * m;
+                const spa = player.normStats.spa * m;
+                const spd = player.normStats.spd * m;
+                const spe = player.normStats.spe * m;
+                const hp = player.normStats.hp * m;
+                
+                const role = pos.role; 
+                
+                let playerScore = 0;
+                let playerWeight = 0;
+
+                // ==========================================
+                // FASE 1: MIDDENVELD (Balbezit & Controle)
+                // ==========================================
+                if (phase === 'midfield') {
+                    const midScore = (spa * 0.4) + (spd * 0.3) + (hp * 0.3);
+                    if (['CM'].includes(role)) playerWeight = 1.0;
+                    else if (['DM', 'AM'].includes(role)) playerWeight = 0.8;
+                    else if (['WM'].includes(role)) playerWeight = 0.5;
+                    else if (['WG'].includes(role)) playerWeight = 0.4;
+                    playerScore = midScore;
+                } 
+                // ==========================================
+                // FASE 2: AANVAL (Kanscreatie & Afwerking)
+                // ==========================================
+                else if (phase === 'attack') {
+                    if (['ST'].includes(role)) {
+                        const targetScore = (att * 0.6) + (hp * 0.4);
+                        const fastScore = (att * 0.5) + (spe * 0.4) + (spa * 0.1);
+                        playerScore = Math.max(targetScore, fastScore);
+                        playerWeight = 1.0; 
+                    }
+                    else if (['WG'].includes(role)) {
+                        playerScore = (spe * 0.4) + (spa * 0.3) + (att * 0.3);
+                        playerWeight = 0.8;
+                    }
+                    else if (['AM'].includes(role)) {
+                        playerScore = (spa * 0.6) + (spe * 0.2) + (att * 0.2);
+                        playerWeight = 0.8;
+                    }
+                    else if (['WM'].includes(role)) {
+                        playerScore = (spe * 0.4) + (spa * 0.3) + (att * 0.3);
+                        playerWeight = 0.4; 
+                    }
+                    else if (['CM'].includes(role)) {
+                        playerScore = (spa * 0.6) + (att * 0.4);
+                        playerWeight = 0.2; 
+                    }
+                    else if (['FB'].includes(role)) {
+                        playerScore = (spe * 0.6) + (spa * 0.4);
+                        playerWeight = 0.3; 
+                    }
+                }
+                // ==========================================
+                // FASE 3: VERDEDIGING (De Muur)
+                // ==========================================
+                else if (phase === 'defense') {
+                    if (['CB'].includes(role)) {
+                        playerScore = (def * 0.5) + (hp * 0.3) + (spd * 0.2);
+                        playerWeight = 1.0;
+                    }
+                    else if (['GK'].includes(role)) {
+                        playerScore = (def * 0.5) + (spd * 0.3) + (spe * 0.2);
+                        playerWeight = 1.0;
+                    }
+                    else if (['FB'].includes(role)) {
+                        playerScore = (def * 0.6) + (spe * 0.4);
+                        playerWeight = 0.8;
+                    }
+                    else if (['DM'].includes(role)) {
+                        playerScore = (spd * 0.5) + (def * 0.4) + (hp * 0.1);
+                        playerWeight = 0.8; 
+                    }
+                    else if (['CM'].includes(role)) {
+                        playerScore = (spd * 0.6) + (def * 0.4);
+                        playerWeight = 0.4;
+                    }
+                    else if (['WM'].includes(role)) {
+                        playerScore = (spe * 0.5) + (spd * 0.5);
+                        playerWeight = 0.3; 
+                    }
+                    else if (['AM', 'WG'].includes(role)) {
+                        playerScore = (spe * 0.5) + (spd * 0.5);
+                        playerWeight = 0.1; 
+                    }
+                }
+
+                if (playerWeight > 0) {
+                    totalScore += (playerScore * playerWeight);
+                    totalWeight += playerWeight;
                 }
             });
-            
-            let primaryPool = 0;
-            if (primaryWeight > 0) {
-                let harmonicMean = primaryWeight / primarySumInverse;
-                let arithmeticMean = primarySum / primaryWeight;
-                
-                // The 90/10 Rule: 90% Arithmetic Mean (Carries work!), 10% Harmonic Mean (Small weak link penalty)
-                let blendedMean = (arithmeticMean * 0.90) + (harmonicMean * 0.10);
-                
-                primaryPool = blendedMean * primaryWeight;
-            }
-            
-            return primaryPool + secondaryContribution;
+
+            if (totalWeight === 0) return 0;
+            return Math.round(totalScore / totalWeight);
         }
 
         function updateScores() {
-            let fwdOVRSum = 0, midOVRSum = 0, defOVRSum = 0; 
-            let fCount = 0, mCount = 0, dCount = 0;
-            
             let pCount = 0;
-            let teamPossScores = [];
-            let teamCreateScores = [];
-            let teamPreventScores = [];
-            let teamFinishScores = [];
-            let teamBlockScores = [];
-
             formations[activeFormation].positions.forEach(pos => {
-                const p = userTeam[pos.id]; if (!p) return;
-                
-                const chemInfo = getPlayerChem(pos.id);
-                const m = chemInfo.multiplier; // INDIVIDUAL CHEMISTRY MULTIPLIER!
-                
-                const baseOVR = calculatePlayerOVR(p, pos.role);
-                const boostedOVR = calculatePlayerOVR(p, pos.role, m);
-                
-                if (pos.role === 'ST' || pos.role === 'WG') { fwdOVRSum += boostedOVR; fCount++; }
-                else if (pos.role === 'WM' || pos.role === 'AM' || pos.role === 'CM' || pos.role === 'DM') { midOVRSum += boostedOVR; mCount++; }
-                else { defOVRSum += boostedOVR; dCount++; }
-                pCount++;
-
-                // Apply individual chemistry multiplier to the raw stats for the engine
-                const s = {
-                    hp: p.normStats.hp * m, atk: p.normStats.atk * m, def: p.normStats.def * m,
-                    spa: p.normStats.spa * m, spd: p.normStats.spd * m, spe: p.normStats.spe * m
-                };
-                const role = pos.role;
-
-                // FASE 1: POSSESSION
-                let poss = 0, possWeight = 1;
-                if (role === 'GK') { poss = 0.5*s.spa + 0.5*s.spd; possWeight = 0.3; } 
-                else if (['CB'].includes(role)) { poss = 0.5*s.spa + 0.5*s.spd; possWeight = 1.0; } 
-                else if (['FB'].includes(role)) { poss = 0.35*s.spa + 0.35*s.hp + 0.3*s.spe; possWeight = 1.0; }
-                else if (['CM','DM','AM','WM'].includes(role)) { poss = 0.4*s.spa + 0.3*s.spd + 0.3*s.hp; possWeight = 1.6; } 
-                else if (['WG'].includes(role)) { poss = 0.4*s.spa + 0.3*s.spe + 0.3*s.hp; possWeight = 0.8; }
-                else if (['ST'].includes(role)) { poss = 0.45*s.hp + 0.4*s.spa + 0.15*s.spe; possWeight = 0.8; }
-                teamPossScores.push({val: poss, weight: possWeight});
-
-                // FASE 2: CREATION (Attacking)
-                let cre = 0, creWeight = 1;
-                if (role === 'ST') { cre = 0.5*s.hp + 0.3*s.spa + 0.2*s.spe; creWeight = 1.0; } // Targetman/False 9
-                else if (['WG','FB'].includes(role)) { cre = 0.6*s.spe + 0.4*s.spa; creWeight = 1.5; } // Speedy crossers
-                else if (['AM','CM'].includes(role)) { cre = 0.7*s.spa + 0.15*s.spe + 0.15*s.spd; creWeight = 1.5; } // Playmakers
-                else if (['DM'].includes(role)) { cre = 0.6*s.spa + 0.4*s.spd; creWeight = 1.0; }
-                else if (['CB','GK'].includes(role)) { cre = 0.7*s.spa + 0.3*s.spd; creWeight = 0.5; }
-                teamCreateScores.push({val: cre, weight: creWeight});
-
-                // FASE 2: DEFENSIVE ORG (Preventing) - DEF stat added
-                let prev = 0, prevWeight = 1;
-                if (['ST','WG','AM'].includes(role)) { prev = 0.5*s.spe + 0.3*s.spd + 0.2*s.hp; prevWeight = 0.5; } // Pressing
-                else if (['CM','DM'].includes(role)) { prev = 0.5*s.spd + 0.3*s.spe + 0.2*s.hp; prevWeight = 1.2; }
-                else if (['CB','FB'].includes(role)) { prev = 0.4*s.spd + 0.3*s.def + 0.3*s.spe; prevWeight = 1.5; } // Tracking back / Interceptions
-                else if (role === 'GK') { prev = 0.5*s.def + 0.5*s.spd; prevWeight = 0.8; }
-                teamPreventScores.push({val: prev, weight: prevWeight});
-
-                // FASE 3: FINISHING
-                let fin = 0, finWeight = 1;
-                if (role === 'ST') { fin = 0.5*s.atk + 0.25*s.spe + 0.25*s.hp; finWeight = 2.0; }
-                else if (['WG','AM'].includes(role)) { fin = 0.4*s.atk + 0.3*s.spe + 0.3*s.hp; finWeight = 1.2; }
-                else { fin = 0.5*s.atk + 0.3*s.hp + 0.2*s.spe; finWeight = 0.5; }
-                teamFinishScores.push({val: fin, weight: finWeight});
-
-                // FASE 3: BLOCKING / SAVING (DEF stat dominant)
-                let blk = 0, blkWeight = 1;
-                if (role === 'GK') { blk = 0.6*s.def + 0.2*s.spd + 0.2*s.hp; blkWeight = 2.0; }
-                else if (['CB'].includes(role)) { blk = 0.6*s.def + 0.2*s.hp + 0.2*s.spd; blkWeight = 1.5; }
-                else if (['FB','DM'].includes(role)) { blk = 0.5*s.def + 0.3*s.hp + 0.2*s.spd; blkWeight = 1.0; }
-                else { blk = 0.4*s.def + 0.4*s.hp + 0.2*s.spd; blkWeight = 0.2; }
-                teamBlockScores.push({val: blk, weight: blkWeight});
+                if (userTeam[pos.id]) pCount++;
             });
-        
-            let uiAtk = fCount ? Math.min(99, Math.round(fwdOVRSum / fCount)) : 0;
-            let uiMid = mCount ? Math.min(99, Math.round(midOVRSum / mCount)) : 0;
-            let uiDef = dCount ? Math.min(99, Math.round(defOVRSum / dCount)) : 0;
-
-            document.getElementById('score-atk').innerText = fCount ? uiAtk : '--';
-            document.getElementById('score-mid').innerText = mCount ? uiMid : '--';
-            document.getElementById('score-def').innerText = dCount ? uiDef : '--';
 
             if(pCount > 0) {
-                // Harmonic Mean * Volume ensures formations are balanced but weak links are heavily punished
-                myTeamEnginePools.poss = calculatePool(teamPossScores);
-                myTeamEnginePools.create = calculatePool(teamCreateScores);
-                myTeamEnginePools.prevent = calculatePool(teamPreventScores);
-                myTeamEnginePools.finish = calculatePool(teamFinishScores);
-                myTeamEnginePools.block = calculatePool(teamBlockScores);
+                const teamAttack = calculateTeamPhaseScore('attack');
+                const teamMidfield = calculateTeamPhaseScore('midfield');
+                const teamDefense = calculateTeamPhaseScore('defense');
+
+                document.getElementById('score-atk').innerText = teamAttack;
+                document.getElementById('score-mid').innerText = teamMidfield;
+                document.getElementById('score-def').innerText = teamDefense;
+
+                // De nieuwe transparante stats vertaald naar de bestaande CPU pools
+                myTeamEnginePools.poss = teamMidfield * 10;
+                myTeamEnginePools.create = teamAttack * 10;
+                myTeamEnginePools.finish = teamAttack * 10;
+                myTeamEnginePools.prevent = teamDefense * 10;
+                myTeamEnginePools.block = teamDefense * 10;
+            } else {
+                document.getElementById('score-atk').innerText = '--';
+                document.getElementById('score-mid').innerText = '--';
+                document.getElementById('score-def').innerText = '--';
+                
+                myTeamEnginePools = { poss: 0, create: 0, prevent: 0, finish: 0, block: 0 };
             }
         }
 
@@ -1286,9 +1297,8 @@
             if (pool.length < 7) pool = [...allOpponents]; 
             
             if (gameMode === 'rtg' && currentSeason > 1 && standings.length > 0) {
-                // RTG Promotie/Degradatie! Keep league, replace worst CPU team.
                 let cpuTeams = standings.filter(t => !t.isUser);
-                let relegatedTeam = cpuTeams[cpuTeams.length - 1]; // Sorted by updateTableUI
+                let relegatedTeam = cpuTeams[cpuTeams.length - 1]; 
                 
                 let currentTeamIds = standings.map(t => t.id);
                 let availableReplacements = pool.filter(o => !currentTeamIds.includes(o.id));
@@ -1319,7 +1329,6 @@
                 seasonSchedule = nextOpponents.sort(() => 0.5 - Math.random());
                 
             } else {
-                // Classic Mode or Season 1: Draft all 7 opponents
                 pool.sort((a, b) => (b.pools.poss + b.pools.create + b.pools.prevent + b.pools.finish + b.pools.block) - (a.pools.poss + a.pools.create + a.pools.prevent + a.pools.finish + a.pools.block));
                 
                 let topSegment = pool.slice(0, Math.ceil(pool.length / 3)).sort(() => 0.5 - Math.random());
@@ -1459,7 +1468,7 @@
             const feed = document.getElementById('results-feed-list');
             const newResult = document.createElement('div');
             newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${userGoals.length > cpuGoals.length ? 'green' : (userGoals.length < cpuGoals.length ? 'red' : 'slate')}-500 shrink-0`;
-            newResult.innerHTML = `<span class="text-slate-400">Match ${matchday}</span><span class="font-bold text-white">${userTeamName} ${userGoals.length} - ${cpuGoals.length} ${cpuOp.name}</span>`;
+            newResult.innerHTML = `<span class="text-slate-400">Match ${matchday}</span><span class="font-bold text-white">${userTeamName}${userGoals.length} - ${cpuGoals.length}${cpuOp.name}</span>`;
             feed.insertBefore(newResult, feed.firstChild);
         }
 
@@ -1495,7 +1504,7 @@
                 while(awayGoals.length > 0 && awayGoals[0].min === min) {
                     aScore++;
                     document.getElementById('tv-away-score').innerText = aScore;
-                    document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽ ${awayGoals.shift().name}</div>`;
+                    document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽${awayGoals.shift().name}</div>`;
                     goalHappened = true;
                 }
                 if(goalHappened) await delay(1400); else await delay(25); 
@@ -1525,7 +1534,6 @@
                 if(t1 && t2 && t1.p < h.p) {
                     t1.p++; t2.p++;
                     
-                    // Stat-Based Simulation voor CPU vs CPU
                     let s1 = (t1.pools.poss + t1.pools.create + t1.pools.prevent + t1.pools.finish + t1.pools.block) || 3500;
                     let s2 = (t2.pools.poss + t2.pools.create + t2.pools.prevent + t2.pools.finish + t2.pools.block) || 3500;
                     let prob = Math.pow(s1, 1.5) / (Math.pow(s1, 1.5) + Math.pow(s2, 1.5));
@@ -1786,7 +1794,7 @@
             const feed = document.getElementById('results-feed-list');
             const newResult = document.createElement('div');
             newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${finalScore.h > finalScore.a ? 'blue' : 'red'}-500 shrink-0`;
-            newResult.innerHTML = `<span class="text-blue-400 font-bold">${roundNames[currentCupRound]}</span><span class="font-bold text-white">${userTeamName} ${finalScore.h} - ${finalScore.a} ${cupOp.name}</span>`;
+            newResult.innerHTML = `<span class="text-blue-400 font-bold">${roundNames[currentCupRound]}</span><span class="font-bold text-white">${userTeamName}${finalScore.h} - ${finalScore.a}${cupOp.name}</span>`;
             feed.insertBefore(newResult, feed.firstChild);
 
             if (finalScore.h > finalScore.a) {
@@ -1817,7 +1825,7 @@
             let hPens = 0, aPens = 0; let hTaken = 0, aTaken = 0;
             
             let userTakers = Object.values(userTeam).filter(p => p !== null).sort((a, b) => b.normStats.atk - a.normStats.atk);
-            let cpuTakers = [...cupOp.names].sort(() => 0.5 - Math.random()); // Randomize so players don't repeat exactly
+            let cpuTakers = [...cupOp.names].sort(() => 0.5 - Math.random()); 
             
             let userGk = userTeam['GK'];
             let userGkDef = userGk ? userGk.normStats.def : 50;
@@ -1964,7 +1972,6 @@
 
             if (!isSacked) {
                 if (wonCup) {
-                    // Already won cup
                 } else if (finalPos <= 2 && !hasPlayedCup) {
                     document.getElementById('btn-play-cup-pitch').classList.remove('hidden'); 
                     document.getElementById('btn-play-cup-pitch').classList.add('block');
