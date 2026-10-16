@@ -1179,7 +1179,7 @@
             if (isPeeking) togglePeek();
         }
 
-        window.openTrainingMenu = function(posId, role, displayPos) {
+        window.openTrainingMenu = function(posId, role, displayPos, lastTrainedStat = null) {
             const p = userTeam[posId];
             document.getElementById('draft-modal-title').innerText = "Select Stat to Train";
             
@@ -1197,23 +1197,37 @@
 
             statLabels.forEach(s => {
                 const currentVal = p.normStats[s.key];
+                
+                // Bereken de verwachte toename voor de UI
+                let rangeText = "";
+                if (currentVal < 60) rangeText = "(+4 to +8)";
+                else if (currentVal <= 85) rangeText = "(+2 to +5)";
+                else rangeText = "(+0 to +2)";
+
+                // Groene highlight als deze stat net is getraind
+                const isJustTrained = (lastTrainedStat === s.key);
+                const displayColor = isJustTrained ? 'text-green-400' : s.color;
+                const borderClass = isJustTrained ? 'border-green-500 bg-green-900/20 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : `border-slate-600 bg-slate-900 hover:border-${s.color.split('-')[1]}-500`;
+
                 statsHtml += `
-                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" class="bg-slate-900 border-2 border-slate-600 hover:border-${s.color.split('-')[1]}-500 p-4 rounded-xl flex flex-col items-center justify-center transition-all transform hover:scale-105 shadow-lg w-full">
-                        <span class="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">${s.label}</span>
-                        <span class="font-black text-2xl ${s.color}">${currentVal}</span>
-                        <span class="text-[9px] text-slate-500 mt-1 uppercase">Click to Train</span>
+                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" class="${borderClass} border-2 p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center transition-all transform hover:scale-105 shadow-lg w-full relative">
+                        ${isJustTrained ? '<span class="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">+UP</span>' : ''}
+                        <span class="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-0.5">${s.label}</span>
+                        <span class="font-black text-2xl sm:text-3xl ${displayColor} transition-colors duration-300">${currentVal}</span>
+                        <span class="text-[9px] sm:text-[10px] text-slate-400 mt-1 font-bold">${rangeText}</span>
                     </button>
                 `;
             });
 
+            // Grid geforceerd naar 'grid-cols-2' en maximale breedte aangepast voor mooie verhoudingen
             gacha.innerHTML = `
-                <div class="col-span-full w-full max-w-2xl mx-auto flex flex-col items-center">
-                    <img src="${p.sprite}" class="w-24 h-24 object-contain drop-shadow-xl mb-4">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
+                <div class="col-span-full w-full max-w-sm mx-auto flex flex-col items-center">
+                    <img src="${p.sprite}" class="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl mb-4">
+                    <div class="grid grid-cols-2 gap-3 w-full">
                         ${statsHtml}
                     </div>
-                    <button onclick="openDraft('${posId}', '${displayPos}', '${role}')" class="mt-6 px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-full uppercase tracking-widest">
-                        Cancel Training
+                    <button onclick="openDraft('${posId}', '${displayPos}', '${role}')" class="mt-6 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold rounded-full uppercase tracking-widest border border-slate-500">
+                        🔙 Back to Profile
                     </button>
                 </div>
             `;
@@ -1238,7 +1252,8 @@
             renderPitch();
             updateScores();
             
-            openDraft(posId, displayPos, role);
+            // Laad dit menu opnieuw in plaats van de profielkaart, en geef door welke stat net groen moet worden
+            openTrainingMenu(posId, role, displayPos, statKey);
         }
 
         window.confirmTransferOut = async function(role, displayPos) {
