@@ -1368,7 +1368,9 @@
             if (isReplacing && isTransferWindow) {
                 transfersLeft--;
                 document.getElementById('transfer-count').innerText = transfersLeft;
-                if(transfersLeft <= 0) {
+                
+                // DE FIX: Sluit de periode pas af als BEIDE acties op 0 staan
+                if(transfersLeft <= 0 && trainingPoints <= 0) {
                     finishTransfers();
                 }
             }
