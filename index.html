@@ -1090,7 +1090,7 @@ function handleModalClick(event) {
         closeModal();
     }
 }
-        async function openDraft(posId, displayPos, role) {
+       async function openDraft(posId, displayPos, role) {
             currentDraftPos = posId; 
             document.getElementById('draft-position-label').innerText = displayPos;
             
@@ -1116,25 +1116,24 @@ function handleModalClick(event) {
                 const typeHex = getTypeColorHex(p.primaryType);
                 const playerOVR = calculatePlayerOVR(p, role);
                 
-                ```javascript
-const transferBtnHtml = (isTransferWindow && actionPoints > 0) ? `
-    <button onclick="confirmTransferOut('${role}', '${displayPos}')" class="px-5 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-xs sm:text-sm w-full">
-        Transfer Out
-    </button>
-` : '';
+                const transferBtnHtml = (isTransferWindow && actionPoints > 0) ? `
+                    <button onclick="confirmTransferOut('${role}', '${displayPos}')" class="px-5 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-xs sm:text-sm w-full">
+                        Transfer Out
+                    </button>
+                ` : '';
+                
+                const trainBtnHtml = (isTransferWindow && actionPoints > 0) ? `
+                    <button onclick="openTrainingMenu('${posId}', '${role}', '${displayPos}')" class="px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-xs sm:text-sm w-full">
+                        Train Stat
+                    </button>
+                ` : '';
 
-const trainBtnHtml = (isTransferWindow && actionPoints > 0) ? `
-    <button onclick="openTrainingMenu('${posId}', '${role}', '${displayPos}')" class="px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-xs sm:text-sm w-full">
-        Train Stat
-    </button>
-` : '';
-
-const actionButtons = (isTransferWindow && actionPoints > 0) ? `
-    <div class="flex gap-2 w-full max-w-[240px] sm:max-w-[280px] mt-4">
-        ${transferBtnHtml}
-        ${trainBtnHtml}
-    </div>
-` : '';
+                const actionButtons = (isTransferWindow && actionPoints > 0) ? `
+                    <div class="flex gap-2 w-full max-w-[240px] sm:max-w-[280px] mt-4">
+                        ${transferBtnHtml}
+                        ${trainBtnHtml}
+                    </div>
+                ` : '';
                 
                 gacha.innerHTML = `
                     <div class="flex flex-col items-center justify-center w-full col-span-full" onclick="event.stopPropagation()">
