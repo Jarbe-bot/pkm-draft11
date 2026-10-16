@@ -390,6 +390,9 @@
 
     <div id="draft-modal" class="fixed inset-0 bg-black/90 hidden z-[60] flex-col items-center justify-start p-3 sm:p-6 backdrop-blur-sm transition-all duration-300 overflow-y-auto" onclick="handleModalClick(event)">
         
+        <!-- NIEUW: Zwevende sluitknop rechtsboven -->
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 border border-slate-600 rounded-full w-10 h-10 flex items-center justify-center font-bold transition-colors z-[400] shadow-lg">✕</button>
+        
         <div class="w-full max-w-5xl flex justify-between items-center shrink-0 mb-2 z-[310]">
             <button id="btn-peek" onclick="togglePeek()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1.5 shadow-lg">
                 👁️ Peek Team
@@ -1237,7 +1240,7 @@
             p.normStats[statKey] = Math.min(99, Math.round((p.stats[statKey] / 130) * 99));
 
             trainingPoints--;
-            
+            checkOffSeasonActions();
             document.getElementById('train-count').innerText = trainingPoints;
             confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#4ade80', '#facc15'] });
             
@@ -1366,14 +1369,11 @@
             }
             
             if (isReplacing && isTransferWindow) {
-                transfersLeft--;
-                document.getElementById('transfer-count').innerText = transfersLeft;
-                
-                // DE FIX: Sluit de periode pas af als BEIDE acties op 0 staan
-                if(transfersLeft <= 0 && trainingPoints <= 0) {
-                    finishTransfers();
-                }
-            }
+    transfersLeft--;
+    document.getElementById('transfer-count').innerText = transfersLeft;
+    checkOffSeasonActions(); // Vervangt de oude automatische finishTransfers()
+}
+            
 
             closeModal();
             renderPitch();
@@ -1515,11 +1515,11 @@
             document.getElementById('tv-home-scorers').innerHTML = '';
             document.getElementById('tv-away-scorers').innerHTML = '';
             
-            const totalChances = 9; 
+            const totalChances = 13; 
             
             const uPoss = myTeamEnginePools.poss || 0;
             const cPoss = cpuOp.pools.poss || 0;
-            const possRatio = (Math.pow(uPoss, 1.2)) / (Math.pow(uPoss, 1.2) + Math.pow(cPoss, 1.2));
+            const possRatio = (Math.pow(uPoss, 1.5)) / (Math.pow(uPoss, 1.5) + Math.pow(cPoss, 1.5));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
             const cpuChances = totalChances - userChances;
@@ -1815,11 +1815,11 @@
             const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
             const cupOp = continentalOpponents[currentCupRound];
 
-            const totalChances = 9; 
+            const totalChances = 13; 
             
             const uPoss = myTeamEnginePools.poss || 0; 
             const cPoss = cupOp.pools.poss || 0;
-            const possRatio = (Math.pow(uPoss, 1.2)) / (Math.pow(uPoss, 1.2) + Math.pow(cPoss, 1.2));
+            const possRatio = (Math.pow(uPoss, 1.5)) / (Math.pow(uPoss, 1.5) + Math.pow(cPoss, 1.5));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
             const cpuChances = totalChances - userChances;
@@ -2034,7 +2034,9 @@
             document.getElementById('btn-finish-transfers').classList.add('block');
 
             document.getElementById('pitch-view').classList.remove('hidden');
-            
+
+
+            checkOffSeasonActions();
             renderPitch();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -2054,6 +2056,19 @@
             
             renderPitch();
         }
+
+        function checkOffSeasonActions() {
+    const btn = document.getElementById('btn-finish-transfers');
+    if (transfersLeft <= 0 && trainingPoints <= 0) {
+        btn.innerHTML = "Start Next Season &rarr;";
+        btn.classList.remove('bg-slate-800', 'text-slate-200');
+        btn.classList.add('bg-green-600', 'text-white', 'border-green-500', 'shadow-[0_0_15px_rgba(22,163,74,0.5)]');
+    } else {
+        btn.innerHTML = "Skip Remaining Actions &rarr;";
+        btn.classList.add('bg-slate-800', 'text-slate-200');
+        btn.classList.remove('bg-green-600', 'text-white', 'border-green-500', 'shadow-[0_0_15px_rgba(22,163,74,0.5)]');
+    }
+}
 
         function celebrateGloryWin() {
             confetti({ particleCount: 250, spread: 180, origin: { y: 0.1 }, colors: ['#3b82f6', '#facc15', '#ffffff'] });
