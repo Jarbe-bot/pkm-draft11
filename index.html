@@ -728,7 +728,6 @@
         function calculatePlayerOVR(pokemon, role, closurePct = 0) {
             const s = pokemon.normStats;
             
-            // De Robin Hood Toepassing: Gat dichten tot 115!
             const applyRobinHood = (stat) => stat + ((115 - stat) * closurePct);
             
             const boostedS = {
@@ -753,7 +752,6 @@
             }[role];
             
             let ovr = (boostedS.spe * w.spe) + (boostedS.atk * w.atk) + (boostedS.hp * w.hp) + (boostedS.spa * w.spa) + (boostedS.def * w.def) + (boostedS.spd * w.spd);
-            // Zelfs al barst de speler van de chemie, op het spelerskaartje (UI) toppen we dit af op 99.
             return Math.min(99, Math.round(ovr)); 
         }
 
@@ -779,14 +777,12 @@
                 }
             });
 
-            // DE NERF: Hoe makkelijker de pool, hoe strenger we zijn op de bonus
-            let percentPerPoint = 0.05; // Standaard 5% van het gat per punt
-            if (activeGensCount <= 2) percentPerPoint = 0.03;      // Slechts 3% bij 1 of 2 gens (easy mode)
-            else if (activeGensCount <= 4) percentPerPoint = 0.04; // 4% bij 3 of 4 gens
+            let percentPerPoint = 0.05; 
+            if (activeGensCount <= 2) percentPerPoint = 0.03;      
+            else if (activeGensCount <= 4) percentPerPoint = 0.04; 
 
             let closurePct = chem * percentPerPoint;
             
-            // Hard Cap: Een speler kan nóóit meer dan de helft (50%) van zijn gat tot 115 dichten.
             if (closurePct > 0.50) closurePct = 0.50; 
 
             return { score: chem, closurePct: closurePct };
@@ -803,7 +799,6 @@
                 const chemInfo = getPlayerChem(pos.id);
                 const closurePct = chemInfo.closurePct;
                 
-                // Robin Hood in de Engine: Verhoog de onderliggende stats voordat de taart berekend wordt
                 const applyRobinHood = (stat) => stat + ((115 - stat) * closurePct);
                 
                 const att = applyRobinHood(player.normStats.atk);
@@ -910,8 +905,6 @@
                 document.getElementById('score-mid').innerText = teamMidfield;
                 document.getElementById('score-def').innerText = teamDefense;
 
-                // Kwadratische Kwaliteitscurve: (OVR x OVR) / 7.5
-                // Lage OVRs storten in, hoge OVRs klimmen exponentieel
                 const scaleToEngine = (ovr) => Math.round(Math.pow(ovr, 2) / 7.5);
 
                 myTeamEnginePools.poss = scaleToEngine(teamMidfield);
@@ -960,7 +953,6 @@
                 if (player) {
                     const baseOVR = calculatePlayerOVR(player, pos.role);
                     const chemInfo = getPlayerChem(pos.id);
-                    // Pas de visuele boost aan met de nieuwe closurePct
                     const boostedOVR = calculatePlayerOVR(player, pos.role, chemInfo.closurePct);
                     const isBoosted = boostedOVR > baseOVR;
 
@@ -1143,12 +1135,12 @@
                                 </div>
                                 <h3 class="font-black text-lg sm:text-2xl text-white text-center uppercase tracking-wide w-full shrink-0 mb-3 leading-tight truncate">${p.name}</h3>
                                 <div class="grid grid-cols-2 gap-x-5 gap-y-2.5 w-full text-sm sm:text-base font-mono bg-slate-950 p-4 rounded-lg text-slate-300 shrink-0">
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spe}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.hp}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.atk}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.def}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spa}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spd}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spe}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-base sm:text-lg">${p.stats.hp}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-base sm:text-lg">${p.stats.atk}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-base sm:text-lg">${p.stats.def}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spa}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spd}</span></div>
                                 </div>
                                 <div class="flex justify-between items-center w-full text-sm sm:text-base font-bold text-slate-400 mt-3 border-t border-slate-700/50 pt-3 shrink-0">
                                     <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-base sm:text-lg">${playerOVR} Base OVR</span>
@@ -1196,15 +1188,13 @@
             ];
 
             statLabels.forEach(s => {
-                const currentVal = p.normStats[s.key];
+                const currentVal = p.stats[s.key]; 
                 
-                // Bereken de verwachte toename voor de UI
                 let rangeText = "";
-                if (currentVal < 60) rangeText = "(+4 to +8)";
-                else if (currentVal <= 85) rangeText = "(+2 to +5)";
+                if (currentVal < 80) rangeText = "(+4 to +8)";
+                else if (currentVal <= 120) rangeText = "(+2 to +5)";
                 else rangeText = "(+0 to +2)";
 
-                // Groene highlight als deze stat net is getraind
                 const isJustTrained = (lastTrainedStat === s.key);
                 const displayColor = isJustTrained ? 'text-green-400' : s.color;
                 const borderClass = isJustTrained ? 'border-green-500 bg-green-900/20 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : `border-slate-600 bg-slate-900 hover:border-${s.color.split('-')[1]}-500`;
@@ -1219,7 +1209,6 @@
                 `;
             });
 
-            // Grid geforceerd naar 'grid-cols-2' en maximale breedte aangepast voor mooie verhoudingen
             gacha.innerHTML = `
                 <div class="col-span-full w-full max-w-sm mx-auto flex flex-col items-center">
                     <img src="${p.sprite}" class="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl mb-4">
@@ -1236,14 +1225,17 @@
         window.trainStat = function(posId, statKey, role, displayPos) {
             if (trainingPoints <= 0) return;
             const p = userTeam[posId];
-            const currentVal = p.normStats[statKey];
+            
+            const currentRawVal = p.stats[statKey];
             
             let gain = 0;
-            if (currentVal < 60) gain = Math.floor(Math.random() * 5) + 4;       
-            else if (currentVal <= 85) gain = Math.floor(Math.random() * 4) + 2; 
+            if (currentRawVal < 80) gain = Math.floor(Math.random() * 5) + 4;       
+            else if (currentRawVal <= 120) gain = Math.floor(Math.random() * 4) + 2; 
             else gain = Math.floor(Math.random() * 3) + 0;                       
 
-            p.normStats[statKey] = Math.min(99, currentVal + gain);
+            p.stats[statKey] = Math.min(255, currentRawVal + gain);
+            p.normStats[statKey] = Math.min(99, Math.round((p.stats[statKey] / 130) * 99));
+
             trainingPoints--;
             
             document.getElementById('train-count').innerText = trainingPoints;
@@ -1252,7 +1244,6 @@
             renderPitch();
             updateScores();
             
-            // Laad dit menu opnieuw in plaats van de profielkaart, en geef door welke stat net groen moet worden
             openTrainingMenu(posId, role, displayPos, statKey);
         }
 
@@ -1326,12 +1317,12 @@
                         </div>
                         <h3 class="font-black text-sm sm:text-lg text-white text-center uppercase tracking-wide w-full shrink-0 my-0.5 truncate">${p.name}</h3>
                         <div class="grid grid-cols-2 gap-x-4 gap-y-2 w-full text-xs sm:text-sm font-mono bg-slate-950 p-2.5 rounded-lg text-slate-300 shrink-0 mt-1">
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.spe}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.hp}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.atk}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.def}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.spa}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.spd}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-sm sm:text-base">${p.stats.spe}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-sm sm:text-base">${p.stats.hp}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-sm sm:text-base">${p.stats.atk}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-sm sm:text-base">${p.stats.def}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-sm sm:text-base">${p.stats.spa}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-sm sm:text-base">${p.stats.spd}</span></div>
                         </div>
                         <div class="flex justify-between items-center w-full text-xs sm:text-sm font-bold text-slate-400 mt-2 border-t border-slate-700/50 pt-1.5 shrink-0">
                             <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-sm sm:text-base">${ovr} OVR</span>
