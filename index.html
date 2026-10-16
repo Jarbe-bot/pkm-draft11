@@ -130,7 +130,7 @@
                     </ul>
                 </div>
             </div>
-            <button onclick="closeHTP()"
+            <button onclick="closeHTP()" class="mt-6 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-xl transition-colors uppercase tracking-wide">Got it, Let's Play!</button>
         </div>
     </div>
 
@@ -1951,7 +1951,7 @@ function handleModalClick(event) {
             const feed = document.getElementById('results-feed-list');
             const newResult = document.createElement('div');
             newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${finalScore.h > finalScore.a ? 'blue' : 'red'}-500 shrink-0`;
-            newResult.innerHTML = `<span class="text-blue-400 font-bold">${roundNames[currentCupRound]}</span><span class="font-bold text-white">${userTeamName}${finalScore.h} - ${finalScore.a}${cupOp.name}</span>`;
+            newResult.innerHTML = `<span class="text-blue-400 font-bold">${roundNames[currentCupRound]}</span><span class="font-bold text-white">${userTeamName} ${finalScore.h} - ${finalScore.a} ${cupOp.name}</span>`;
             feed.insertBefore(newResult, feed.firstChild);
 
             if (finalScore.h > finalScore.a) {
