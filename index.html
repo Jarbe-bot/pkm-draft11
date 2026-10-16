@@ -117,12 +117,20 @@
                     <p class="mb-2">Chemistry boosts apply to the specific player with the links! Link adjacent players of the same <span class="text-yellow-400">Generation</span> (+1) or <span class="text-yellow-400">Type</span> (+1). <span class="text-green-400">Green lines</span> = Massive stat boost!</p>
                     <p class="text-blue-400 font-bold">The Robin Hood Rule: Weak players receive a MUCH larger boost from chemistry than overpowered Legendaries. Building a tactical team is better than drafting loose stars!</p>
                 </div>
-                <div>
+               <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">4. The 100% Tactical Pie</h3>
                     <p>No more "weak link" penalties! Your team's score per phase is a clean weighted average based on the positions you chose. A speedy Winger perfectly contributes to the Attack score, but a Defender does not drag it down. Put the right players in the right positions!</p>
                 </div>
+                <div>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">5. Off-Season: Action Points</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong class="text-purple-400">Action Points (3 per season):</strong> Spend your 3 points freely on transfers or training.</li>
+                        <li><strong class="text-red-400">Transfers (1 AP):</strong> Swap out a weak link for a new scout.</li>
+                        <li><strong class="text-blue-400">Training (1 AP):</strong> Train a specific stat. Weak stats level up much faster (+4 to +8) than elite stats (+0 to +2).</li>
+                    </ul>
+                </div>
             </div>
-            <button onclick="closeHTP()" class="mt-6 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-xl transition-colors uppercase tracking-wide">Got it, Let's Play!</button>
+            <button onclick="closeHTP()"
         </div>
     </div>
 
@@ -1184,13 +1192,12 @@ function handleModalClick(event) {
             if (isPeeking) togglePeek();
         }
 
-        window.openTrainingMenu = function(posId, role, displayPos) {
+        window.openTrainingMenu = function(posId, role, displayPos, lastTrainedStat = null) {
             const p = userTeam[posId];
-            document.getElementById('draft-modal-title').innerText = "Select Stat to Train";
+            document.getElementById('draft-modal-title').innerText = `Select Stat to Train (${actionPoints} AP left)`;
             
             const gacha = document.getElementById('gacha-container');
             
-            // Render 6 klikbare buttons voor de 6 stats
             let statsHtml = '';
             const statLabels = [
                 { key: 'spe', label: 'Speed', color: 'text-yellow-400' },
@@ -1202,50 +1209,67 @@ function handleModalClick(event) {
             ];
 
             statLabels.forEach(s => {
-                const currentVal = p.normStats[s.key];
+                const currentVal = p.stats[s.key]; 
+                
+                let rangeText = "";
+                if (currentVal < 80) rangeText = "(+4 to +8)";
+                else if (currentVal <= 120) rangeText = "(+2 to +5)";
+                else rangeText = "(+0 to +2)";
+
+                const isJustTrained = (lastTrainedStat === s.key);
+                const displayColor = isJustTrained ? 'text-green-400' : s.color;
+                const borderClass = isJustTrained ? 'border-green-500 bg-green-900/20 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : `border-slate-600 bg-slate-900 hover:border-${s.color.split('-')[1]}-500`;
+                const disabledAttr = actionPoints <= 0 ? 'disabled opacity-50 cursor-not-allowed' : 'hover:scale-105';
+
                 statsHtml += `
-                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" class="bg-slate-900 border-2 border-slate-600 hover:border-${s.color.split('-')[1]}-500 p-4 rounded-xl flex flex-col items-center justify-center transition-all transform hover:scale-105 shadow-lg w-full">
-                        <span class="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">${s.label}</span>
-                        <span class="text-white font-black text-2xl ${s.color}">${currentVal}</span>
-                        <span class="text-[9px] text-slate-500 mt-1 uppercase">Click to Train</span>
+                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" ${actionPoints <= 0 ? 'disabled' : ''} class="${borderClass} border-2 p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center transition-all transform ${disabledAttr} shadow-lg w-full relative">
+                        ${isJustTrained ? '<span class="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">+UP</span>' : ''}
+                        <span class="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-0.5">${s.label}</span>
+                        <span class="font-black text-2xl sm:text-3xl ${displayColor} transition-colors duration-300">${currentVal}</span>
+                        <span class="text-[9px] sm:text-[10px] text-slate-400 mt-1 font-bold">${rangeText}</span>
                     </button>
                 `;
             });
 
             gacha.innerHTML = `
-                <div class="col-span-full w-full max-w-2xl mx-auto flex flex-col items-center">
-                    <img src="${p.sprite}" class="w-24 h-24 object-contain drop-shadow-xl mb-4">
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">
+                <div class="col-span-full w-full max-w-sm mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
+                    <img src="${p.sprite}" class="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl mb-4">
+                    <div class="grid grid-cols-2 gap-3 w-full">
                         ${statsHtml}
                     </div>
-                    <button onclick="openDraft('${posId}', '${displayPos}', '${role}')" class="mt-6 px-6 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-full uppercase tracking-widest">
-                        Cancel Training
+                    <button onclick="openDraft('${posId}', '${displayPos}', '${role}')" class="mt-6 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold rounded-full uppercase tracking-widest border border-slate-500">
+                        🔙 Back to Profile
                     </button>
                 </div>
             `;
         }
 
-       window.trainStat = function(posId, statKey, role, displayPos) {
-    if (actionPoints <= 0) return;
-    const p = userTeam[posId];
-    const currentVal = p.normStats[statKey];
-    
-    let gain = 0;
-    if (currentVal < 60) gain = Math.floor(Math.random() * 5) + 4;
-    else if (currentVal <= 85) gain = Math.floor(Math.random() * 4) + 2;
-    else gain = Math.floor(Math.random() * 3) + 0;
+        window.trainStat = function(posId, statKey, role, displayPos) {
+            if (actionPoints <= 0) return;
+            const p = userTeam[posId];
+            
+            const currentRawVal = p.stats[statKey];
+            
+            let gain = 0;
+            if (currentRawVal < 80) gain = Math.floor(Math.random() * 5) + 4;       
+            else if (currentRawVal <= 120) gain = Math.floor(Math.random() * 4) + 2; 
+            else gain = Math.floor(Math.random() * 3) + 0;                       
 
-    p.normStats[statKey] = Math.min(99, currentVal + gain);
-    actionPoints--;
-    
-    document.getElementById('action-count').innerText = actionPoints;
-    checkOffSeasonActions();
-    confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#4ade80', '#facc15'] });
-    
-    renderPitch();
-    updateScores();
-    openDraft(posId, displayPos, role);
-}
+            p.stats[statKey] = Math.min(255, currentRawVal + gain);
+            p.normStats[statKey] = Math.min(99, Math.round((p.stats[statKey] / 130) * 99));
+            p.bst = Object.values(p.stats).reduce((sum, val) => sum + val, 0);
+
+            actionPoints--;
+            
+            document.getElementById('action-count').innerText = actionPoints;
+            checkOffSeasonActions();
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#4ade80', '#facc15'] });
+            
+            renderPitch();
+            updateScores();
+            
+            openTrainingMenu(posId, role, displayPos, statKey);
+        }
 
      window.confirmTransferOut = async function(role, displayPos) {
     if (actionPoints <= 0) return;
@@ -1379,14 +1403,21 @@ function handleModalClick(event) {
             formations[activeFormation].positions.forEach(pos => {
                 const p = userTeam[pos.id];
                 if(p) {
-                    let weight = 1; 
-                    if(pos.role === 'ST') weight = 50;
-                    else if(pos.role === 'WG') weight = 20;
-                    else if(pos.role === 'AM') weight = 15;
-                    else if(pos.role === 'CM' || pos.role === 'WM') weight = 5;
-                    else if(pos.role === 'DM') weight = 2;
-                    else if(pos.role === 'CB' || pos.role === 'FB') weight = 1;
-                    for(let i=0; i<weight; i++) pool.push(p);
+                    let baseWeight = 1; 
+                    if(pos.role === 'ST') baseWeight = 50;
+                    else if(pos.role === 'WG') baseWeight = 20;
+                    else if(pos.role === 'AM') baseWeight = 15;
+                    else if(pos.role === 'CM' || pos.role === 'WM') baseWeight = 5;
+                    else if(pos.role === 'DM') baseWeight = 2;
+                    else if(pos.role === 'CB' || pos.role === 'FB') baseWeight = 1;
+
+                    const chemInfo = getPlayerChem(pos.id);
+                    const applyRobinHood = (stat) => stat + ((115 - stat) * chemInfo.closurePct);
+                    
+                    const finalAtk = applyRobinHood(p.normStats.atk);
+                    let finalWeight = Math.max(1, Math.round(baseWeight * (finalAtk / 10)));
+                    
+                    for(let i=0; i<finalWeight; i++) pool.push(p);
                 }
             });
             if(pool.length === 0) return { name: "Striker" };
@@ -1675,12 +1706,17 @@ function handleModalClick(event) {
                 let qualLabel = "";
                 
                 if(i < 2) {
-                    qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
-                    qualLabel = `<span class="ml-1.5 text-[8px] bg-blue-600 text-white px-1 py-0.5 rounded font-bold">QUAL</span>`;
-                } else if (gameMode === 'rtg' && i === standings.length - 1) { 
-                    qualificationClass = "border-l-4 border-l-red-500 bg-red-900/20";
-                    qualLabel = `<span class="ml-1.5 text-[8px] bg-red-600 text-white px-1 py-0.5 rounded font-bold">DROP</span>`;
-                }
+                 qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
+                 qualLabel = `<span class="ml-1.5 text-[8px] bg-blue-600 text-white px-1 py-0.5 rounded font-bold">QUAL</span>`;
+             } else if (gameMode === 'rtg' && i === standings.length - 1) { 
+                 if (currentSeason === 1 && t.isUser) {
+                     qualificationClass = "border-l-4 border-l-orange-500 bg-orange-900/20";
+                     qualLabel = `<span class="ml-1.5 text-[8px] bg-orange-600 text-white px-1 py-0.5 rounded font-bold">SAVED</span>`;
+                 } else {
+                     qualificationClass = "border-l-4 border-l-red-500 bg-red-900/20";
+                     qualLabel = `<span class="ml-1.5 text-[8px] bg-red-600 text-white px-1 py-0.5 rounded font-bold">DROP</span>`;
+                 }
+             }
                 
                 tr.className = `border-t border-slate-700/50 ${t.isUser ? 'bg-yellow-500/20 text-yellow-400 font-bold' : ''} ${qualificationClass}`;
                 tr.innerHTML = `<td class="px-3 py-3 flex items-center gap-1"><span class="w-4 text-center text-xs text-slate-500">${i+1}</span> <span class="truncate max-w-[115px] sm:max-w-none ${t.isUser && i < 2 ? 'text-blue-300' : ''}">${t.name}</span>${qualLabel}</td><td class="px-2 py-3 text-center">${t.p}</td><td class="px-2 py-3 text-center font-black ${t.isUser ? 'text-yellow-400' : 'text-white'}">${t.pts}</td><td class="px-2 py-3 text-center hidden sm:table-cell text-xs whitespace-nowrap">${t.w}-${t.d}-${t.l}</td><td class="px-2 py-3 text-center text-xs ${t.gf - t.ga > 0 ? 'text-green-400' : (t.gf - t.ga < 0 ? 'text-red-400' : '')}">${t.gf - t.ga > 0 ? '+' : ''}${t.gf - t.ga}</td>`;
@@ -1689,52 +1725,62 @@ function handleModalClick(event) {
         }
 
         function showSeasonSummary() {
-            document.getElementById('tv-scoreboard').classList.add('hidden');
-            let currentSquadIds = Object.values(userTeam).filter(p => p !== null).map(p => p.id);
-            let allPlayers = Object.values(playerStats).filter(ps => currentSquadIds.includes(ps.p.id));
-            
-            let topScorer = [...allPlayers].sort((a,b) => b.seasonGoals - a.seasonGoals)[0];
-            let mvp = [...allPlayers].sort((a,b) => b.seasonPerfScore - a.seasonPerfScore)[0];
-            
-            const finalPos = standings.findIndex(t => t.isUser) + 1;
-            const qualified = finalPos <= 2;
-            // RTG ontslag geldt pas VANAF seizoen 2 als je laatste wordt!
-const isSacked = (gameMode === 'rtg' && currentSeason > 1 && finalPos === standings.length);
-            
-            let topScorerContent = topScorer && topScorer.seasonGoals > 0 ? `<img src="${topScorer.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-yellow-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">Season Scorer</p><p class="text-base font-black text-white leading-tight truncate">${topScorer.p.name}</p><p class="text-xs text-slate-400">${topScorer.seasonGoals} Goals <span class="opacity-75">(${topScorer.goals} Tot)</span></p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">📉</div><div class="text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Attacking Woes</p><p class="text-base font-black text-white leading-tight">No Goals</p><p class="text-xs text-slate-400">0 goals scored</p></div>`;
-            let mvpContent = mvp && mvp.seasonPerfScore > 0 ? `<img src="${mvp.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-purple-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight truncate">${mvp.p.name}</p><p class="text-xs text-slate-400">${mvp.seasonPerfScore} Match Pts</p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">😴</div><div class="text-left"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight">Nobody</p><p class="text-xs text-slate-400">0 Match Pts</p></div>`;
-            
-            let allScorersHtml = '';
-            let goalscorers = [...allPlayers].filter(p => p.seasonGoals > 0 || p.goals > 0).sort((a,b) => b.seasonGoals - a.seasonGoals);
-            if(goalscorers.length > 0) {
-                allScorersHtml = `<div class="w-full mt-4 bg-slate-900 rounded-xl p-3 border border-slate-700 text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 border-b border-slate-700 pb-1">Squad Goalscorers (Season / Career)</p><div class="flex flex-wrap gap-2">` + 
-                goalscorers.map(g => `<span class="bg-slate-800 text-xs px-2.5 py-1 rounded text-white shadow-inner">${g.p.name} <strong class="text-yellow-400 ml-1">${g.seasonGoals}</strong> <span class="text-slate-400 text-[10px]">(${g.goals} Tot)</span></span>`).join('') + `</div></div>`;
-            }
+         document.getElementById('tv-scoreboard').classList.add('hidden');
+         let currentSquadIds = Object.values(userTeam).filter(p => p !== null).map(p => p.id);
+         let allPlayers = Object.values(playerStats).filter(ps => currentSquadIds.includes(ps.p.id));
 
-            let actionHtml = '';
-            if (isSacked) {
-                actionHtml = `
-                    <div class="mt-5 bg-red-900/40 border border-red-600 rounded-xl p-4 text-center shadow-inner">
-                        <span class="text-3xl mb-1 block">📉❌</span>
-                        <p class="text-lg text-red-500 font-black uppercase tracking-widest mb-1">You Have Been Sacked!</p>
-                        <p class="text-xs text-red-200 font-medium mb-4">Finishing dead last resulted in relegation. The club board has terminated your contract.</p>
-                        <button onclick="startNewDraft()" class="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] uppercase tracking-widest text-sm md:text-base w-full transition-all">START NEW CAREER</button>
-                    </div>
-                `;
-            } else if (qualified) {
-                actionHtml = `<button onclick="startContinentalCup()" class="mt-4 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_30px_rgba(37,99,235,0.8)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">🏆 PLAY CONTINENTAL CUP</button>`;
-            } else {
-                actionHtml = `<p class="mt-4 text-xs text-slate-400 font-bold uppercase tracking-widest text-center">DID NOT QUALIFY FOR CONTINENTAL CUP</p>
-                   <button onclick="startTransferWindow()" class="mt-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_30px_rgba(168,85,247,0.7)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">START NEXT SEASON (TRANSFERS)</button>`;
-            }
+         let topScorer = [...allPlayers].sort((a,b) => b.seasonGoals - a.seasonGoals)[0];
+         let mvp = [...allPlayers].sort((a,b) => b.seasonPerfScore - a.seasonPerfScore)[0];
 
-            const awards = document.getElementById('post-season-awards');
-            awards.classList.remove('hidden');
-            awards.classList.add('flex', 'order-first');
-            awards.innerHTML = `<div class="bg-slate-800 rounded-2xl border border-slate-700 p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="text-xl md:text-2xl font-black text-white mb-1 uppercase tracking-wide">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : 'text-yellow-400')} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${actionHtml}<button onclick="viewTeam()" class="mt-3 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
+         const finalPos = standings.findIndex(t => t.isUser) + 1;
+         const qualified = finalPos <= 2;
+         const isLastPlace = (finalPos === standings.length);
+         const isSacked = (gameMode === 'rtg' && currentSeason > 1 && isLastPlace);
+         const isFirstSeasonWarning = (gameMode === 'rtg' && currentSeason === 1 && isLastPlace);
 
-            setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-        }
+         let topScorerContent = topScorer && topScorer.seasonGoals > 0 ? `<img src="${topScorer.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-yellow-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">Season Scorer</p><p class="text-base font-black text-white leading-tight truncate">${topScorer.p.name}</p><p class="text-xs text-slate-400">${topScorer.seasonGoals} Goals <span class="opacity-75">(${topScorer.goals} Tot)</span></p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">📉</div><div class="text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Attacking Woes</p><p class="text-base font-black text-white leading-tight">No Goals</p><p class="text-xs text-slate-400">0 goals scored</p></div>`;
+         let mvpContent = mvp && mvp.seasonPerfScore > 0 ? `<img src="${mvp.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-purple-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight truncate">${mvp.p.name}</p><p class="text-xs text-slate-400">${mvp.seasonPerfScore} Match Pts</p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">😴</div><div class="text-left"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight">Nobody</p><p class="text-xs text-slate-400">0 Match Pts</p></div>`;
+
+         let allScorersHtml = '';
+         let goalscorers = [...allPlayers].filter(p => p.seasonGoals > 0 || p.goals > 0).sort((a,b) => b.seasonGoals - a.seasonGoals);
+         if(goalscorers.length > 0) {
+             allScorersHtml = `<div class="w-full mt-4 bg-slate-900 rounded-xl p-3 border border-slate-700 text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 border-b border-slate-700 pb-1">Squad Goalscorers (Season / Career)</p><div class="flex flex-wrap gap-2">` + 
+             goalscorers.map(g => `<span class="bg-slate-800 text-xs px-2.5 py-1 rounded text-white shadow-inner">${g.p.name} <strong class="text-yellow-400 ml-1">${g.seasonGoals}</strong> <span class="text-slate-400 text-[10px]">(${g.goals} Tot)</span></span>`).join('') + `</div></div>`;
+         }
+
+         let actionHtml = '';
+         if (isSacked) {
+             actionHtml = `
+                 <div class="mt-5 bg-red-900/40 border border-red-600 rounded-xl p-4 text-center shadow-inner">
+                     <span class="text-3xl mb-1 block">📉❌</span>
+                     <p class="text-lg text-red-500 font-black uppercase tracking-widest mb-1">You Have Been Sacked!</p>
+                     <p class="text-xs text-red-200 font-medium mb-4">Finishing dead last resulted in relegation. The club board has terminated your contract.</p>
+                     <button onclick="startNewDraft()" class="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] uppercase tracking-widest text-sm md:text-base w-full transition-all">START NEW CAREER</button>
+                 </div>
+             `;
+         } else if (isFirstSeasonWarning) {
+             actionHtml = `
+                 <div class="mt-5 bg-orange-900/30 border border-orange-500 rounded-xl p-4 text-center shadow-inner">
+                     <span class="text-2xl mb-1 block">⚠️📋</span>
+                     <p class="text-base text-orange-400 font-black uppercase tracking-widest mb-1">Board Warning: Saved From The Drop!</p>
+                     <p class="text-xs text-orange-200 font-medium mb-4">You finished dead last! Because this is your debut season, the board grants you immunity. From Season 2 onwards, finishing 8th means getting SACKED!</p>
+                     <button onclick="startTransferWindow()" class="px-6 py-3.5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(168,85,247,0.7)] uppercase tracking-widest text-sm md:text-base w-full transform hover:scale-105 transition-all">START NEXT SEASON (OFF-SEASON)</button>
+                 </div>
+             `;
+         } else if (qualified) {
+             actionHtml = `<button onclick="startContinentalCup()" class="mt-4 px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_30px_rgba(37,99,235,0.8)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">🏆 PLAY CONTINENTAL CUP</button>`;
+         } else {
+             actionHtml = `<p class="mt-4 text-xs text-slate-400 font-bold uppercase tracking-widest text-center">DID NOT QUALIFY FOR CONTINENTAL CUP</p>
+                <button onclick="startTransferWindow()" class="mt-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_30px_rgba(168,85,247,0.7)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">START NEXT SEASON (OFF-SEASON)</button>`;
+         }
+
+         const awards = document.getElementById('post-season-awards');
+         awards.classList.remove('hidden');
+         awards.classList.add('flex', 'order-first');
+         awards.innerHTML = `<div class="bg-slate-800 rounded-2xl border border-slate-700 p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="text-xl md:text-2xl font-black text-white mb-1 uppercase tracking-wide">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${actionHtml}<button onclick="viewTeam()" class="mt-3 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
+
+         setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+     }
 
         function startContinentalCup() {
             hasPlayedCup = true;
@@ -2078,7 +2124,7 @@ const isSacked = (gameMode === 'rtg' && currentSeason > 1 && finalPos === standi
             
             const finalPos = standings.findIndex(t => t.isUser) + 1;
             const wonCup = currentCupRound > 3;
-            const isSacked = (gameMode === 'rtg' && finalPos === standings.length);
+            const isSacked = (gameMode === 'rtg' && currentSeason > 1 && finalPos === standings.length);
 
             if (!isSacked) {
                 if (wonCup) {
