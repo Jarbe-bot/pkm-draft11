@@ -126,8 +126,8 @@
         </div>
     </div>
 
-    <div id="start-screen" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-4 transition-opacity duration-500 overflow-y-auto">
-        <div class="max-w-4xl w-full mx-auto my-auto py-6 md:py-10 flex flex-col items-center">
+    <div id="start-screen" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-start sm:justify-center p-4 transition-opacity duration-500 overflow-y-auto">
+        <div class="max-w-4xl w-full mx-auto mt-8 sm:my-auto py-6 md:py-10 flex flex-col items-center">
             <h1 class="text-4xl md:text-6xl font-black text-center mb-1.5 text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 drop-shadow-lg uppercase tracking-tight">
                 Pokémon Draft FC
             </h1>
@@ -897,12 +897,15 @@
                 document.getElementById('score-mid').innerText = teamMidfield;
                 document.getElementById('score-def').innerText = teamDefense;
 
-                // De nieuwe transparante stats eerlijk geschaald naar de zware CPU pools
-                myTeamEnginePools.poss = Math.round(teamMidfield * 12.5);
-                myTeamEnginePools.create = Math.round(teamAttack * 12.5);
-                myTeamEnginePools.finish = Math.round(teamAttack * 12.5);
-                myTeamEnginePools.prevent = Math.round(teamDefense * 12.5);
-                myTeamEnginePools.block = Math.round(teamDefense * 12.5);
+                // Kwadratische Kwaliteitscurve: (OVR x OVR) / 7.5
+                // Lage OVRs storten in, hoge OVRs klimmen exponentieel
+                const scaleToEngine = (ovr) => Math.round(Math.pow(ovr, 2) / 7.5);
+
+                myTeamEnginePools.poss = scaleToEngine(teamMidfield);
+                myTeamEnginePools.create = scaleToEngine(teamAttack);
+                myTeamEnginePools.finish = scaleToEngine(teamAttack);
+                myTeamEnginePools.prevent = scaleToEngine(teamDefense);
+                myTeamEnginePools.block = scaleToEngine(teamDefense);
             } else {
                 document.getElementById('score-atk').innerText = '--';
                 document.getElementById('score-mid').innerText = '--';
@@ -1435,10 +1438,10 @@
             const uFinish = myTeamEnginePools.finish || 0; const cBlock = cpuOp.pools.block || 0;
             const cFinish = cpuOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
 
-            const userCreateProb = Math.min(0.70, Math.max(0.20, uCreate / (uCreate + cPrevent)));
-            const userFinishProb = Math.min(0.70, Math.max(0.20, uFinish / (uFinish + cBlock)));
-            const cpuCreateProb = Math.min(0.70, Math.max(0.20, cCreate / (cCreate + uPrevent)));
-            const cpuFinishProb = Math.min(0.70, Math.max(0.20, cFinish / (cFinish + uBlock)));
+            const userCreateProb = Math.min(0.70, Math.max(0.05, uCreate / (uCreate + cPrevent)));
+            const userFinishProb = Math.min(0.70, Math.max(0.05, uFinish / (uFinish + cBlock)));
+            const cpuCreateProb = Math.min(0.70, Math.max(0.05, cCreate / (cCreate + uPrevent)));
+            const cpuFinishProb = Math.min(0.70, Math.max(0.05, cFinish / (cFinish + uBlock)));
 
             let rawUserGoals = 0, rawCpuGoals = 0;
             for(let i=0; i<userChances; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rawUserGoals++; }
@@ -1736,10 +1739,10 @@
             const uFinish = myTeamEnginePools.finish || 0; const cBlock = cupOp.pools.block || 0;
             const cFinish = cupOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
 
-            const userCreateProb = Math.min(0.70, Math.max(0.20, uCreate / (uCreate + cPrevent)));
-            const userFinishProb = Math.min(0.70, Math.max(0.20, uFinish / (uFinish + cBlock)));
-            const cpuCreateProb = Math.min(0.70, Math.max(0.20, cCreate / (cCreate + uPrevent)));
-            const cpuFinishProb = Math.min(0.70, Math.max(0.20, cFinish / (cFinish + uBlock)));
+            const userCreateProb = Math.min(0.70, Math.max(0.05, uCreate / (uCreate + cPrevent)));
+            const userFinishProb = Math.min(0.70, Math.max(0.05, uFinish / (uFinish + cBlock)));
+            const cpuCreateProb = Math.min(0.70, Math.max(0.05, cCreate / (cCreate + uPrevent)));
+            const cpuFinishProb = Math.min(0.70, Math.max(0.05, cFinish / (cFinish + uBlock)));
 
             let rawUserGoals = 0, rawCpuGoals = 0;
             for(let i=0; i<userChances; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rawUserGoals++; }
