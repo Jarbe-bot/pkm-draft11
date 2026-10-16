@@ -239,8 +239,7 @@
                     <span class="text-[10px] md:text-xs text-purple-200 font-medium">Swap players or train specific stats</span>
                 </div>
                 <div class="flex gap-2 shrink-0">
-                    <span class="bg-slate-900 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-yellow-400 shadow-inner text-[10px] md:text-sm">Transfers: <span id="transfer-count">2</span></span>
-                    <span class="bg-slate-900 px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-green-400 shadow-inner text-[10px] md:text-sm">Trainings: <span id="train-count">3</span></span>
+                    <span class="bg-slate-900 px-3 py-1.5 rounded-lg text-yellow-400 shadow-inner text-xs md:text-sm font-bold">Action Points: <span id="action-count">3</span></span>
                 </div>
             </div>
             
@@ -381,6 +380,7 @@
     </div>
 
     <div id="draft-modal" class="fixed inset-0 bg-black/90 hidden z-[60] flex-col items-center justify-start p-3 sm:p-6 backdrop-blur-sm transition-all duration-300 overflow-y-auto" onclick="handleModalClick(event)">
+        <button id="btn-floating-close" onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 border border-slate-600 rounded-full w-10 h-10 flex items-center justify-center font-bold transition-colors z-[400] shadow-lg">✕</button>
         
         <div class="w-full max-w-5xl flex justify-between items-center shrink-0 mb-2 z-[310]">
             <button id="btn-peek" onclick="togglePeek()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1.5 shadow-lg">
@@ -555,8 +555,7 @@
         
         let currentSeason = 1;
         let isTransferWindow = false;
-        let transfersLeft = 0;
-        let trainingPoints = 0;
+        let actionPoints = 3;
         let gameMode = 'classic';
         let isPeeking = false;
         window.onload = () => { initStartScreen(); };
@@ -1063,19 +1062,34 @@
             }
         }
 
-        function handleModalClick(event) {
-            if (event.target.id === 'draft-modal' || event.target.id === 'draft-content-wrapper') {
-                if (isPeeking) {
-                    togglePeek();
-                    return;
-                }
-                const btnCancel = document.getElementById('btn-cancel-draft');
-                if (btnCancel && !btnCancel.classList.contains('hidden')) {
-                    closeModal();
-                }
-            }
-        }
+     // NIEUW: Checkt of de 'Skip' knop groen mag worden
+function checkOffSeasonActions() {
+    const btn = document.getElementById('btn-finish-transfers');
+    if (!btn) return;
+    
+    if (actionPoints <= 0) {
+        btn.innerHTML = "Start Next Season &rarr;";
+        btn.classList.remove('bg-slate-800', 'text-slate-200');
+        btn.classList.add('bg-green-600', 'text-white', 'border-green-500', 'shadow-[0_0_15px_rgba(22,163,74,0.5)]');
+    } else {
+        btn.innerHTML = "Skip Remaining Actions &rarr;";
+        btn.classList.add('bg-slate-800', 'text-slate-200');
+        btn.classList.remove('bg-green-600', 'text-white', 'border-green-500', 'shadow-[0_0_15px_rgba(22,163,74,0.5)]');
+    }
+}
 
+// OVERSCHRIJVEN
+function handleModalClick(event) {
+    const wrapper = document.getElementById('draft-content-wrapper');
+    const modal = document.getElementById('draft-modal');
+    if (event.target === modal || (wrapper && !wrapper.contains(event.target) && event.target.id !== 'btn-floating-close')) {
+        if (isPeeking) {
+            togglePeek();
+            return;
+        }
+        closeModal();
+    }
+}
         async function openDraft(posId, displayPos, role) {
             currentDraftPos = posId; 
             document.getElementById('draft-position-label').innerText = displayPos;
@@ -1211,39 +1225,41 @@
             `;
         }
 
-        window.trainStat = function(posId, statKey, role, displayPos) {
-            if (trainingPoints <= 0) return;
-            const p = userTeam[posId];
-            const currentVal = p.normStats[statKey];
-            
-            // De RPG Dobbelsteen!
-            let gain = 0;
-            if (currentVal < 60) gain = Math.floor(Math.random() * 5) + 4;       // +4 tot +8 voor slechte stats
-            else if (currentVal <= 85) gain = Math.floor(Math.random() * 4) + 2; // +2 tot +5 voor gemiddeldes
-            else gain = Math.floor(Math.random() * 3) + 0;                       // +0 tot +2 voor topspelers (diminishing returns)
+       window.trainStat = function(posId, statKey, role, displayPos) {
+    if (actionPoints <= 0) return;
+    const p = userTeam[posId];
+    const currentVal = p.normStats[statKey];
+    
+    let gain = 0;
+    if (currentVal < 60) gain = Math.floor(Math.random() * 5) + 4;
+    else if (currentVal <= 85) gain = Math.floor(Math.random() * 4) + 2;
+    else gain = Math.floor(Math.random() * 3) + 0;
 
-            // Pas stat toe (max 99)
-            p.normStats[statKey] = Math.min(99, currentVal + gain);
-            trainingPoints--;
-            
-            document.getElementById('train-count').innerText = trainingPoints;
-            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#4ade80', '#facc15'] });
-            
-            renderPitch();
-            updateScores();
-            
-            // Laad direct de spelerskaart opnieuw in zodat de speler het nieuwe groene getal ziet!
-            openDraft(posId, displayPos, role);
-        }
+    p.normStats[statKey] = Math.min(99, currentVal + gain);
+    actionPoints--;
+    
+    document.getElementById('action-count').innerText = actionPoints;
+    checkOffSeasonActions();
+    confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 }, colors: ['#4ade80', '#facc15'] });
+    
+    renderPitch();
+    updateScores();
+    openDraft(posId, displayPos, role);
+}
 
-        window.confirmTransferOut = async function(role, displayPos) {
-            document.getElementById('draft-modal-title').innerText = "Transfer Scout";
-            document.getElementById('btn-cancel-draft').classList.add('hidden');
-            document.getElementById('btn-reroll').classList.add('hidden');
-            document.getElementById('btn-reroll').classList.remove('flex');
-            document.getElementById('reroll-wrapper').classList.add('hidden');
-            await rollOptions(role, displayPos);
-        }
+     window.confirmTransferOut = async function(role, displayPos) {
+    if (actionPoints <= 0) return;
+    actionPoints--;
+    document.getElementById('action-count').innerText = actionPoints;
+    checkOffSeasonActions();
+
+    document.getElementById('draft-modal-title').innerText = "Transfer Scout";
+    document.getElementById('btn-cancel-draft').classList.add('hidden');
+    document.getElementById('btn-reroll').classList.add('hidden');
+    document.getElementById('btn-reroll').classList.remove('flex');
+    document.getElementById('reroll-wrapper').classList.add('hidden');
+    await rollOptions(role, displayPos);
+}
 
         async function useReroll() {
             if(!hasReroll) return;
@@ -1344,28 +1360,19 @@
         }
 
         function selectPokemonByIndex(idx) {
-            const pData = currentRolledOptions[idx];
-            if (!pData || !currentDraftPos) return;
+    const pData = currentRolledOptions[idx];
+    if (!pData || !currentDraftPos) return;
 
-            const isReplacing = userTeam[currentDraftPos] !== null;
-            userTeam[currentDraftPos] = pData;
+    userTeam[currentDraftPos] = pData;
 
-            if(!playerStats[pData.id]) {
-                playerStats[pData.id] = { p: pData, goals: 0, seasonGoals: 0, cleanSheets: 0, perfScore: 0, seasonPerfScore: 0 };
-            }
-            
-            if (isReplacing && isTransferWindow) {
-                transfersLeft--;
-                document.getElementById('transfer-count').innerText = transfersLeft;
-                if(transfersLeft <= 0) {
-                    finishTransfers();
-                }
-            }
-
-            closeModal();
-            renderPitch();
-            updateScores();
-        }
+    if(!playerStats[pData.id]) {
+        playerStats[pData.id] = { p: pData, goals: 0, seasonGoals: 0, cleanSheets: 0, perfScore: 0, seasonPerfScore: 0 };
+    }
+    
+    closeModal();
+    renderPitch();
+    updateScores();
+}
 
         function getWeightedScorer() {
             let pool = [];
@@ -1495,11 +1502,11 @@
             document.getElementById('tv-home-scorers').innerHTML = '';
             document.getElementById('tv-away-scorers').innerHTML = '';
             
-            const totalChances = 9; 
+            const totalChances = 13; 
             
             const uPoss = myTeamEnginePools.poss || 0;
             const cPoss = cpuOp.pools.poss || 0;
-            const possRatio = (Math.pow(uPoss, 1.2)) / (Math.pow(uPoss, 1.2) + Math.pow(cPoss, 1.2));
+            const possRatio = (Math.pow(uPoss, 1.5)) / (Math.pow(uPoss, 1.5) + Math.pow(cPoss, 1.5));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
             const cpuChances = totalChances - userChances;
@@ -1795,11 +1802,11 @@
             const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
             const cupOp = continentalOpponents[currentCupRound];
 
-            const totalChances = 9; 
+            const totalChances = 13; 
             
             const uPoss = myTeamEnginePools.poss || 0; 
             const cPoss = cupOp.pools.poss || 0;
-            const possRatio = (Math.pow(uPoss, 1.2)) / (Math.pow(uPoss, 1.2) + Math.pow(cPoss, 1.2));
+            const possRatio = (Math.pow(uPoss, 1.5)) / (Math.pow(uPoss, 1.5) + Math.pow(cPoss, 1.5));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
             const cpuChances = totalChances - userChances;
@@ -1981,43 +1988,39 @@
         }
 
         function startTransferWindow() {
-            currentSeason++;
-            document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
-            isTransferWindow = true;
-            transfersLeft = 2;
-            trainingPoints = 3; // Geef 3 trainingspunten
-            hasReroll = false;
+    currentSeason++;
+    document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
+    isTransferWindow = true;
+    actionPoints = 3;
+    hasReroll = false;
 
-            document.getElementById('match-center').classList.add('hidden');
-            document.getElementById('match-center').classList.remove('flex');
-            document.getElementById('btn-back-to-stats').classList.add('hidden');
-            document.getElementById('btn-back-to-stats').classList.remove('flex');
-            
-            document.getElementById('btn-simulate').classList.add('hidden');
-            document.getElementById('btn-play-cup-pitch').classList.add('hidden');
-            document.getElementById('btn-play-cup-pitch').classList.remove('block');
-            document.getElementById('btn-next-season-pitch').classList.add('hidden');
-            document.getElementById('btn-next-season-pitch').classList.remove('block');
-
-            document.getElementById('btn-download').classList.add('hidden');
-            document.getElementById('btn-share').classList.add('hidden');
-            
-            document.getElementById('btn-resign').classList.remove('hidden');
-            document.getElementById('btn-resign').classList.add('block');
-            
-            document.getElementById('transfer-count').innerText = transfersLeft;
-            document.getElementById('train-count').innerText = trainingPoints;
-            document.getElementById('transfer-banner').classList.remove('hidden');
-            document.getElementById('transfer-banner').classList.add('flex');
-            
-            document.getElementById('btn-finish-transfers').classList.remove('hidden');
-            document.getElementById('btn-finish-transfers').classList.add('block');
-
-            document.getElementById('pitch-view').classList.remove('hidden');
-            
-            renderPitch();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    document.getElementById('match-center').classList.add('hidden');
+    document.getElementById('match-center').classList.remove('flex');
+    document.getElementById('btn-back-to-stats').classList.add('hidden');
+    document.getElementById('btn-back-to-stats').classList.remove('flex');
+    
+    document.getElementById('btn-simulate').classList.add('hidden');
+    document.getElementById('btn-play-cup-pitch').classList.add('hidden');
+    document.getElementById('btn-play-cup-pitch').classList.remove('block');
+    document.getElementById('btn-next-season-pitch').classList.add('hidden');
+    document.getElementById('btn-next-season-pitch').classList.remove('block');
+    document.getElementById('btn-download').classList.add('hidden');
+    document.getElementById('btn-share').classList.add('hidden');
+    document.getElementById('btn-resign').classList.remove('hidden');
+    document.getElementById('btn-resign').classList.add('block');
+    
+    document.getElementById('action-count').innerText = actionPoints;
+    document.getElementById('transfer-banner').classList.remove('hidden');
+    document.getElementById('transfer-banner').classList.add('flex');
+    
+    document.getElementById('btn-finish-transfers').classList.remove('hidden');
+    document.getElementById('btn-finish-transfers').classList.add('block');
+    
+    checkOffSeasonActions();
+    document.getElementById('pitch-view').classList.remove('hidden');
+    renderPitch();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
         function finishTransfers() {
             isTransferWindow = false;
