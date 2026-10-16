@@ -1116,7 +1116,8 @@ function handleModalClick(event) {
                 const typeHex = getTypeColorHex(p.primaryType);
                 const playerOVR = calculatePlayerOVR(p, role);
                 
-                const transferBtnHtml = (isTransferWindow && actionPoints > 0) ? `
+                ```javascript
+const transferBtnHtml = (isTransferWindow && actionPoints > 0) ? `
     <button onclick="confirmTransferOut('${role}', '${displayPos}')" class="px-5 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-xs sm:text-sm w-full">
         Transfer Out
     </button>
@@ -1160,7 +1161,7 @@ const actionButtons = (isTransferWindow && actionPoints > 0) ? `
                                 </div>
                             </div>
                         </div>
-                        ${transferBtnHtml}
+                        ${actionButtons}
                     </div>
                 `;
             } else {
