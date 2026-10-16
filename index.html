@@ -121,6 +121,13 @@
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">4. The 100% Tactical Pie</h3>
                     <p>No more "weak link" penalties! Your team's score per phase is a clean weighted average based on the positions you chose. A speedy Winger perfectly contributes to the Attack score, but a Defender does not drag it down. Put the right players in the right positions!</p>
                 </div>
+                <div>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">5. Off-Season: Transfers & Training</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong class="text-purple-400">Transfers (2 per season):</strong> Swap out weak links for new scouts.</li>
+                        <li><strong class="text-blue-400">Training (3 per season):</strong> Click a player to train a specific stat. Weak stats level up much faster (+4 to +8) than elite stats (+0 to +2).</li>
+                    </ul>
+                </div>
             </div>
             <button onclick="closeHTP()" class="mt-6 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-xl transition-colors uppercase tracking-wide">Got it, Let's Play!</button>
         </div>
@@ -231,6 +238,7 @@
                 </div>
             </div>
         </header>
+
         <main class="flex-grow max-w-6xl w-full mx-auto relative mb-20 z-10 flex flex-col" id="main-view">
             
             <div id="transfer-banner" class="hidden w-full max-w-3xl mx-auto bg-gradient-to-r from-purple-700 to-purple-600 text-white font-black px-3.5 py-2.5 md:px-5 md:py-3 rounded-xl mb-2.5 shadow-xl border-2 border-purple-400 items-center justify-between gap-2">
@@ -559,6 +567,7 @@
         let trainingPoints = 0;
         let gameMode = 'classic';
         let isPeeking = false;
+
         window.onload = () => { initStartScreen(); };
 
         function openHTP() {
@@ -1134,12 +1143,12 @@
                                 </div>
                                 <h3 class="font-black text-lg sm:text-2xl text-white text-center uppercase tracking-wide w-full shrink-0 mb-3 leading-tight truncate">${p.name}</h3>
                                 <div class="grid grid-cols-2 gap-x-5 gap-y-2.5 w-full text-sm sm:text-base font-mono bg-slate-950 p-4 rounded-lg text-slate-300 shrink-0">
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spe}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-base sm:text-lg">${p.stats.hp}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-base sm:text-lg">${p.stats.atk}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-base sm:text-lg">${p.stats.def}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spa}</span></div>
-                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spd}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spe}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.hp}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.atk}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.def}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spa}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-base sm:text-lg">${p.normStats.spd}</span></div>
                                 </div>
                                 <div class="flex justify-between items-center w-full text-sm sm:text-base font-bold text-slate-400 mt-3 border-t border-slate-700/50 pt-3 shrink-0">
                                     <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-base sm:text-lg">${playerOVR} Base OVR</span>
@@ -1176,7 +1185,6 @@
             
             const gacha = document.getElementById('gacha-container');
             
-            // Render 6 klikbare buttons voor de 6 stats
             let statsHtml = '';
             const statLabels = [
                 { key: 'spe', label: 'Speed', color: 'text-yellow-400' },
@@ -1192,7 +1200,7 @@
                 statsHtml += `
                     <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" class="bg-slate-900 border-2 border-slate-600 hover:border-${s.color.split('-')[1]}-500 p-4 rounded-xl flex flex-col items-center justify-center transition-all transform hover:scale-105 shadow-lg w-full">
                         <span class="text-slate-400 font-bold text-xs uppercase tracking-widest mb-1">${s.label}</span>
-                        <span class="text-white font-black text-2xl ${s.color}">${currentVal}</span>
+                        <span class="font-black text-2xl ${s.color}">${currentVal}</span>
                         <span class="text-[9px] text-slate-500 mt-1 uppercase">Click to Train</span>
                     </button>
                 `;
@@ -1216,13 +1224,11 @@
             const p = userTeam[posId];
             const currentVal = p.normStats[statKey];
             
-            // De RPG Dobbelsteen!
             let gain = 0;
-            if (currentVal < 60) gain = Math.floor(Math.random() * 5) + 4;       // +4 tot +8 voor slechte stats
-            else if (currentVal <= 85) gain = Math.floor(Math.random() * 4) + 2; // +2 tot +5 voor gemiddeldes
-            else gain = Math.floor(Math.random() * 3) + 0;                       // +0 tot +2 voor topspelers (diminishing returns)
+            if (currentVal < 60) gain = Math.floor(Math.random() * 5) + 4;       
+            else if (currentVal <= 85) gain = Math.floor(Math.random() * 4) + 2; 
+            else gain = Math.floor(Math.random() * 3) + 0;                       
 
-            // Pas stat toe (max 99)
             p.normStats[statKey] = Math.min(99, currentVal + gain);
             trainingPoints--;
             
@@ -1232,7 +1238,6 @@
             renderPitch();
             updateScores();
             
-            // Laad direct de spelerskaart opnieuw in zodat de speler het nieuwe groene getal ziet!
             openDraft(posId, displayPos, role);
         }
 
@@ -1306,12 +1311,12 @@
                         </div>
                         <h3 class="font-black text-sm sm:text-lg text-white text-center uppercase tracking-wide w-full shrink-0 my-0.5 truncate">${p.name}</h3>
                         <div class="grid grid-cols-2 gap-x-4 gap-y-2 w-full text-xs sm:text-sm font-mono bg-slate-950 p-2.5 rounded-lg text-slate-300 shrink-0 mt-1">
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-sm sm:text-base">${p.stats.spe}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-sm sm:text-base">${p.stats.hp}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-sm sm:text-base">${p.stats.atk}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-sm sm:text-base">${p.stats.def}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-sm sm:text-base">${p.stats.spa}</span></div>
-                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-sm sm:text-base">${p.stats.spd}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">SPE</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.spe}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">HP</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.hp}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">ATK</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.atk}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">DEF</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.def}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.A</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.spa}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-sm sm:text-base">${p.normStats.spd}</span></div>
                         </div>
                         <div class="flex justify-between items-center w-full text-xs sm:text-sm font-bold text-slate-400 mt-2 border-t border-slate-700/50 pt-1.5 shrink-0">
                             <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-sm sm:text-base">${ovr} OVR</span>
@@ -1372,14 +1377,21 @@
             formations[activeFormation].positions.forEach(pos => {
                 const p = userTeam[pos.id];
                 if(p) {
-                    let weight = 1; 
-                    if(pos.role === 'ST') weight = 50;
-                    else if(pos.role === 'WG') weight = 20;
-                    else if(pos.role === 'AM') weight = 15;
-                    else if(pos.role === 'CM' || pos.role === 'WM') weight = 5;
-                    else if(pos.role === 'DM') weight = 2;
-                    else if(pos.role === 'CB' || pos.role === 'FB') weight = 1;
-                    for(let i=0; i<weight; i++) pool.push(p);
+                    let baseWeight = 1; 
+                    if(pos.role === 'ST') baseWeight = 50;
+                    else if(pos.role === 'WG') baseWeight = 20;
+                    else if(pos.role === 'AM') baseWeight = 15;
+                    else if(pos.role === 'CM' || pos.role === 'WM') baseWeight = 5;
+                    else if(pos.role === 'DM') baseWeight = 2;
+                    else if(pos.role === 'CB' || pos.role === 'FB') baseWeight = 1;
+
+                    const chemInfo = getPlayerChem(pos.id);
+                    const applyRobinHood = (stat) => stat + ((115 - stat) * chemInfo.closurePct);
+                    
+                    const finalAtk = applyRobinHood(p.normStats.atk);
+                    let finalWeight = Math.max(1, Math.round(baseWeight * (finalAtk / 10)));
+                    
+                    for(let i=0; i<finalWeight; i++) pool.push(p);
                 }
             });
             if(pool.length === 0) return { name: "Striker" };
@@ -1571,7 +1583,7 @@
             const feed = document.getElementById('results-feed-list');
             const newResult = document.createElement('div');
             newResult.className = `bg-slate-900/80 p-2 rounded text-xs flex justify-between border-l-2 border-${userGoals.length > cpuGoals.length ? 'green' : (userGoals.length < cpuGoals.length ? 'red' : 'slate')}-500 shrink-0`;
-            newResult.innerHTML = `<span class="text-slate-400">Match ${matchday}</span><span class="font-bold text-white">${userTeamName} ${userGoals.length} - ${cpuGoals.length} ${cpuOp.name}</span>`;
+            newResult.innerHTML = `<span class="text-slate-400">Match ${matchday}</span><span class="font-bold text-white">${userTeamName}${userGoals.length} - ${cpuGoals.length}${cpuOp.name}</span>`;
             feed.insertBefore(newResult, feed.firstChild);
         }
 
@@ -1607,7 +1619,7 @@
                 while(awayGoals.length > 0 && awayGoals[0].min === min) {
                     aScore++;
                     document.getElementById('tv-away-score').innerText = aScore;
-                    document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽ ${awayGoals.shift().name}</div>`;
+                    document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽${awayGoals.shift().name}</div>`;
                     goalHappened = true;
                 }
                 if(goalHappened) await delay(1400); else await delay(25); 
@@ -1985,7 +1997,7 @@
             document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
             isTransferWindow = true;
             transfersLeft = 2;
-            trainingPoints = 3; // Geef 3 trainingspunten
+            trainingPoints = 3; 
             hasReroll = false;
 
             document.getElementById('match-center').classList.add('hidden');
