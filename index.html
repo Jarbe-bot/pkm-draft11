@@ -1130,7 +1130,7 @@ function handleModalClick(event) {
                 btnReroll.classList.remove('flex');
                 rerollWrapper.classList.add('hidden');
                 btnCancel.classList.remove('hidden');
-                btnFloatingClose.classList.remove
+                btnFloatingClose.classList.remove('hidden');
                 btnCancel.innerText = "Cancel";
                 
                 const p = userTeam[posId];
@@ -1195,8 +1195,9 @@ function handleModalClick(event) {
                     btnReroll.classList.remove('flex');
                 }
                 btnCancel.classList.add('hidden');
-                btnFloatingClose.classList.add
-                await rollOptions(role, displayPos);
+btnFloatingClose.classList.add('hidden');
+await rollOptions(role, displayPos);
+
             }
         }
 
