@@ -527,23 +527,31 @@
             { id: 30, gen: 5, name: "Pokemon League V", pools: { poss: 800, create: 1050, prevent: 1100, finish: 1100, block: 1050 }, names: ["Volcarona", "Bisharp", "Chandelure", "Conkeldurr", "Krookodile", "Hydreigon"] }
         ];
 
-        const euroOpponents = [
-            { id: 101, name: "Bayern Mewnich", pools: { poss: 800, create: 1100, prevent: 1050, finish: 1100, block: 1100 }, names: ["Mewtwo", "Mew", "Snorlax", "Dragonite", "Alakazam", "Gengar"] },
-            { id: 102, name: "Paras St. Germain", pools: { poss: 900, create: 1250, prevent: 1200, finish: 1300, block: 1200 }, names: ["Paras", "Parasect", "Smeargle", "Celebi", "Lugia", "Ho-Oh"] }, 
-            { id: 103, name: "Spheal Madrid", pools: { poss: 850, create: 1150, prevent: 1100, finish: 1200, block: 1100 }, names: ["Spheal", "Walrein", "Sealeo", "Kyogre", "Lapras", "Articuno"] },
-            { id: 104, name: "Abracelona", pools: { poss: 900, create: 1200, prevent: 1050, finish: 1150, block: 1050 }, names: ["Abra", "Kadabra", "Alakazam", "Mr. Mime", "Slowbro", "Hypno"] },
-            { id: 105, name: "Atletreecko Madrid", pools: { poss: 800, create: 1050, prevent: 1200, finish: 1100, block: 1150 }, names: ["Treecko", "Grovyle", "Sceptile", "Breloom", "Shiftry", "Cacturne"] },
-            { id: 106, name: "Napoliwrath", pools: { poss: 850, create: 1100, prevent: 1150, finish: 1150, block: 1150 }, names: ["Poliwag", "Poliwhirl", "Poliwrath", "Politoed", "Tentacruel", "Gyarados"] },
-            { id: 107, name: "AC Miltank", pools: { poss: 850, create: 1100, prevent: 1150, finish: 1100, block: 1150 }, names: ["Miltank", "Tauros", "Bouffalant", "Snorlax", "Slaking", "Kangaskhan"] },
-            { id: 108, name: "Manchester Skitty", pools: { poss: 900, create: 1150, prevent: 1150, finish: 1180, block: 1150 }, names: ["Skitty", "Delcatty", "Meowth", "Persian", "Purugly", "Liepard"] },
-            { id: 109, name: "Chelseadra", pools: { poss: 850, create: 1120, prevent: 1180, finish: 1140, block: 1150 }, names: ["Horsea", "Seadra", "Kingdra", "Gyarados", "Milotic", "Vaporeon"] },
-            { id: 110, name: "Aronsenal", pools: { poss: 860, create: 1150, prevent: 1080, finish: 1150, block: 1100 }, names: ["Aron", "Lairon", "Aggron", "Steelix", "Scizor", "Skarmory"] },
-            { id: 111, name: "Galladesaray", pools: { poss: 850, create: 1150, prevent: 1100, finish: 1150, block: 1100 }, names: ["Ralts", "Kirlia", "Gallade", "Gardevoir", "Medicham", "Lucario"] },
-            { id: 112, name: "OAK Athens", pools: { poss: 880, create: 1200, prevent: 1200, finish: 1200, block: 1200 }, names: ["Tauros", "Exeggutor", "Arcanine", "Gyarados", "Dragonite", "Venusaur"] },
-            { id: 113, name: "Bor. Wailordmund", pools: { poss: 860, create: 1120, prevent: 1150, finish: 1160, block: 1120 }, names: ["Wailmer", "Wailord", "Kyogre", "Lanturn", "Sharpedo", "Crawdaunt"] },
-            { id: 114, name: "Ashton Villa", pools: { poss: 870, create: 1150, prevent: 1120, finish: 1170, block: 1100 }, names: ["Pikachu", "Charizard", "Snorlax", "Greninja", "Bulbasaur", "Squirtle"] },
-            { id: 115, name: "Inter Mewlan", pools: { poss: 860, create: 1130, prevent: 1170, finish: 1140, block: 1160 }, names: ["Mew", "Persian", "Umbreon", "Espeon", "Sylveon", "Glaceon"] }
+                const euroOpponents = [
+            // POT 1: Europese subtop (~81-83 OVR equivalent -> ~880-920 pools)
+            { id: 111, name: "Galladesaray", pools: { poss: 840, create: 910, prevent: 870, finish: 920, block: 870 }, names: ["Ralts", "Kirlia", "Gallade", "Gardevoir", "Medicham", "Lucario"] },
+            { id: 114, name: "Ashton Villa", pools: { poss: 860, create: 900, prevent: 890, finish: 910, block: 880 }, names: ["Pikachu", "Charizard", "Snorlax", "Greninja", "Bulbasaur", "Squirtle"] },
+            { id: 106, name: "Napoliwrath", pools: { poss: 870, create: 920, prevent: 900, finish: 920, block: 900 }, names: ["Poliwag", "Poliwhirl", "Poliwrath", "Politoed", "Tentacruel", "Gyarados"] },
+            { id: 113, name: "Bor. Wailordmund", pools: { poss: 860, create: 940, prevent: 880, finish: 940, block: 880 }, names: ["Wailmer", "Wailord", "Kyogre", "Lanturn", "Sharpedo", "Crawdaunt"] },
+
+            // POT 2: Sterke knock-out ploegen (~84-86 OVR equivalent -> ~940-980 pools)
+            { id: 109, name: "Chelseadra", pools: { poss: 890, create: 930, prevent: 960, finish: 930, block: 960 }, names: ["Horsea", "Seadra", "Kingdra", "Gyarados", "Milotic", "Vaporeon"] },
+            { id: 110, name: "Aronsenal", pools: { poss: 920, create: 960, prevent: 920, finish: 950, block: 930 }, names: ["Aron", "Lairon", "Aggron", "Steelix", "Scizor", "Skarmory"] },
+            { id: 107, name: "AC Miltank", pools: { poss: 880, create: 940, prevent: 980, finish: 940, block: 980 }, names: ["Miltank", "Tauros", "Bouffalant", "Snorlax", "Slaking", "Kangaskhan"] },
+            { id: 105, name: "Atletreecko Madrid", pools: { poss: 850, create: 920, prevent: 1020, finish: 950, block: 1010 }, names: ["Treecko", "Grovyle", "Sceptile", "Breloom", "Shiftry", "Cacturne"] },
+
+            // POT 3: Europese top (~86-88 OVR equivalent -> ~990-1040 pools)
+            { id: 115, name: "Inter Mewlan", pools: { poss: 920, create: 980, prevent: 1020, finish: 990, block: 1020 }, names: ["Mew", "Persian", "Umbreon", "Espeon", "Sylveon", "Glaceon"] },
+            { id: 112, name: "OAK Athens", pools: { poss: 950, create: 1000, prevent: 1000, finish: 1000, block: 1000 }, names: ["Tauros", "Exeggutor", "Arcanine", "Gyarados", "Dragonite", "Venusaur"] },
+            { id: 104, name: "Abracelona", pools: { poss: 1040, create: 1030, prevent: 940, finish: 1010, block: 940 }, names: ["Abra", "Kadabra", "Alakazam", "Mr. Mime", "Slowbro", "Hypno"] },
+            { id: 101, name: "Bayern Mewnich", pools: { poss: 960, create: 1030, prevent: 1000, finish: 1040, block: 1000 }, names: ["Mewtwo", "Mew", "Snorlax", "Dragonite", "Alakazam", "Gengar"] },
+
+            // POT 4: De Eindbazen (~89-91 OVR equivalent -> ~1050-1100 pools)
+            { id: 108, name: "Manchester Skitty", pools: { poss: 1050, create: 1060, prevent: 1040, finish: 1060, block: 1040 }, names: ["Skitty", "Delcatty", "Meowth", "Persian", "Purugly", "Liepard"] },
+            { id: 103, name: "Spheal Madrid", pools: { poss: 980, create: 1070, prevent: 1050, finish: 1090, block: 1050 }, names: ["Spheal", "Walrein", "Sealeo", "Kyogre", "Lapras", "Articuno"] },
+            { id: 102, name: "Paras St. Germain", pools: { poss: 1020, create: 1090, prevent: 1050, finish: 1100, block: 1050 }, names: ["Paras", "Parasect", "Smeargle", "Celebi", "Lugia", "Ho-Oh"] }
         ];
+
 
         let activeFormation = null;
         let globalIdPool = [];
@@ -1799,7 +1807,7 @@ await rollOptions(role, displayPos);
          setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
      }
 
-        function startContinentalCup() {
+                function startContinentalCup() {
             hasPlayedCup = true;
             document.getElementById('pitch-view').classList.add('hidden');
             document.getElementById('match-center').classList.remove('hidden');
@@ -1815,11 +1823,22 @@ await rollOptions(role, displayPos);
             
             document.getElementById('tv-scoreboard').classList.remove('hidden');
             
-            continentalOpponents = [...euroOpponents].sort(() => 0.5 - Math.random());
+            // Sorteer Europese tegenstanders van zwak naar sterk op totale pool-score
+            const getTotalPool = (op) => op.pools.poss + op.pools.create + op.pools.prevent + op.pools.finish + op.pools.block;
+            let sortedEuro = [...euroOpponents].sort((a, b) => getTotalPool(a) - getTotalPool(b));
+
+            // Verdeel in 4 sterkte-potten (R16 -> QF -> SF -> Final)
+            let pot1 = sortedEuro.slice(0, 4).sort(() => 0.5 - Math.random());   // Subtop
+            let pot2 = sortedEuro.slice(4, 8).sort(() => 0.5 - Math.random());   // Sterke middenmoot
+            let pot3 = sortedEuro.slice(8, 12).sort(() => 0.5 - Math.random());  // Europese top
+            let pot4 = sortedEuro.slice(12, 15).sort(() => 0.5 - Math.random()); // Eindbazen
+
+            continentalOpponents = [pot1[0], pot2[0], pot3[0], pot4[0]];
             currentCupRound = 0;
             
             setupNextCupRound();
         }
+
 
         function setupNextCupRound() {
             const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
