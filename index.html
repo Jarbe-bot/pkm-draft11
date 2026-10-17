@@ -1088,16 +1088,27 @@ function checkOffSeasonActions() {
 
 // OVERSCHRIJVEN
 function handleModalClick(event) {
+    // Negeer klikken op de bovenste balk (Peek Team / Rules) of de X-knop zelf
+    if (event.target.closest('#btn-peek') || event.target.closest('button[onclick="openHTP()"]') || event.target.id === 'btn-floating-close') {
+        return;
+    }
+
     const wrapper = document.getElementById('draft-content-wrapper');
     const modal = document.getElementById('draft-modal');
-    if (event.target === modal || (wrapper && !wrapper.contains(event.target) && event.target.id !== 'btn-floating-close')) {
+    
+    if (event.target === modal || (wrapper && !wrapper.contains(event.target))) {
         if (isPeeking) {
             togglePeek();
             return;
         }
-        closeModal();
+        // Alleen sluiten als annuleren toegestaan is (niet tijdens actief scouten!)
+        const btnCancel = document.getElementById('btn-cancel-draft');
+        if (btnCancel && !btnCancel.classList.contains('hidden')) {
+            closeModal();
+        }
     }
 }
+
        async function openDraft(posId, displayPos, role) {
             currentDraftPos = posId; 
             document.getElementById('draft-position-label').innerText = displayPos;
@@ -1108,6 +1119,7 @@ function handleModalClick(event) {
             const modalTitle = document.getElementById('draft-modal-title');
             const modal = document.getElementById('draft-modal');
             const gacha = document.getElementById('gacha-container');
+           const btnFloatingClose = document.getElementById('btn-floating-close');
             
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -1118,6 +1130,7 @@ function handleModalClick(event) {
                 btnReroll.classList.remove('flex');
                 rerollWrapper.classList.add('hidden');
                 btnCancel.classList.remove('hidden');
+                btnFloatingClose.classList.remove
                 btnCancel.innerText = "Cancel";
                 
                 const p = userTeam[posId];
@@ -1182,6 +1195,7 @@ function handleModalClick(event) {
                     btnReroll.classList.remove('flex');
                 }
                 btnCancel.classList.add('hidden');
+                btnFloatingClose.classList.add
                 await rollOptions(role, displayPos);
             }
         }
@@ -1279,11 +1293,13 @@ function handleModalClick(event) {
 
     document.getElementById('draft-modal-title').innerText = "Transfer Scout";
     document.getElementById('btn-cancel-draft').classList.add('hidden');
+    document.getElementById('btn-floating-close').classList.add('hidden'); // <-- NIEUW: Verberg X tijdens transfer!
     document.getElementById('btn-reroll').classList.add('hidden');
     document.getElementById('btn-reroll').classList.remove('flex');
     document.getElementById('reroll-wrapper').classList.add('hidden');
     await rollOptions(role, displayPos);
 }
+
 
         async function useReroll() {
             if(!hasReroll) return;
