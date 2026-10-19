@@ -1407,7 +1407,7 @@ await rollOptions(role, displayPos);
             let pool = allOpponents.filter(o => activeGens.includes(o.gen));
             
             if (pool.length < 7) pool = [...allOpponents]; 
-
+ 
             // De Capped Balans Curve
             // In seizoen 1 is (currentSeason - 1) nul, dus er is geen boost. 
             // Daarna groeit de sterkte van de ploegen met +15 per seizoen, met een maximum van +150.
@@ -1465,18 +1465,18 @@ await rollOptions(role, displayPos);
                 let topSegment = pool.slice(0, Math.ceil(pool.length / 3)).sort(() => 0.5 - Math.random());
                 let midSegment = pool.slice(Math.ceil(pool.length / 3), Math.ceil(pool.length * 2 / 3)).sort(() => 0.5 - Math.random());
                 let botSegment = pool.slice(Math.ceil(pool.length * 2 / 3)).sort(() => 0.5 - Math.random());
-
+ 
                 let selectedOpponents = [];
                 selectedOpponents.push(...topSegment.slice(0, 2)); // 2 Top teams
                 selectedOpponents.push(...midSegment.slice(0, 3)); // 3 Mid teams
-                selectedOpponents.push(...botSegment.slice(0, 1)); // 1 Bot team (Jij bent het 2e bottom team)
-
-                if(selectedOpponents.length < 6) {
+                selectedOpponents.push(...botSegment.slice(0, 2)); // 2 Bot teams (2+3+2 = 7 tegenstanders, plus jij = 8 ploegen)
+ 
+                if(selectedOpponents.length < 7) {
                     let remaining = pool.filter(o => !selectedOpponents.includes(o)).sort(() => 0.5 - Math.random());
-                    selectedOpponents.push(...remaining.slice(0, 6 - selectedOpponents.length));
+                    selectedOpponents.push(...remaining.slice(0, 7 - selectedOpponents.length));
                 }
                 selectedOpponents.sort(() => 0.5 - Math.random());
-
+ 
                 standings = selectedOpponents.map(o => ({ id: o.id, name: o.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(o.pools) })); // seasonBoost is hier automatisch 0
                 standings.push({ id: 0, name: userTeamName, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, isUser: true, pools: myTeamEnginePools });
                 seasonSchedule = [...selectedOpponents].sort(() => 0.5 - Math.random());
