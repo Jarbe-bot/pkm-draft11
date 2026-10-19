@@ -27,9 +27,14 @@ body {
     background-attachment: fixed !important;
 }
 
+body.bg-landing {
+    /* Zeer lichte waas zodat de afbeelding in volle glorie schittert */
+    background-image: linear-gradient(rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.4)), url('fm-pokemon-bg2.webp') !important;
+}
+
 body.bg-start {
-    /* Jouw custom afbeelding met een donkere, leesbare waas erover */
-    background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg2.webp') !important;
+    /* Donkere, zware waas zodat de instellingen en witte tekst leesbaar blijven */
+    background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg2.webp') !important;
 }
 
 body.bg-office {
