@@ -1704,7 +1704,12 @@ await rollOptions(role, displayPos);
                 tr.dataset.id = t.id; // Uniek ID voor animatie tracking
                 let qualificationClass = ""; let qualLabel = "";
                 
-                if(i < 2) {
+                if(i === 0) {
+                    // Plek 1: De Kampioen!
+                    qualificationClass = "border-l-4 border-l-yellow-400 bg-yellow-900/20";
+                    qualLabel = `<span class="ml-1.5 text-[8px] bg-yellow-500 text-slate-900 px-1.5 py-0.5 rounded font-black shadow">👑 C</span>`;
+                } else if(i === 1) {
+                    // Plek 2: Normale kwalificatie voor Europa
                     qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
                     qualLabel = `<span class="ml-1.5 text-[8px] bg-blue-600 text-white px-1 py-0.5 rounded font-bold">QUAL</span>`;
                 } else if (gameMode === 'rtg' && i === standings.length - 1) { 
