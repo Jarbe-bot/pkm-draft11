@@ -18,6 +18,23 @@ body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white
     letter-spacing: 1px;
 }
 
+/* Thematische achtergronden */
+body {
+    transition: background-image 0.5s ease, background-color 0.5s ease;
+    background-color: #0f172a !important; /* Forceer kleur */
+    background-size: cover !important;
+    background-position: center center !important;
+    background-attachment: fixed !important;
+}
+
+body.bg-office {
+    background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2000&auto=format&fit=crop') !important;
+}
+
+body.bg-stadium {
+    background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.98)), url('https://images.unsplash.com/photo-1518605368461-1e1292237fac?q=80&w=2000&auto=format&fit=crop') !important;
+}
+
 .spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.1); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
