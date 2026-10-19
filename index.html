@@ -210,6 +210,7 @@
             <div class="flex items-center gap-2 md:gap-3 min-w-0">
                 <h2 id="ui-team-name" class="text-lg sm:text-xl md:text-2xl font-black uppercase tracking-wider text-yellow-400 drop-shadow-md truncate max-w-[160px] sm:max-w-xs">My Team</h2>
                 <span id="ui-season-counter" class="bg-blue-600 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0">Season 1</span>
+                <button id="btn-resign" onclick="startNewDraft()" class="hidden px-2 py-1 bg-red-900/80 hover:bg-red-800 text-red-200 text-[10px] font-bold rounded border border-red-700 transition-colors uppercase shadow shrink-0">Resign</button>
             </div>
             <button onclick="openHTP()" class="px-2.5 md:px-4 py-1 md:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1 md:gap-2 shadow-lg shrink-0">
                 <span class="text-blue-400 font-black text-xs md:text-sm">?</span> Rules
@@ -288,14 +289,11 @@
                     <button id="btn-download" onclick="downloadTeam()" class="hidden px-5 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-base rounded-full transition-all uppercase tracking-wide border border-slate-500">
                         Download Image
                     </button>
-                    <button id="btn-resign" onclick="startNewDraft()" class="hidden px-5 py-3 bg-red-600/80 hover:bg-red-500 text-white font-bold text-xs md:text-base rounded-full transition-all uppercase tracking-wide shadow-[0_0_15px_rgba(220,38,38,0.4)]">
-                        Resign
-                    </button>
                 </div>
             </div>
 
             <div id="match-center" class="hidden w-full flex-col lg:flex-row gap-5 relative">
-                <div id="standings-panel" class="w-full lg:w-1/2 bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl flex flex-col h-[420px] md:h-[500px]">
+                <div id="standings-panel" class="w-full lg:w-1/2 bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl flex flex-col h-[465px] md:h-[500px]">
                     <div class="bg-slate-900 p-3.5 md:p-4 border-b border-slate-700 flex justify-between items-center relative shrink-0 rounded-t-2xl">
                         <h2 class="text-base md:text-xl font-black text-yellow-400 uppercase tracking-widest flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> Standings
@@ -390,7 +388,7 @@
     <div id="draft-modal" class="fixed inset-0 bg-black/90 hidden z-[60] flex-col items-center justify-start p-3 sm:p-6 backdrop-blur-sm transition-all duration-300 overflow-y-auto" onclick="handleModalClick(event)">
         <button id="btn-floating-close" onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 border border-slate-600 rounded-full w-10 h-10 flex items-center justify-center font-bold transition-colors z-[400] shadow-lg">✕</button>
         
-        <div class="w-full max-w-5xl flex justify-between items-center shrink-0 mb-2 z-[310]">
+        <div class="w-full max-w-5xl flex justify-between items-center shrink-0 mb-2 z-[310] pr-12 sm:pr-14">
             <button id="btn-peek" onclick="togglePeek()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1.5 shadow-lg">
                 👁️ Peek Team
             </button>
@@ -502,29 +500,75 @@
             { id: 5, gen: 1, name: "Fuchsia Rovers", pools: { poss: 550, create: 750, prevent: 850, finish: 800, block: 750 }, names: ["Weezing", "Muk", "Arbok", "Venomoth", "Crobat", "Nidoking"] },
             { id: 6, gen: 1, name: "Saffron Control", pools: { poss: 650, create: 900, prevent: 850, finish: 800, block: 850 }, names: ["Alakazam", "Hypno", "Mr. Mime", "Slowbro", "Gengar", "Jynx"] },
             { id: 7, gen: 1, name: "Indigo Plateau", pools: { poss: 750, create: 1000, prevent: 1000, finish: 1050, block: 1000 }, names: ["Dragonite", "Machamp", "Gyarados", "Charizard", "Snorlax", "Arcanine"] },
+            
             { id: 8, gen: 2, name: "Violet City", pools: { poss: 500, create: 750, prevent: 750, finish: 750, block: 750 }, names: ["Pidgeot", "Noctowl", "Skarmory", "Dodrio", "Fearow", "Crobat"] },
             { id: 9, gen: 2, name: "Goldenrod Utd", pools: { poss: 580, create: 800, prevent: 800, finish: 800, block: 800 }, names: ["Miltank", "Clefable", "Wigglytuff", "Blissey", "Granbull", "Ursaring"] },
             { id: 10, gen: 2, name: "Ecruteak FC", pools: { poss: 620, create: 850, prevent: 800, finish: 850, block: 800 }, names: ["Gengar", "Misdreavus", "Ho-Oh", "Entei", "Umbreon", "Espeon"] },
             { id: 11, gen: 2, name: "Olivine City", pools: { poss: 550, create: 700, prevent: 900, finish: 750, block: 900 }, names: ["Steelix", "Magneton", "Forretress", "Scizor", "Skarmory", "Shuckle"] },
             { id: 12, gen: 2, name: "Blackthorn City", pools: { poss: 650, create: 900, prevent: 900, finish: 950, block: 900 }, names: ["Dragonite", "Kingdra", "Gyarados", "Aerodactyl", "Lapras", "Charizard"] },
             { id: 13, gen: 2, name: "Mt. Silver FC", pools: { poss: 750, create: 1000, prevent: 1000, finish: 1000, block: 1000 }, names: ["Typhlosion", "Feraligatr", "Meganium", "Tyranitar", "Houndoom", "Lugia"] },
+            { id: 59, gen: 2, name: "Cianwood FC", pools: { poss: 550, create: 800, prevent: 850, finish: 800, block: 850 }, names: ["Machamp", "Hitmontop", "Poliwrath", "Primeape", "Heracross", "Steelix"] },
+            
             { id: 14, gen: 3, name: "Rustboro City", pools: { poss: 500, create: 700, prevent: 850, finish: 700, block: 850 }, names: ["Nosepass", "Golem", "Aggron", "Armaldo", "Cradily", "Relicanth"] },
             { id: 15, gen: 3, name: "Mauville Utd", pools: { poss: 550, create: 900, prevent: 750, finish: 800, block: 750 }, names: ["Manectric", "Magneton", "Electrode", "Raichu", "Plusle", "Minun"] },
             { id: 16, gen: 3, name: "Lavaridge Town", pools: { poss: 550, create: 850, prevent: 750, finish: 900, block: 750 }, names: ["Torkoal", "Camerupt", "Magcargo", "Blaziken", "Numel", "Slugma"] },
             { id: 17, gen: 3, name: "Mossdeep City", pools: { poss: 620, create: 900, prevent: 900, finish: 800, block: 900 }, names: ["Lunatone", "Solrock", "Xatu", "Claydol", "Metagross", "Grumpig"] },
             { id: 18, gen: 3, name: "Sootopolis FC", pools: { poss: 620, create: 850, prevent: 950, finish: 900, block: 950 }, names: ["Milotic", "Kingdra", "Walrein", "Whiscash", "Seaking", "Luvdisc"] },
             { id: 19, gen: 3, name: "Ever Grande", pools: { poss: 750, create: 1000, prevent: 1000, finish: 1000, block: 1000 }, names: ["Salamence", "Metagross", "Slaking", "Aggron", "Flygon", "Swampert"] },
+            { id: 60, gen: 3, name: "Fortree Rovers", pools: { poss: 600, create: 850, prevent: 800, finish: 850, block: 800 }, names: ["Swellow", "Pelipper", "Skarmory", "Altaria", "Tropius", "Dodrio"] },
+            
             { id: 20, gen: 4, name: "Oreburgh City", pools: { poss: 550, create: 700, prevent: 800, finish: 750, block: 800 }, names: ["Rampardos", "Golem", "Onix", "Steelix", "Cranidos", "Geodude"] },
             { id: 21, gen: 4, name: "Hearthome FC", pools: { poss: 620, create: 850, prevent: 800, finish: 900, block: 800 }, names: ["Mismagius", "Gengar", "Drifblim", "Spiritomb", "Dusknoir", "Rotom"] },
             { id: 22, gen: 4, name: "Veilstone Utd", pools: { poss: 580, create: 900, prevent: 800, finish: 950, block: 800 }, names: ["Lucario", "Machamp", "Toxicroak", "Infernape", "Medicham", "Gallade"] },
             { id: 23, gen: 4, name: "Sunyshore FC", pools: { poss: 620, create: 950, prevent: 800, finish: 850, block: 800 }, names: ["Electivire", "Raichu", "Luxray", "Jolteon", "Pachirisu", "Ampharos"] },
             { id: 24, gen: 4, name: "Lily of the Valley", pools: { poss: 800, create: 1050, prevent: 1050, finish: 1100, block: 1000 }, names: ["Garchomp", "Lucario", "Togekiss", "Milotic", "Spiritomb", "Roserade"] },
+            { id: 61, gen: 4, name: "Pastoria FC", pools: { poss: 580, create: 800, prevent: 850, finish: 800, block: 850 }, names: ["Floatzel", "Gyarados", "Quagsire", "Gastrodon", "Lumineon", "Tentacruel"] },
+            { id: 62, gen: 4, name: "Canalave City", pools: { poss: 600, create: 850, prevent: 900, finish: 800, block: 900 }, names: ["Bastiodon", "Steelix", "Bronzong", "Lucario", "Empoleon", "Magnezone"] },
+
+            
             { id: 25, gen: 5, name: "Nacrene City", pools: { poss: 550, create: 800, prevent: 800, finish: 750, block: 800 }, names: ["Watchog", "Stoutland", "Cinccino", "Braviary", "Herdier", "Bouffalant"] },
             { id: 26, gen: 5, name: "Castelia Utd", pools: { poss: 580, create: 850, prevent: 800, finish: 800, block: 800 }, names: ["Leavanny", "Scolipede", "Crustle", "Galvantula", "Dwebble", "Durant"] },
             { id: 27, gen: 5, name: "Nimbasa FC", pools: { poss: 620, create: 1000, prevent: 750, finish: 900, block: 800 }, names: ["Zebstrika", "Emolga", "Eelektross", "Galvantula", "Joltik", "Stunfisk"] },
             { id: 28, gen: 5, name: "Driftveil City", pools: { poss: 620, create: 850, prevent: 950, finish: 850, block: 950 }, names: ["Excadrill", "Krookodile", "Seismitoad", "Golurk", "Sandile", "Palpitoad"] },
             { id: 29, gen: 5, name: "Opelucid FC", pools: { poss: 700, create: 950, prevent: 1000, finish: 1000, block: 950 }, names: ["Haxorus", "Druddigon", "Hydreigon", "Flygon", "Fraxure", "Zweilous"] },
             { id: 30, gen: 5, name: "Pokemon League V", pools: { poss: 800, create: 1050, prevent: 1100, finish: 1100, block: 1050 }, names: ["Volcarona", "Bisharp", "Chandelure", "Conkeldurr", "Krookodile", "Hydreigon"] }
+            { id: 63, gen: 5, name: "Icirrus FC", pools: { poss: 620, create: 850, prevent: 850, finish: 850, block: 850 }, names: ["Beartic", "Cryogonal", "Vanilluxe", "Stunfisk", "Mienfoo", "Bisharp"] },
+        
+            // Gen 6
+            { id: 31, gen: 6, name: "Lumiose City FC", pools: { poss: 650, create: 900, prevent: 850, finish: 850, block: 800 }, names: ["Greninja", "Talonflame", "Aegislash", "Sylveon", "Goodra", "Hawlucha"] },
+            { id: 32, gen: 6, name: "Cyllage Utd", pools: { poss: 550, create: 800, prevent: 900, finish: 750, block: 900 }, names: ["Tyrantrum", "Aurorus", "Barbaracle", "Gogoat", "Pangoro", "Clawitzer"] },
+            { id: 33, gen: 6, name: "Shalour City", pools: { poss: 600, create: 850, prevent: 800, finish: 900, block: 750 }, names: ["Lucario", "Hawlucha", "Mienfoo", "Machamp", "Hariyama", "Medicham"] },
+            { id: 44, gen: 6, name: "Coumarine FC", pools: { poss: 580, create: 750, prevent: 850, finish: 800, block: 850 }, names: ["Gogoat", "Victreebel", "Exeggutor", "Trevenant", "Gourgeist", "Carnivine"] },
+            { id: 35, gen: 6, name: "Laverre Rovers", pools: { poss: 620, create: 800, prevent: 850, finish: 850, block: 900 }, names: ["Sylveon", "Mr. Mime", "Mawile", "Slurpuff", "Aromatisse", "Florges"] },
+            { id: 36, gen: 6, name: "Anistar City", pools: { poss: 700, create: 950, prevent: 800, finish: 900, block: 850 }, names: ["Sigilyph", "Slowking", "Meowstic", "Alakazam", "Espeon", "Delphox"] },
+            { id: 37, gen: 6, name: "Snowbelle Utd", pools: { poss: 750, create: 1000, prevent: 1050, finish: 950, block: 1000 }, names: ["Abomasnow", "Avalugg", "Cryogonal", "Beartic", "Glaceon", "Walrein"] },
+
+            // Gen 7
+            { id: 38, gen: 7, name: "Hau'oli City", pools: { poss: 550, create: 750, prevent: 750, finish: 800, block: 750 }, names: ["Incineroar", "Decidueye", "Primarina", "Toucanon", "Gumshoos", "Vikavolt"] },
+            { id: 39, gen: 7, name: "Heahea FC", pools: { poss: 600, create: 800, prevent: 800, finish: 850, block: 800 }, names: ["Lycanroc", "Wishiwashi", "Salazzle", "Lurantis", "Tsareena", "Comfey"] },
+            { id: 40, gen: 7, name: "Konikoni Utd", pools: { poss: 580, create: 850, prevent: 850, finish: 800, block: 850 }, names: ["Golisopod", "Palossand", "Mimikyu", "Bewear", "Togedemaru", "Bruxish"] },
+            { id: 41, gen: 7, name: "Malie City", pools: { poss: 650, create: 900, prevent: 900, finish: 950, block: 900 }, names: ["Kommo-o", "Turtonator", "Drampa", "Alolan Muk", "Alolan Marowak", "Alolan Raichu"] },
+            { id: 42, gen: 7, name: "Seafolk Rovers", pools: { poss: 620, create: 850, prevent: 950, finish: 900, block: 950 }, names: ["Dhelmise", "Araquanid", "Toxapex", "Shiinotic", "Oranguru", "Passimian"] },
+            { id: 43, gen: 7, name: "Po Town", pools: { poss: 700, create: 950, prevent: 800, finish: 1000, block: 800 }, names: ["Salazzle", "Garbodor", "Scrafty", "Golisopod", "Pangoro", "Zoroark"] },
+            { id: 34, gen: 7, name: "Mount Lanakila", pools: { poss: 800, create: 1050, prevent: 1100, finish: 1050, block: 1050 }, names: ["Silvally", "Kommo-o", "Ninetales", "Sandslash", "Crabominable", "Froslass"] },
+
+            // Gen 8
+            { id: 45, gen: 8, name: "Motostoke FC", pools: { poss: 550, create: 800, prevent: 750, finish: 850, block: 750 }, names: ["Centiskorch", "Coalossal", "Arcanine", "Ninetales", "Cinderace", "Salazzle"] },
+            { id: 46, gen: 8, name: "Turffield Utd", pools: { poss: 600, create: 850, prevent: 800, finish: 800, block: 850 }, names: ["Eldegoss", "Tsareena", "Vileplume", "Rillaboom", "Shiftry", "Flapple"] },
+            { id: 47, gen: 8, name: "Hulbury Rovers", pools: { poss: 580, create: 800, prevent: 900, finish: 750, block: 900 }, names: ["Drednaw", "Gyarados", "Barraskewda", "Seaking", "Inteleon", "Golisopod"] },
+            { id: 48, gen: 8, name: "Hammerlocke", pools: { poss: 750, create: 1000, prevent: 1050, finish: 1050, block: 1000 }, names: ["Duraludon", "Flygon", "Haxorus", "Goodra", "Dragapult", "Turtonator"] },
+            { id: 49, gen: 8, name: "Stow-on-Side", pools: { poss: 650, create: 950, prevent: 850, finish: 900, block: 850 }, names: ["Machamp", "Pangoro", "Sirfetch'd", "Falinks", "Hawlucha", "Grapploct"] },
+            { id: 50, gen: 8, name: "Circhester FC", pools: { poss: 620, create: 850, prevent: 950, finish: 900, block: 950 }, names: ["Lapras", "Frosmoth", "Darmanitan", "Coalossal", "Stonjourner", "Shuckle"] },
+            { id: 51, gen: 8, name: "Wyndon Champs", pools: { poss: 800, create: 1100, prevent: 1050, finish: 1100, block: 1050 }, names: ["Charizard", "Dragapult", "Aegislash", "Haxorus", "Seismitoad", "Rhyperior"] },
+
+            // Gen 9
+            { id: 52, gen: 9, name: "Mesagoza FC", pools: { poss: 600, create: 850, prevent: 850, finish: 850, block: 850 }, names: ["Meowscarada", "Skeledirge", "Quaquaval", "Clodsire", "Tinkaton", "Ceruledge"] },
+            { id: 53, gen: 9, name: "Cortondo Utd", pools: { poss: 550, create: 750, prevent: 800, finish: 800, block: 750 }, names: ["Spidops", "Lokix", "Heracross", "Forretress", "Scizor", "Vespiquen"] },
+            { id: 54, gen: 9, name: "Artazon Rovers", pools: { poss: 580, create: 800, prevent: 850, finish: 750, block: 850 }, names: ["Arboliva", "Sunflora", "Lilligant", "Tsareena", "Breloom", "Smoliv"] },
+            { id: 55, gen: 9, name: "Cascarrafa FC", pools: { poss: 650, create: 900, prevent: 900, finish: 850, block: 900 }, names: ["Veluza", "Wugtrio", "Clawitzer", "Gyarados", "Palafin", "Dondozo"] },
+            { id: 56, gen: 9, name: "Medali Normal", pools: { poss: 700, create: 850, prevent: 950, finish: 900, block: 950 }, names: ["Dundunsparce", "Braviary", "Staraptor", "Slaking", "Oinkologne", "Blissey"] },
+            { id: 57, gen: 9, name: "Montenevera", pools: { poss: 750, create: 950, prevent: 1000, finish: 1000, block: 950 }, names: ["Houndstone", "Mismagius", "Gengar", "Spiritomb", "Mimikyu", "Baxcalibur"] },
+            { id: 58, gen: 9, name: "Alfornada FC", pools: { poss: 780, create: 1050, prevent: 950, finish: 1050, block: 900 }, names: ["Espathra", "Gardevoir", "Gallade", "Farigiraf", "Armarouge", "Ceruledge"] }
         ];
 
                 const euroOpponents = [
@@ -1234,10 +1278,12 @@ await rollOptions(role, displayPos);
             statLabels.forEach(s => {
                 const currentVal = p.stats[s.key]; 
                 
+                // De agressieve UI-labels
                 let rangeText = "";
-                if (currentVal < 80) rangeText = "(+4 to +8)";
-                else if (currentVal <= 120) rangeText = "(+2 to +5)";
-                else rangeText = "(+0 to +2)";
+                if (currentVal < 70) rangeText = "(+10 to +15)";
+                else if (currentVal < 95) rangeText = "(+7 to +10)";
+                else if (currentVal < 120) rangeText = "(+4 to +6)";
+                else rangeText = "(+1 to +3)";
 
                 const isJustTrained = (lastTrainedStat === s.key);
                 const displayColor = isJustTrained ? 'text-green-400' : s.color;
@@ -1274,9 +1320,11 @@ await rollOptions(role, displayPos);
             const currentRawVal = p.stats[statKey];
             
             let gain = 0;
-            if (currentRawVal < 80) gain = Math.floor(Math.random() * 5) + 4;       
-            else if (currentRawVal <= 120) gain = Math.floor(Math.random() * 4) + 2; 
-            else gain = Math.floor(Math.random() * 3) + 0;                       
+            // De exponentiële trainings-engine
+            if (currentRawVal < 70) gain = Math.floor(Math.random() * 6) + 10;       // +10 tot +15
+            else if (currentRawVal < 95) gain = Math.floor(Math.random() * 4) + 7;   // +7 tot +10
+            else if (currentRawVal < 120) gain = Math.floor(Math.random() * 3) + 4;  // +4 tot +6
+            else gain = Math.floor(Math.random() * 3) + 1;                           // +1 tot +3
 
             p.stats[statKey] = Math.min(255, currentRawVal + gain);
             p.normStats[statKey] = Math.min(99, Math.round((p.stats[statKey] / 130) * 99));
@@ -1721,31 +1769,57 @@ await rollOptions(role, displayPos);
         }
 
         function updateTableUI() {
-            standings.sort((a,b) => { if(b.pts !== a.pts) return b.pts - a.pts; return (b.gf - b.ga) - (a.gf - a.ga); });
             const tbody = document.getElementById('live-table-body');
+            
+            // 1. Sla huidige posities op voor animatie
+            const oldPositions = {};
+            Array.from(tbody.children).forEach(tr => {
+                const id = tr.dataset.id;
+                if(id) oldPositions[id] = tr.getBoundingClientRect().top;
+            });
+
+            // 2. Sorteer de tabel
+            standings.sort((a,b) => { if(b.pts !== a.pts) return b.pts - a.pts; return (b.gf - b.ga) - (a.gf - a.ga); });
             tbody.innerHTML = '';
             
+            // 3. Teken de nieuwe HTML
             standings.forEach((t, i) => {
                 const tr = document.createElement('tr');
-                let qualificationClass = "";
-                let qualLabel = "";
+                tr.dataset.id = t.id; // Uniek ID voor animatie tracking
+                let qualificationClass = ""; let qualLabel = "";
                 
                 if(i < 2) {
-                 qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
-                 qualLabel = `<span class="ml-1.5 text-[8px] bg-blue-600 text-white px-1 py-0.5 rounded font-bold">QUAL</span>`;
-             } else if (gameMode === 'rtg' && i === standings.length - 1) { 
-                 if (currentSeason === 1 && t.isUser) {
-                     qualificationClass = "border-l-4 border-l-orange-500 bg-orange-900/20";
-                     qualLabel = `<span class="ml-1.5 text-[8px] bg-orange-600 text-white px-1 py-0.5 rounded font-bold">SAVED</span>`;
-                 } else {
-                     qualificationClass = "border-l-4 border-l-red-500 bg-red-900/20";
-                     qualLabel = `<span class="ml-1.5 text-[8px] bg-red-600 text-white px-1 py-0.5 rounded font-bold">DROP</span>`;
-                 }
-             }
+                    qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
+                    qualLabel = `<span class="ml-1.5 text-[8px] bg-blue-600 text-white px-1 py-0.5 rounded font-bold">QUAL</span>`;
+                } else if (gameMode === 'rtg' && i === standings.length - 1) { 
+                    if (currentSeason === 1 && t.isUser) {
+                        qualificationClass = "border-l-4 border-l-orange-500 bg-orange-900/20";
+                        qualLabel = `<span class="ml-1.5 text-[8px] bg-orange-600 text-white px-1 py-0.5 rounded font-bold">SAVED</span>`;
+                    } else {
+                        qualificationClass = "border-l-4 border-l-red-500 bg-red-900/20";
+                        qualLabel = `<span class="ml-1.5 text-[8px] bg-red-600 text-white px-1 py-0.5 rounded font-bold">DROP</span>`;
+                    }
+                }
                 
-                tr.className = `border-t border-slate-700/50 ${t.isUser ? 'bg-yellow-500/20 text-yellow-400 font-bold' : ''} ${qualificationClass}`;
+                tr.className = `border-t border-slate-700/50 relative ${t.isUser ? 'bg-yellow-500/20 text-yellow-400 font-bold z-20' : 'z-10'} ${qualificationClass}`;
                 tr.innerHTML = `<td class="px-3 py-3 flex items-center gap-1"><span class="w-4 text-center text-xs text-slate-500">${i+1}</span> <span class="truncate max-w-[115px] sm:max-w-none ${t.isUser && i < 2 ? 'text-blue-300' : ''}">${t.name}</span>${qualLabel}</td><td class="px-2 py-3 text-center">${t.p}</td><td class="px-2 py-3 text-center font-black ${t.isUser ? 'text-yellow-400' : 'text-white'}">${t.pts}</td><td class="px-2 py-3 text-center hidden sm:table-cell text-xs whitespace-nowrap">${t.w}-${t.d}-${t.l}</td><td class="px-2 py-3 text-center text-xs ${t.gf - t.ga > 0 ? 'text-green-400' : (t.gf - t.ga < 0 ? 'text-red-400' : '')}">${t.gf - t.ga > 0 ? '+' : ''}${t.gf - t.ga}</td>`;
                 tbody.appendChild(tr);
+            });
+
+            // 4. Voer de slide-animatie (FLIP) uit
+            Array.from(tbody.children).forEach(tr => {
+                const id = tr.dataset.id;
+                const newPos = tr.getBoundingClientRect().top;
+                if (oldPositions[id] !== undefined && newPos !== oldPositions[id]) {
+                    const delta = oldPositions[id] - newPos;
+                    tr.style.transform = `translateY(${delta}px)`;
+                    tr.style.transition = 'none';
+                    
+                    requestAnimationFrame(() => {
+                        tr.style.transform = '';
+                        tr.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                    });
+                }
             });
         }
 
@@ -2105,20 +2179,16 @@ await rollOptions(role, displayPos);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-        function finishTransfers() {
+       function finishTransfers() {
             isTransferWindow = false;
             document.getElementById('transfer-banner').classList.add('hidden');
             document.getElementById('transfer-banner').classList.remove('flex');
             document.getElementById('btn-finish-transfers').classList.add('hidden');
             document.getElementById('btn-finish-transfers').classList.remove('block');
             
-            document.getElementById('btn-simulate').classList.remove('hidden');
-            document.getElementById('btn-simulate').disabled = false;
-            
-            document.getElementById('btn-resign').classList.remove('hidden');
-            document.getElementById('btn-resign').classList.add('block');
-            
             renderPitch();
+            // Start het seizoen direct zonder te wachten op de gele knop!
+            startSeasonSimulation();
         }
 
         function celebrateGloryWin() {
