@@ -29,15 +29,15 @@ body {
 
 body.bg-start {
     /* Jouw custom afbeelding met een donkere, leesbare waas erover */
-    background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg.webp') !important;
+    background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg2.webp') !important;
 }
 
 body.bg-office {
-    background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98)), url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2000&auto=format&fit=crop') !important;
+    background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg2.webp') !important;
 }
 
 body.bg-stadium {
-    background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.98)), url('https://images.unsplash.com/photo-1518605368461-1e1292237fac?q=80&w=2000&auto=format&fit=crop') !important;
+    background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg2.webp') !important;
 }
 
 .standings {
