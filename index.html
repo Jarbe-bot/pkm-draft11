@@ -14,77 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
     
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
 
-        .spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.1); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .gen-toggle, .form-toggle { transition: all 0.2s ease-in-out; }
-        .gen-toggle.active, .form-toggle.active { background-color: #eab308; color: #0f172a; border-color: #eab308; transform: scale(1.03); box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.4); }
-        
-        .formation-card { opacity: 0; transform: translateY(40px) scale(0.9); }
-        .formation-card.reveal-anim { animation: draftReveal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes draftReveal { to { opacity: 1; transform: translateY(0) scale(1); } }
-
-        .pitch-wrapper { transition: all 0.5s ease-in-out; }
-        .pitch {
-            position: relative; background: linear-gradient(180deg, #14532d 0%, #166534 100%);
-            border: 3px solid rgba(255, 255, 255, 0.85); box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 50px rgba(0,0,0,0.35);
-            overflow: hidden;
-        }
-        .pitch::before {
-            content: ''; position: absolute; inset: 0;
-            background: repeating-linear-gradient( 0deg, transparent, transparent 10%, rgba(255, 255, 255, 0.04) 10%, rgba(255, 255, 255, 0.04) 20% );
-            pointer-events: none;
-        }
-        .pitch-lines { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-        .half-way-line { position: absolute; top: 50%; left: 0; width: 100%; border-top: 2px solid rgba(255,255,255,0.35); }
-        .center-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90px; height: 90px; border: 2px solid rgba(255,255,255,0.35); border-radius: 50%; }
-        @media(min-width: 768px) { .center-circle { width: 130px; height: 130px; } }
-        .penalty-box-top { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 52%; height: 15%; border: 2px solid rgba(255,255,255,0.35); border-top: none; }
-        .penalty-box-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 52%; height: 15%; border: 2px solid rgba(255,255,255,0.35); border-bottom: none; }
-
-        #chem-lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
-
-        .player-node { transform: translate(-50%, -50%); transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10; user-select: none; }
-        .player-node:hover { transform: translate(-50%, -53%) scale(1.08); z-index: 25; }
-        .player-node:active { transform: translate(-50%, -50%) scale(0.96); }
-        
-        .transfer-target:hover { filter: brightness(1.15); }
-        .transfer-target:hover .swap-badge { transform: scale(1.15); background-color: #ef4444; }
-
-        .pokeball-container { width: 76px; height: 76px; position: relative; transform: translateY(-200vh); }
-        @media(min-width: 640px) { .pokeball-container { width: 100px; height: 100px; } }
-        @media(min-width: 1024px) { .pokeball-container { width: 115px; height: 115px; } }
-        .pokeball-container.dropping { animation: dropIn 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-        .pokeball-container.shaking { transform: translateY(0); animation: shake 0.5s infinite; }
-        .pokeball-container.popping { transform: translateY(0); animation: popOpen 0.25s ease-out forwards; }
-
-        @keyframes dropIn { 0% { transform: translateY(-100vh) rotate(-180deg); } 70% { transform: translateY(15px) rotate(15deg); } 100% { transform: translateY(0) rotate(0deg); } }
-        @keyframes shake { 0%, 50%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-14deg); } 75% { transform: rotate(14deg); } }
-        @keyframes popOpen { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.25); filter: brightness(2); } 100% { transform: scale(0); opacity: 0; filter: brightness(4); } }
-
-        .fut-card { opacity: 0; transform: scale(0.85) translateY(30px); display: none; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid #334155; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
-        .fut-card.revealing { display: flex; animation: revealCard 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .fut-card:hover { transform: translateY(-6px) scale(1.03) !important; box-shadow: 0 15px 30px rgba(0,0,0,0.6), 0 0 20px rgba(234, 179, 8, 0.3); border-color: #eab308; cursor: pointer; z-index: 30; }
-        @keyframes revealCard { 0% { opacity: 0; transform: scale(0.6) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-
-        .tv-glass { background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); transition: all 0.5s ease; }
-        
-        .cup-theme { border-color: #3b82f6 !important; box-shadow: 0 0 40px rgba(59,130,246,0.3) !important; }
-        .cup-theme .tv-header-bg { background-color: #081226 !important; border-bottom-color: #1e3a8a !important; }
-        .cup-theme .tv-body-bg { background: linear-gradient(to bottom, #1e3a8a, #081226) !important; }
-        .cup-theme .tv-stats-bg { background-color: #040914 !important; border-top-color: #1e3a8a !important; }
-        .cup-theme #tv-status-text { color: #60a5fa !important; }
-        .cup-theme #tv-matchday-text { color: #93c5fd !important; }
-
-        .progress-bar { transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .goal-item { animation: fadeIn 0.3s ease-out forwards; opacity: 0; transform: translateY(5px); }
-        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
-        
-        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: #475569; }
-    </style>
 </head>
 <body class="min-h-screen flex flex-col relative">
 
