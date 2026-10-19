@@ -1,5 +1,23 @@
 body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
 
+/* Donkere variant van Pokemon Box voor je huidige styling */
+.poke-box-dark {
+    background: #1e293b; /* slate-800 */
+    border: 4px solid #0f172a; /* Zwarte buitenrand */
+    border-radius: 8px;
+    /* Twee binnenranden met box-shadow net als in jouw code! */
+    box-shadow: 
+        inset 0 0 0 4px #1e293b,
+        inset 0 0 0 8px #334155; /* Grijze binnenste randlijn */
+    color: white;
+}
+
+/* De retro Pixel Font */
+.pixel-font {
+    font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
+    letter-spacing: 1px;
+}
+
 .spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.1); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
