@@ -963,8 +963,7 @@
                     }
 
                     if (isTransferWindow && actionPoints > 0) {
-                        node.classList.add('transfer-target');
-                        statsHtml += `<div class="swap-badge absolute -top-1.5 -left-2 bg-purple-600 border border-white rounded-full px-1.5 py-0.2 flex items-center justify-center z-40 shadow-md text-[7px] sm:text-[9px] font-black text-white transition-all">SWAP</div>`;
+                        node.classList.add('transfer-target'); // Behoudt de lichte hover-gloed
                     }
 
                     node.onclick = () => openDraft(pos.id, pos.display, pos.role);
@@ -2239,7 +2238,7 @@ await rollOptions(role, displayPos);
             }, 500);
         }
 
-        function startNewDraft() {
+       function startNewDraft() {
             document.body.className = 'min-h-screen flex flex-col relative bg-landing';
             document.getElementById('game-ui').classList.add('hidden');
             document.getElementById('game-ui').classList.remove('flex');
@@ -2256,7 +2255,11 @@ await rollOptions(role, displayPos);
             step1.classList.add('hidden', 'opacity-0', 'translate-y-8');
             step1.classList.remove('opacity-100', 'translate-y-0');
             
-            document.getElementById('step-2').classList.add('hidden');
+            const step2 = document.getElementById('step-2');
+            step2.classList.add('hidden');
+            step2.classList.remove('flex');
+            
+            document.getElementById('start-screen').classList.remove('hidden', 'opacity-0');
             // ------------------------------------------------
 
             document.getElementById('transfer-banner').classList.add('hidden');
@@ -2264,10 +2267,6 @@ await rollOptions(role, displayPos);
             document.getElementById('btn-finish-transfers').classList.add('hidden');
             document.getElementById('btn-finish-transfers').classList.remove('block');
 
-            document.getElementById('step-2').classList.add('hidden');
-            document.getElementById('step-2').classList.remove('flex');
-            document.getElementById('step-1').classList.remove('hidden');
-            document.getElementById('start-screen').classList.remove('hidden', 'opacity-0');
             document.getElementById('post-season-awards').classList.add('hidden');
             document.getElementById('post-season-awards').classList.remove('flex');
             document.getElementById('results-feed-list').innerHTML = '';
