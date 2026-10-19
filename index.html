@@ -1503,7 +1503,7 @@ await rollOptions(role, displayPos);
                 ps.seasonGoals = 0; 
                 ps.seasonPerfScore = 0; 
             });
-
+            document.body.className = 'min-h-screen flex flex-col relative bg-stadium';
             document.getElementById('pitch-view').classList.add('hidden');
             document.getElementById('btn-back-to-stats').classList.add('hidden');
             document.getElementById('btn-back-to-stats').classList.remove('flex');
@@ -1806,13 +1806,13 @@ await rollOptions(role, displayPos);
          const awards = document.getElementById('post-season-awards');
          awards.classList.remove('hidden');
          awards.classList.add('flex', 'order-first');
-         awards.innerHTML = `<div class="bg-slate-800 rounded-2xl border border-slate-700 p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="text-xl md:text-2xl font-black text-white mb-1 uppercase tracking-wide">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900 p-3 rounded-xl border border-slate-700 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${actionHtml}<button onclick="viewTeam()" class="mt-3 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
-
+         awards.innerHTML = `<div class="poke-box-dark p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${actionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
          setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
      }
 
                 function startContinentalCup() {
             hasPlayedCup = true;
+            document.body.className = 'min-h-screen flex flex-col relative bg-stadium';        
             document.getElementById('pitch-view').classList.add('hidden');
             document.getElementById('match-center').classList.remove('hidden');
             document.getElementById('match-center').classList.add('flex');
@@ -2001,8 +2001,7 @@ await rollOptions(role, displayPos);
                 } else {
                     document.getElementById('post-season-awards').classList.remove('hidden');
                     document.getElementById('post-season-awards').classList.add('flex', 'order-first');
-                    document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-blue-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(59,130,246,0.3)]"><h2 class="text-xl md:text-2xl font-black text-white mb-2 uppercase tracking-wide">Victory!</h2><p class="text-blue-400 font-bold mb-5 text-sm">You advanced to the ${roundNames[currentCupRound]}!</p><button onclick="document.getElementById('post-season-awards').classList.add('hidden'); setupNextCupRound();" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-sm md:text-base">Play Next Match</button></div>`;
-                    setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+                    document.getElementById('post-season-awards').innerHTML = `<div class="poke-box-dark border-blue-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(59,130,246,0.3)]"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Victory!</h2><p class="text-blue-400 font-bold mb-5 text-sm">You advanced to the ${roundNames[currentCupRound]}!</p><button onclick="document.getElementById('post-season-awards').classList.add('hidden'); setupNextCupRound();" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-sm md:text-base">Play Next Match</button></div>`;                    setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
                 }
             } else {
                 document.getElementById('post-season-awards').classList.remove('hidden');
@@ -2012,7 +2011,7 @@ await rollOptions(role, displayPos);
                     `<button onclick="startTransferWindow()" class="mt-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_30px_rgba(168,85,247,0.8)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">START NEXT SEASON (TRANSFERS)</button>`
                     : ``;
 
-                document.getElementById('post-season-awards').innerHTML = `<div class="bg-slate-800 rounded-2xl border border-red-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="text-xl md:text-2xl font-black text-white mb-1 uppercase tracking-wide">Eliminated</h2><p class="text-red-400 font-bold mb-5 text-sm">Knocked out in the ${roundNames[currentCupRound]}.</p>${lossActionHtml}<button onclick="viewTeam()" class="mt-3 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-xs md:text-sm">View Team</button></div>`;
+                document.getElementById('post-season-awards').innerHTML = `<div class="poke-box-dark border-red-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Eliminated</h2><p class="text-red-400 font-bold mb-5 text-sm">Knocked out in the ${roundNames[currentCupRound]}.</p>${lossActionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-xs md:text-sm">View Team</button></div>`;
                 setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             }
         }
@@ -2081,6 +2080,7 @@ await rollOptions(role, displayPos);
     actionPoints = 3;
     hasReroll = false;
 
+    document.body.className = 'min-h-screen flex flex-col relative bg-office';        
     document.getElementById('match-center').classList.add('hidden');
     document.getElementById('match-center').classList.remove('flex');
     document.getElementById('btn-back-to-stats').classList.add('hidden');
@@ -2129,10 +2129,10 @@ await rollOptions(role, displayPos);
             const winText = gameMode === 'rtg' ? `You won the Continental Cup in ${currentSeason} ${currentSeason === 1 ? 'season' : 'seasons'}!` : `You won the Continental Cup with your drafted team!`;
             const titleText = gameMode === 'rtg' ? `ROAD TO GLORY COMPLETED!` : `CHAMPIONS OF EUROPE!`;
 
-            document.getElementById('post-season-awards').innerHTML = `
-                <div class="bg-slate-800 rounded-2xl border-4 border-yellow-400 p-6 md:p-8 text-center shadow-[0_0_50px_rgba(234,179,8,0.5)]">
-                    <span class="text-5xl md:text-6xl mb-2 block">🏆✨</span>
-                    <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-2 uppercase tracking-wide">${titleText}</h2>
+           document.getElementById('post-season-awards').innerHTML = `
+                <div class="poke-box-dark border-yellow-400 p-6 md:p-8 text-center shadow-[0_0_50px_rgba(234,179,8,0.5)]">
+                    <span class="text-5xl md:text-6xl mb-3 block">🏆✨</span>
+                    <h2 class="pixel-font text-lg md:text-2xl font-black text-yellow-400 mb-3 uppercase tracking-wide" style="line-height:1.4;">${titleText}</h2>
                     <p class="text-white font-bold mb-6 text-sm md:text-base">${winText}</p>
                     <button onclick="viewTeam()" class="px-8 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-full transition-colors uppercase tracking-wide w-full">View Champion Team</button>
                 </div>`;
@@ -2140,6 +2140,7 @@ await rollOptions(role, displayPos);
         }
 
         function viewTeam() {
+            document.body.className = 'min-h-screen flex flex-col relative bg-office';
             document.getElementById('match-center').classList.add('hidden');
             document.getElementById('match-center').classList.remove('flex');
             document.getElementById('pitch-view').classList.remove('hidden');
@@ -2179,6 +2180,7 @@ await rollOptions(role, displayPos);
         }
 
         function startNewDraft() {
+            document.body.className = 'min-h-screen flex flex-col relative bg-office';
             document.getElementById('game-ui').classList.add('hidden');
             document.getElementById('game-ui').classList.remove('flex');
             document.getElementById('match-center').classList.add('hidden');
