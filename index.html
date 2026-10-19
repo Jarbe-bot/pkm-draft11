@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="min-h-screen flex flex-col relative bg-start">
+<body class="min-h-screen flex flex-col relative bg-landing">
 
     <div id="htp-modal" class="fixed inset-0 bg-slate-900/95 z-[400] hidden flex-col items-center justify-center p-4 overflow-y-auto backdrop-blur-sm transition-opacity duration-300 opacity-0">
         <div class="max-w-2xl w-full poke-box-dark p-5 md:p-6 shadow-2xl relative my-auto max-h-[90vh] overflow-y-auto">
@@ -66,19 +66,32 @@
 
     <div id="start-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-start sm:justify-center p-4 transition-opacity duration-500 overflow-y-auto">
         <div class="max-w-4xl w-full mx-auto my-auto py-12 md:py-16 flex flex-col items-center min-h-max">
-            <h1 class="pixel-font text-3xl md:text-5xl font-black text-center mb-4 text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 drop-shadow-lg uppercase tracking-tight" style="line-height: 1.2;">
+            
+            <h1 class="pixel-font text-4xl md:text-6xl font-black text-center mb-4 text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)] uppercase tracking-tight" style="line-height: 1.2;">
                 Pokémon Manager 27
             </h1>
-            <p id="main-subtitle" class="pixel-font text-blue-400 font-black tracking-widest uppercase mb-6 text-center text-[10px] md:text-xs">ROAD TO GLORY</p>
-            <p class="text-slate-400 mb-8 text-center text-xs md:text-base font-medium max-w-xl px-2">
-                Build your squad, dominate the league, and conquer the Continental Cup over multiple seasons.
-            </p>
+            <p id="main-subtitle" class="pixel-font text-blue-400 font-black tracking-widest uppercase mb-6 text-center text-[10px] md:text-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">ROAD TO GLORY</p>
             
-            <button onclick="openHTP()" class="mb-10 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2 shadow-lg">
-                <span class="text-blue-400 font-black text-sm">?</span> How to play & tactics
-            </button>
+            <!-- De nieuwe Landing knop -->
+            <div id="step-0" class="flex flex-col items-center mt-12 md:mt-24 w-full transition-all duration-500 transform translate-y-0 opacity-100">
+                <button onclick="enterSettings()" class="px-10 py-5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 font-black text-lg md:text-xl rounded-full shadow-[0_0_50px_rgba(234,179,8,0.8)] uppercase tracking-widest transform hover:-translate-y-1 transition-all border-2 border-yellow-300">
+                    Start Your Journey
+                </button>
+            </div>
 
-            <div id="step-1" class="w-full max-w-3xl mb-8 transition-all duration-300">
+            <!-- De instellingen (aanvankelijk verborgen met opacity 0 en naar beneden geschoven) -->
+            <div id="step-1" class="w-full max-w-3xl mb-8 hidden opacity-0 transform translate-y-8 transition-all duration-700 ease-out">
+                
+                <p class="text-slate-300 mb-8 text-center text-xs md:text-base font-medium max-w-xl mx-auto drop-shadow-md">
+                    Build your squad, dominate the league, and conquer the Continental Cup over multiple seasons.
+                </p>
+                
+                <div class="flex justify-center w-full mb-10">
+                    <button onclick="openHTP()" class="px-5 py-2.5 bg-slate-900/80 backdrop-blur hover:bg-slate-800 text-slate-200 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2 shadow-lg">
+                        <span class="text-blue-400 font-black text-sm">?</span> How to play & tactics
+                    </button>
+                </div>
+
                 <div class="mb-10 poke-box-dark p-6 flex flex-col items-center shadow-lg max-w-sm mx-auto">
                     <label class="pixel-font text-[10px] text-yellow-400 uppercase tracking-widest mb-4">Club Name</label>
                     <input type="text" id="team-name-input" placeholder="e.g. My Team" maxlength="20" class="bg-slate-900/80 border-2 border-slate-700 rounded-none px-4 py-2 text-center text-white font-bold w-full focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 font-mono text-sm uppercase">
@@ -87,8 +100,8 @@
                 <div class="flex justify-between items-end mb-4 px-2">
                     <h2 class="pixel-font text-[11px] md:text-sm font-black text-white uppercase tracking-wider leading-relaxed">1. Select Generations</h2>
                     <div class="flex gap-2">
-                        <button onclick="selectAllGens()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Select All</button>
-                        <button onclick="deselectAllGens()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Clear All</button>
+                        <button onclick="selectAllGens()" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors backdrop-blur">Select All</button>
+                        <button onclick="deselectAllGens()" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors backdrop-blur">Clear All</button>
                     </div>
                 </div>
                 <div class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-10" id="gen-grid"></div>
@@ -99,7 +112,9 @@
                 </div>
             </div>
 
+            <!-- Rest blijft hetzelfde -->
             <div id="step-2" class="w-full max-w-3xl mb-8 hidden transition-all duration-300 flex-col items-center">
+                <!-- Jouw huidige step-2 inhoud komt hier... (kopieer dit van je origineel) -->
                 <h2 class="pixel-font text-xs md:text-sm font-black text-yellow-400 uppercase tracking-wider mb-8 text-center leading-relaxed">2. Choose Your Playstyle</h2>
                 
                 <div id="formation-loader" class="flex flex-col items-center justify-center py-10 w-full hidden">
