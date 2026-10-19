@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="mb-6 w-full max-w-md mx-auto">
-                    <label class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2.5 block text-center">Game Mode</label>
+                    <label class="pixel-font text-[10px] text-yellow-400 uppercase tracking-widest mb-3 block text-center">Game Mode</label>
                     <div class="flex gap-3 md:gap-4">
                         <button id="mode-classic" onclick="setGameMode('classic')" class="flex-1 py-3 px-2 rounded-xl border-2 border-yellow-500 bg-yellow-500 text-slate-900 font-black uppercase tracking-wider transition-all transform scale-105 shadow-[0_0_15px_rgba(234,179,8,0.5)] text-xs md:text-sm">
                             Classic
@@ -98,7 +98,7 @@
                 </div>
 
                 <div class="flex justify-between items-end mb-2.5">
-                    <h2 class="text-sm md:text-lg font-bold text-white uppercase tracking-wider">1. Select Generations</h2>
+                    <h2 class="pixel-font text-[11px] md:text-sm font-black text-white uppercase tracking-wider leading-relaxed">1. Select Generations</h2>
                     <div class="flex gap-2">
                         <button onclick="selectAllGens()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Select All</button>
                         <button onclick="deselectAllGens()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Clear All</button>
@@ -113,11 +113,11 @@
             </div>
 
             <div id="step-2" class="w-full max-w-3xl mb-6 hidden transition-all duration-300 flex-col items-center">
-                <h2 class="text-lg md:text-xl font-bold text-yellow-400 uppercase tracking-wider mb-5 text-center">2. Choose Your Playstyle</h2>
+                <h2 class="pixel-font text-xs md:text-sm font-black text-yellow-400 uppercase tracking-wider mb-6 text-center leading-relaxed">2. Choose Your Playstyle</h2>
                 
                 <div id="formation-loader" class="flex flex-col items-center justify-center py-10 w-full hidden">
                     <div class="spinner mb-4"></div>
-                    <p class="text-yellow-400 font-bold uppercase tracking-widest animate-pulse text-sm mt-4">Scouting Formations...</p>
+                    <p class="pixel-font text-yellow-400 uppercase tracking-widest animate-pulse text-[10px] mt-4">Scouting...</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full mb-6" id="formation-draft-grid"></div>
