@@ -64,23 +64,25 @@
         </div>
     </div>
 
-    <div id="start-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-start sm:justify-center p-4 transition-opacity duration-500 overflow-y-auto">
-        <div class="max-w-4xl w-full mx-auto my-auto py-12 md:py-16 flex flex-col items-center min-h-max">
-            
-            <h1 class="pixel-font text-4xl md:text-6xl font-black text-center mb-4 text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)] uppercase tracking-tight" style="line-height: 1.2;">
+    <div id="start-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-start p-4 transition-opacity duration-500 overflow-y-auto h-screen">
+        
+        <!-- Titel Sectie: Bovenin geplaatst -->
+        <div class="max-w-4xl w-full mx-auto mt-8 md:mt-12 flex flex-col items-center shrink-0">
+            <h1 class="pixel-font text-4xl md:text-6xl font-black text-center mb-2 md:mb-4 text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 drop-shadow-[0_5px_10px_rgba(0,0,0,0.8)] uppercase tracking-tight" style="line-height: 1.2;">
                 Pokémon Manager 27
             </h1>
-            <p id="main-subtitle" class="pixel-font text-blue-400 font-black tracking-widest uppercase mb-6 text-center text-[10px] md:text-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">ROAD TO GLORY</p>
-            
-            <!-- De nieuwe Landing knop -->
-            <div id="step-0" class="flex flex-col items-center mt-12 md:mt-24 w-full transition-all duration-500 transform translate-y-0 opacity-100">
-                <button onclick="enterSettings()" class="px-10 py-5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 font-black text-lg md:text-xl rounded-full shadow-[0_0_50px_rgba(234,179,8,0.8)] uppercase tracking-widest transform hover:-translate-y-1 transition-all border-2 border-yellow-300">
-                    Start Your Journey
-                </button>
-            </div>
+            <p id="main-subtitle" class="pixel-font text-blue-400 font-black tracking-widest uppercase text-center text-[10px] md:text-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">ROAD TO GLORY</p>
+        </div>
+        
+        <!-- De Landing Knop: Helemaal onderin geplaatst met mt-auto -->
+        <div id="step-0" class="flex flex-col items-center mt-auto mb-12 md:mb-20 w-full transition-all duration-500 transform translate-y-0 opacity-100 shrink-0">
+            <button onclick="enterSettings()" class="px-10 py-5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-slate-900 font-black text-lg md:text-xl rounded-full shadow-[0_0_50px_rgba(234,179,8,0.8)] uppercase tracking-widest transform hover:-translate-y-1 transition-all border-2 border-yellow-300">
+                Start Your Journey
+            </button>
+        </div>
 
-            <!-- De instellingen (aanvankelijk verborgen met opacity 0 en naar beneden geschoven) -->
-            <div id="step-1" class="w-full max-w-3xl mb-8 hidden opacity-0 transform translate-y-8 transition-all duration-700 ease-out">
+        <!-- De instellingen (verborgen) -->
+        <div id="step-1" class="w-full max-w-3xl mb-8 mt-auto hidden opacity-0 transform translate-y-8 transition-all duration-700 ease-out">
                 
                 <p class="text-slate-300 mb-8 text-center text-xs md:text-base font-medium max-w-xl mx-auto drop-shadow-md">
                     Build your squad, dominate the league, and conquer the Continental Cup over multiple seasons.
