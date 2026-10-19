@@ -1707,7 +1707,7 @@ await rollOptions(role, displayPos);
                 if(i === 0) {
                     // Plek 1: De Kampioen!
                     qualificationClass = "border-l-4 border-l-yellow-400 bg-yellow-900/20";
-                    qualLabel = `<span class="ml-1.5 text-[8px] bg-yellow-500 text-slate-900 px-1.5 py-0.5 rounded font-black shadow">👑 C</span>`;
+                    qualLabel = `<span class="ml-1.5 text-[8px] bg-yellow-500 text-slate-900 px-1.5 py-0.5 rounded font-black shadow">Champion</span>`;
                 } else if(i === 1) {
                     // Plek 2: Normale kwalificatie voor Europa
                     qualificationClass = "border-l-4 border-l-blue-500 bg-blue-900/20";
@@ -1722,7 +1722,7 @@ await rollOptions(role, displayPos);
                     }
                 }
                 
-                tr.className = `border-t border-slate-700/50 relative ${t.isUser ? 'bg-yellow-500/20 text-yellow-400 font-bold z-20' : 'z-10'} ${qualificationClass}`;
+                tr.className = `border-t border-slate-700/50 relative ${t.isUser ? 'bg-purple-800/20 text-purple-200 font-bold z-20' : 'z-10'} ${qualificationClass}`;
                 tr.innerHTML = `<td class="px-3 py-3 flex items-center gap-1"><span class="w-4 text-center text-xs text-slate-500">${i+1}</span> <span class="truncate max-w-[115px] sm:max-w-none ${t.isUser && i < 2 ? 'text-blue-300' : ''}">${t.name}</span>${qualLabel}</td><td class="px-2 py-3 text-center">${t.p}</td><td class="px-2 py-3 text-center font-black ${t.isUser ? 'text-yellow-400' : 'text-white'}">${t.pts}</td><td class="px-2 py-3 text-center hidden sm:table-cell text-xs whitespace-nowrap">${t.w}-${t.d}-${t.l}</td><td class="px-2 py-3 text-center text-xs ${t.gf - t.ga > 0 ? 'text-green-400' : (t.gf - t.ga < 0 ? 'text-red-400' : '')}">${t.gf - t.ga > 0 ? '+' : ''}${t.gf - t.ga}</td>`;
                 tbody.appendChild(tr);
             });
