@@ -37,6 +37,19 @@ body.bg-start {
     background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg2.webp') !important;
 }
 
+/* Mobile Background Overrides */
+@media only screen and (max-width: 767px) {
+    body.bg-landing {
+        /* Gebruik de Charizard manager (of Machamp/Lucario) voor mobiel */
+        background-image: linear-gradient(rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.4)), url('fm-pokemon-bg-mobile2.webp') !important;
+    }
+    
+    body.bg-start {
+        /* Donkere waas voor mobiel startscherm */
+        background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg-mobile2.webp') !important;
+    }
+}
+
 body.bg-office {
     background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg2.webp') !important;
 }
