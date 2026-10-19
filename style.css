@@ -29,7 +29,7 @@ body {
 
 body.bg-start {
     /* Jouw custom afbeelding met een donkere, leesbare waas erover */
-    background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg1.jpg') !important;
+    background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.98)), url('fm-pokemon-bg.jpg.jpg') !important;
 }
 
 body.bg-office {
