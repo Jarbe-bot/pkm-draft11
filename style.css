@@ -40,6 +40,16 @@ body.bg-stadium {
     background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.98)), url('https://images.unsplash.com/photo-1518605368461-1e1292237fac?q=80&w=2000&auto=format&fit=crop') !important;
 }
 
+.standings {
+height:515px;
+}
+
+@media only screen and (max-width: 767px) {
+.standings {
+height:478px;
+}
+}
+
 .spinner { width: 50px; height: 50px; border: 5px solid rgba(255, 255, 255, 0.1); border-top-color: #eab308; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
