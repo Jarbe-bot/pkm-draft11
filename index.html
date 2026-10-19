@@ -64,65 +64,52 @@
         </div>
     </div>
 
-    <div id="start-screen" class="fixed inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-start sm:justify-center p-4 transition-opacity duration-500 overflow-y-auto">
-        <div class="max-w-4xl w-full mx-auto mt-8 sm:my-auto py-6 md:py-10 flex flex-col items-center">
+    <div id="start-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-start p-4 transition-opacity duration-500 overflow-y-auto">
+        <div class="max-w-4xl w-full mx-auto my-auto py-12 md:py-16 flex flex-col items-center min-h-max">
             <h1 class="pixel-font text-3xl md:text-5xl font-black text-center mb-4 text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 drop-shadow-lg uppercase tracking-tight" style="line-height: 1.2;">
                 Pokémon Draft FC
             </h1>
-<p id="main-subtitle" class="pixel-font text-yellow-400 font-black tracking-widest uppercase mb-4 text-center text-[10px] md:text-xs transition-all duration-300 mt-2">MANAGER EDITION</p>            <p class="text-slate-400 mb-4 text-center text-xs md:text-base font-medium max-w-xl px-2">
-                Build your squad, dominate the league, and conquer the Continental Cup.
+            <p id="main-subtitle" class="pixel-font text-blue-400 font-black tracking-widest uppercase mb-6 text-center text-[10px] md:text-xs">ROAD TO GLORY</p>
+            <p class="text-slate-400 mb-8 text-center text-xs md:text-base font-medium max-w-xl px-2">
+                Build your squad, dominate the league, and conquer the Continental Cup over multiple seasons.
             </p>
             
-            <button onclick="openHTP()" class="mb-6 px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2">
+            <button onclick="openHTP()" class="mb-10 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-2 shadow-lg">
                 <span class="text-blue-400 font-black text-sm">?</span> How to play & tactics
             </button>
 
-            <div id="step-1" class="w-full max-w-3xl mb-6 transition-all duration-300">
-                <div class="mb-6 poke-box-dark p-5 flex flex-col items-center shadow-lg max-w-sm mx-auto">
-                    <label class="pixel-font text-[10px] text-yellow-400 uppercase tracking-widest mb-3">Club Name</label>
+            <div id="step-1" class="w-full max-w-3xl mb-8 transition-all duration-300">
+                <div class="mb-10 poke-box-dark p-6 flex flex-col items-center shadow-lg max-w-sm mx-auto">
+                    <label class="pixel-font text-[10px] text-yellow-400 uppercase tracking-widest mb-4">Club Name</label>
                     <input type="text" id="team-name-input" placeholder="e.g. My Team" maxlength="20" class="bg-slate-900/80 border-2 border-slate-700 rounded-none px-4 py-2 text-center text-white font-bold w-full focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 font-mono text-sm uppercase">
                 </div>
 
-                <div class="mb-6 w-full max-w-md mx-auto">
-                    <label class="pixel-font text-[10px] text-yellow-400 uppercase tracking-widest mb-3 block text-center">Game Mode</label>
-                    <div class="flex gap-3 md:gap-4">
-                        <button id="mode-classic" onclick="setGameMode('classic')" class="flex-1 py-3 px-2 rounded-xl border-2 border-yellow-500 bg-yellow-500 text-slate-900 font-black uppercase tracking-wider transition-all transform scale-105 shadow-[0_0_15px_rgba(234,179,8,0.5)] text-xs md:text-sm">
-                            Classic
-                            <span class="block text-[9px] font-bold opacity-80 mt-0.5 uppercase">1 Season</span>
-                        </button>
-                        <button id="mode-rtg" onclick="setGameMode('rtg')" class="flex-1 py-3 px-2 rounded-xl border-2 border-slate-600 bg-slate-800 text-slate-400 font-bold uppercase tracking-wider transition-all hover:border-slate-500 hover:text-white text-xs md:text-sm">
-                            Road to Glory
-                            <span class="block text-[9px] font-normal opacity-80 mt-0.5 uppercase">Multi-season + Prom/Rel</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="flex justify-between items-end mb-2.5">
+                <div class="flex justify-between items-end mb-4 px-2">
                     <h2 class="pixel-font text-[11px] md:text-sm font-black text-white uppercase tracking-wider leading-relaxed">1. Select Generations</h2>
                     <div class="flex gap-2">
-                        <button onclick="selectAllGens()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Select All</button>
-                        <button onclick="deselectAllGens()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Clear All</button>
+                        <button onclick="selectAllGens()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Select All</button>
+                        <button onclick="deselectAllGens()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded border border-slate-600 uppercase transition-colors">Clear All</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 md:grid-cols-5 gap-2.5 md:gap-3 mb-6" id="gen-grid"></div>
-                <div class="flex justify-center">
-                    <button onclick="proceedToFormations()" class="px-10 py-3.5 md:px-12 md:py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-400 text-white font-black text-base md:text-xl rounded-full shadow-[0_10px_40px_rgba(37,99,235,0.5)] transition-transform uppercase tracking-widest transform hover:-translate-y-1">
+                <div class="grid grid-cols-3 md:grid-cols-5 gap-3 mb-10" id="gen-grid"></div>
+                <div class="flex justify-center pb-8">
+                    <button onclick="proceedToFormations()" class="px-10 py-4 md:px-12 md:py-5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-400 text-white font-black text-base md:text-xl rounded-full shadow-[0_10px_40px_rgba(37,99,235,0.5)] transition-transform uppercase tracking-widest transform hover:-translate-y-1">
                         Find Formations
                     </button>
                 </div>
             </div>
 
-            <div id="step-2" class="w-full max-w-3xl mb-6 hidden transition-all duration-300 flex-col items-center">
-                <h2 class="pixel-font text-xs md:text-sm font-black text-yellow-400 uppercase tracking-wider mb-6 text-center leading-relaxed">2. Choose Your Playstyle</h2>
+            <div id="step-2" class="w-full max-w-3xl mb-8 hidden transition-all duration-300 flex-col items-center">
+                <h2 class="pixel-font text-xs md:text-sm font-black text-yellow-400 uppercase tracking-wider mb-8 text-center leading-relaxed">2. Choose Your Playstyle</h2>
                 
                 <div id="formation-loader" class="flex flex-col items-center justify-center py-10 w-full hidden">
                     <div class="spinner mb-4"></div>
                     <p class="pixel-font text-yellow-400 uppercase tracking-widest animate-pulse text-[10px] mt-4">Scouting...</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 w-full mb-6" id="formation-draft-grid"></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 w-full mb-10" id="formation-draft-grid"></div>
                 
-                <div class="flex gap-4">
+                <div class="flex gap-4 pb-8">
                     <button onclick="backToGens()" class="px-6 py-3.5 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors uppercase tracking-widest border border-slate-500">
                         Back
                     </button>
@@ -567,23 +554,6 @@
         function selectAllGens() { genData.forEach(g => g.active = true); initStartScreen(); }
         function deselectAllGens() { genData.forEach(g => g.active = false); genData[0].active = true; initStartScreen(); }
 
-        function setGameMode(mode) {
-            gameMode = mode;
-            const classicBtn = document.getElementById('mode-classic');
-            const rtgBtn = document.getElementById('mode-rtg');
-            const mainSub = document.getElementById('main-subtitle');
-            if(mode === 'classic') {
-                classicBtn.className = "flex-1 py-3 px-2 rounded-xl border-2 border-yellow-500 bg-yellow-500 text-slate-900 font-black uppercase tracking-wider transition-all transform scale-105 shadow-[0_0_15px_rgba(234,179,8,0.5)] text-xs md:text-sm";
-                rtgBtn.className = "flex-1 py-3 px-2 rounded-xl border-2 border-slate-600 bg-slate-800 text-slate-400 font-bold uppercase tracking-wider transition-all hover:border-slate-500 hover:text-white text-xs md:text-sm";
-                mainSub.innerText = "MANAGER EDITION";
-                mainSub.classList.replace('text-blue-400', 'text-yellow-400');
-            } else {
-                rtgBtn.className = "flex-1 py-3 px-2 rounded-xl border-2 border-purple-500 bg-purple-500 text-white font-black uppercase tracking-wider transition-all transform scale-105 shadow-[0_0_15px_rgba(168,85,247,0.5)] text-xs md:text-sm";
-                classicBtn.className = "flex-1 py-3 px-2 rounded-xl border-2 border-slate-600 bg-slate-800 text-slate-400 font-bold uppercase tracking-wider transition-all hover:border-slate-500 hover:text-white text-xs md:text-sm";
-                mainSub.innerText = "ROAD TO GLORY";
-                mainSub.classList.replace('text-yellow-400', 'text-blue-400');
-            }
-        }
 
         function initStartScreen() {
             const grid = document.getElementById('gen-grid');
@@ -595,7 +565,6 @@
                 btn.innerHTML = `<span class="font-black text-xs md:text-base">${g.name}</span>`;
                 grid.appendChild(btn);
             });
-            setGameMode(gameMode);
         }
 
         function toggleGen(index) {
@@ -665,7 +634,7 @@
             playerStats = {};
             formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
 
-            document.getElementById('ui-season-counter').innerText = gameMode === 'rtg' ? `Season ${currentSeason}` : `Classic Mode`;
+            document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
 
             document.getElementById('start-screen').classList.add('opacity-0');
             setTimeout(() => {
@@ -2222,7 +2191,6 @@ await rollOptions(role, displayPos);
             currentCupRound = 0;
             isTransferWindow = false;
             hasPlayedCup = false;
-            setGameMode(gameMode);
         }
 
         function backToStandings() {
