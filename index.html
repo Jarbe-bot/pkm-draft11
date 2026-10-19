@@ -1402,13 +1402,30 @@ await rollOptions(role, displayPos);
                 .filter(x => x);
         }
 
-        function initStandings() {
+       function initStandings() {
             let activeGens = genData.filter(g => g.active).map(g => g.id);
             let pool = allOpponents.filter(o => activeGens.includes(o.gen));
             
             if (pool.length < 7) pool = [...allOpponents]; 
+
+            // De Capped Balans Curve
+            // In seizoen 1 is (currentSeason - 1) nul, dus er is geen boost. 
+            // Daarna groeit de sterkte van de ploegen met +15 per seizoen, met een maximum van +150.
+            const maxBoost = 150;
+            const seasonBoost = Math.min((currentSeason - 1) * 15, maxBoost); 
             
-            if (gameMode === 'rtg' && currentSeason > 1 && standings.length > 0) {
+            const applyBoost = (pools) => {
+                return {
+                    poss: pools.poss + seasonBoost,
+                    create: pools.create + seasonBoost,
+                    prevent: pools.prevent + seasonBoost,
+                    finish: pools.finish + seasonBoost,
+                    block: pools.block + seasonBoost
+                };
+            };
+            
+            if (currentSeason > 1 && standings.length > 0) {
+                // Promotie / Degradatie Logica
                 let cpuTeams = standings.filter(t => !t.isUser);
                 let relegatedTeam = cpuTeams[cpuTeams.length - 1]; 
                 
@@ -1429,11 +1446,12 @@ await rollOptions(role, displayPos);
                 let newStandings = [];
                 for (let t of standings) {
                     if (t.id === relegatedTeam.id && replacement) {
-                        newStandings.push({ id: replacement.id, name: replacement.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: replacement.pools });
+                        newStandings.push({ id: replacement.id, name: replacement.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(replacement.pools) });
                     } else if (t.isUser) {
                         newStandings.push({ id: 0, name: userTeamName, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, isUser: true, pools: myTeamEnginePools });
                     } else {
-                        newStandings.push({ id: t.id, name: t.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: t.pools });
+                        let originalOp = allOpponents.find(o => o.id === t.id);
+                        newStandings.push({ id: t.id, name: t.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(originalOp.pools) });
                     }
                 }
                 standings = newStandings;
@@ -1441,6 +1459,7 @@ await rollOptions(role, displayPos);
                 seasonSchedule = nextOpponents.sort(() => 0.5 - Math.random());
                 
             } else {
+                // Seizoen 1: De originele, gebalanceerde indeling over de 3 segmenten
                 pool.sort((a, b) => (b.pools.poss + b.pools.create + b.pools.prevent + b.pools.finish + b.pools.block) - (a.pools.poss + a.pools.create + a.pools.prevent + a.pools.finish + a.pools.block));
                 
                 let topSegment = pool.slice(0, Math.ceil(pool.length / 3)).sort(() => 0.5 - Math.random());
@@ -1448,22 +1467,21 @@ await rollOptions(role, displayPos);
                 let botSegment = pool.slice(Math.ceil(pool.length * 2 / 3)).sort(() => 0.5 - Math.random());
 
                 let selectedOpponents = [];
-                selectedOpponents.push(...topSegment.slice(0, 2));
-                selectedOpponents.push(...midSegment.slice(0, 3)); 
-                selectedOpponents.push(...botSegment.slice(0, 2)); 
+                selectedOpponents.push(...topSegment.slice(0, 2)); // 2 Top teams
+                selectedOpponents.push(...midSegment.slice(0, 3)); // 3 Mid teams
+                selectedOpponents.push(...botSegment.slice(0, 1)); // 1 Bot team (Jij bent het 2e bottom team)
 
-                if(selectedOpponents.length < 7) {
+                if(selectedOpponents.length < 6) {
                     let remaining = pool.filter(o => !selectedOpponents.includes(o)).sort(() => 0.5 - Math.random());
-                    selectedOpponents.push(...remaining.slice(0, 7 - selectedOpponents.length));
+                    selectedOpponents.push(...remaining.slice(0, 6 - selectedOpponents.length));
                 }
                 selectedOpponents.sort(() => 0.5 - Math.random());
 
-                standings = selectedOpponents.map(o => ({ id: o.id, name: o.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: o.pools }));
+                standings = selectedOpponents.map(o => ({ id: o.id, name: o.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(o.pools) })); // seasonBoost is hier automatisch 0
                 standings.push({ id: 0, name: userTeamName, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, isUser: true, pools: myTeamEnginePools });
                 seasonSchedule = [...selectedOpponents].sort(() => 0.5 - Math.random());
             }
         }
-
         async function startSeasonSimulation() {
             hasPlayedCup = false;
             
