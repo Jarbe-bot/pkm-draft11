@@ -697,36 +697,52 @@ const AudioManager = {
         
         function toggleMusic() {
             AudioManager.isMusicMuted = !AudioManager.isMusicMuted;
-            const btn = document.getElementById('btn-toggle-music');
             
+            // Update het visuele aspect van alle mogelijke music-knoppen op het scherm
+            document.querySelectorAll('#btn-toggle-music').forEach(btn => {
+                if (AudioManager.isMusicMuted) {
+                    btn.innerHTML = '🎵 OFF';
+                    btn.classList.add('opacity-50', 'line-through');
+                } else {
+                    btn.innerHTML = '🎵 ON';
+                    btn.classList.remove('opacity-50', 'line-through');
+                }
+            });
+
             if (AudioManager.isMusicMuted) {
                 if (AudioManager.bgm) AudioManager.bgm.pause();
-                btn.innerHTML = '🎵 Uit';
-                btn.classList.add('opacity-50', 'line-through');
             } else {
-                if (AudioManager.bgm && AudioManager.bgm.src) AudioManager.bgm.play();
-                btn.innerHTML = '🎵 Aan';
-                btn.classList.remove('opacity-50', 'line-through');
+                // Start de muziek ALLEEN als we niet in een wedstrijd/seizoen zitten
+                const inMatch = document.getElementById('match-center') && document.getElementById('match-center').classList.contains('flex');
+                if (AudioManager.bgm && AudioManager.bgm.src && !inMatch) {
+                    AudioManager.bgm.play().catch(e => console.warn(e));
+                }
             }
         }
 
         function toggleSFX() {
             AudioManager.isSfxMuted = !AudioManager.isSfxMuted;
-            const btn = document.getElementById('btn-toggle-sfx');
             
+            // Update het visuele aspect van alle mogelijke SFX-knoppen op het scherm
+            document.querySelectorAll('#btn-toggle-sfx').forEach(btn => {
+                if (AudioManager.isSfxMuted) {
+                    btn.innerHTML = '🔇 OFF';
+                    btn.classList.add('opacity-50', 'line-through');
+                } else {
+                    btn.innerHTML = '🔊 ON';
+                    btn.classList.remove('opacity-50', 'line-through');
+                }
+            });
+
             if (AudioManager.isSfxMuted) {
                 if (AudioManager.stadiumBase) AudioManager.stadiumBase.pause();
                 if (AudioManager.stadiumChant) AudioManager.stadiumChant.pause();
-                btn.innerHTML = '🔇 Uit';
-                btn.classList.add('opacity-50', 'line-through');
             } else {
-                // Als we in een live match zitten, zet de stadiongeluiden direct weer aan
-                if (document.getElementById('match-center').classList.contains('flex')) {
-                    if (AudioManager.stadiumBase) AudioManager.stadiumBase.play();
-                    if (AudioManager.stadiumChant) AudioManager.stadiumChant.play();
+                const inMatch = document.getElementById('match-center') && document.getElementById('match-center').classList.contains('flex');
+                if (inMatch) {
+                    if (AudioManager.stadiumBase) AudioManager.stadiumBase.play().catch(e => {});
+                    if (AudioManager.stadiumChant) AudioManager.stadiumChant.play().catch(e => {});
                 }
-                btn.innerHTML = '🔊 Aan';
-                btn.classList.remove('opacity-50', 'line-through');
             }
         }
 
