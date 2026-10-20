@@ -605,7 +605,7 @@ const AudioManager = {
            playCry: (cryUrl) => {
                 if (AudioManager.isSfxMuted || !cryUrl) return;
                 let a = new Audio(cryUrl);
-                a.volume = 0.4; // Iets zachter gezet voor de nieuwe bestanden
+                a.volume = 0.3; // Iets zachter gezet voor de nieuwe bestanden
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
