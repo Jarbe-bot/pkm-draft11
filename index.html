@@ -583,12 +583,12 @@ const AudioManager = {
             stadiumChant: null,
             isMusicMuted: false,
             isSfxMuted: false,
-            uiPlink: new Audio('audio/pkm-pling.mp3'),
+            uiPlink: new Audio('audio/pling.mp3'),
 
             playSFX: (src, vol = 0.8) => {
                 if (AudioManager.isSfxMuted) return;
                 
-                if (src.includes('pkm-pling.mp3')) {
+                if (src.includes('pling.mp3')) {
                     AudioManager.uiPlink.volume = vol;
                     AudioManager.uiPlink.currentTime = 0;
                     AudioManager.uiPlink.play().catch(e => {});
@@ -2641,7 +2641,7 @@ await rollOptions(role, displayPos);
             
             // Controleer of het een knop is én niet een van de mute-knoppen
             if ((isButton || isInput || isLabel) && !e.target.closest('#btn-toggle-music') && !e.target.closest('#btn-toggle-sfx')) {
-                AudioManager.playSFX('audio/pkm-pling.mp3', 0.4);
+                AudioManager.playSFX('audio/pling.mp3', 0.4);
             }
         });
     </script>
