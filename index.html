@@ -148,17 +148,25 @@
         </div>
     </div>
 
-    <div id="game-ui" class="hidden flex-col w-full flex-grow pt-3 md:pt-4 px-2 sm:px-4 md:px-0">
-        <div class="max-w-4xl mx-auto w-full flex justify-between items-center mb-2.5 md:mb-4 z-10 px-1">
+    <div class="max-w-4xl mx-auto w-full flex justify-between items-center mb-2.5 md:mb-4 z-10 px-1">
             <div class="flex items-center gap-2 md:gap-3 min-w-0">
                 <h2 id="ui-team-name" class="text-lg sm:text-xl md:text-2xl font-black uppercase tracking-wider text-yellow-400 drop-shadow-md truncate max-w-[160px] sm:max-w-xs">My Team</h2>
                 <span id="ui-season-counter" class="bg-blue-600 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0">Season 1</span>
                 <button id="btn-resign" onclick="startNewDraft()" class="hidden px-2 py-1 bg-red-900/80 hover:bg-red-800 text-red-200 text-[10px] font-bold rounded border border-red-700 transition-colors uppercase shadow shrink-0">Resign</button>
             </div>
-            <button onclick="openHTP()" class="px-2.5 md:px-4 py-1 md:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1 md:gap-2 shadow-lg shrink-0">
-                <span class="text-blue-400 font-black text-xs md:text-sm">?</span> Rules
-            </button>
-
+            
+            <!-- NIEUW: De Audio knoppen en Rules knop netjes gegroepeerd -->
+            <div class="flex items-center gap-1.5 md:gap-2 shrink-0">
+                <button id="btn-toggle-music" onclick="toggleMusic()" class="px-2 md:px-3 py-1 md:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors shadow-lg">
+                    🎵 Aan
+                </button>
+                <button id="btn-toggle-sfx" onclick="toggleSFX()" class="px-2 md:px-3 py-1 md:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors shadow-lg">
+                    🔊 Aan
+                </button>
+                <button onclick="openHTP()" class="px-2.5 md:px-4 py-1 md:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1 md:gap-2 shadow-lg ml-0.5 md:ml-1">
+                    <span class="text-blue-400 font-black text-xs md:text-sm">?</span> Rules
+                </button>
+            </div>
         </div>
 
         <header class="max-w-4xl mx-auto w-full mb-3 md:mb-5 relative z-10">
@@ -175,15 +183,7 @@
                     <p class="text-slate-400 text-[9px] md:text-xs font-bold uppercase tracking-wider md:tracking-widest mb-0.5">Defense</p>
                     <p id="score-def" class="text-xl sm:text-2xl md:text-4xl font-black text-blue-500 drop-shadow-md">--</p>
                 </div>
-                <!-- Audio Controls (Rechtsboven) -->
-    <div class="fixed top-4 right-8 z-50 flex gap-2">
-        <button id="btn-toggle-music" onclick="toggleMusic()" class="bg-slate-800 border border-slate-600 text-white p-2 rounded shadow-md hover:bg-slate-700 transition-colors text-sm sm:text-base">
-            🎵 Aan
-        </button>
-        <button id="btn-toggle-sfx" onclick="toggleSFX()" class="bg-slate-800 border border-slate-600 text-white p-2 rounded shadow-md hover:bg-slate-700 transition-colors text-sm sm:text-base">
-            🔊 Aan
-        </button>
-    </div>
+                
                 <div class="text-center border-l border-slate-600/50 bg-slate-900/60 rounded-lg md:rounded-xl py-1 md:py-2">
                     <p class="text-slate-300 text-[8px] md:text-[10px] font-bold uppercase tracking-wider md:tracking-widest mb-0.5">Chemistry</p>
                     <div class="flex items-center justify-center gap-0.5 md:gap-1.5">
@@ -577,17 +577,17 @@
 
 const AudioManager = {
             bgm: null,
+            bgmSrc: null, // Toegevoegd om de actieve track te onthouden
             stadiumBase: null,
             stadiumChant: null,
             isMusicMuted: false,
             isSfxMuted: false,
-            uiPlink: new Audio('audio/pling.mp3'), // PRELOAD het klikgeluid in het geheugen
+            uiPlink: new Audio('audio/pkm-pling.mp3'),
 
             playSFX: (src, vol = 0.8) => {
                 if (AudioManager.isSfxMuted) return;
                 
-                // Speel de preloaded plink direct af zonder netwerk-delay
-                if (src.includes('pling.mp3')) {
+                if (src.includes('pkm-pling.mp3')) {
                     AudioManager.uiPlink.volume = vol;
                     AudioManager.uiPlink.currentTime = 0;
                     AudioManager.uiPlink.play().catch(e => {});
@@ -598,27 +598,59 @@ const AudioManager = {
                 a.volume = vol;
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
             },
-            // ... (de rest van je playCry, playBGM, playStadiumLayers functies blijven hetzelfde)
             
             playCry: (pokemonName) => {
-                if (AudioManager.isSfxMuted) return; // Blokkeer als SFX gemute is
+                if (AudioManager.isSfxMuted) return;
                 let cleanName = pokemonName.toLowerCase().replace(/[^a-z0-9]/g, '');
                 let a = new Audio(`https://play.pokemonshowdown.com/audio/cries/${cleanName}.mp3`);
-                a.volume = 0.6;
+                a.volume = 0.2; // 📉 Verlaagd van 0.6 naar 0.2 voor aangenamere kreten
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
             playBGM: (src, vol = 0.2) => {
-                if (AudioManager.bgm && AudioManager.bgm.src.includes(src) && !AudioManager.bgm.paused) return; 
+                // Voorkom dat hetzelfde nummer dubbel start als je op schermen klikt
+                if (AudioManager.bgm && AudioManager.bgmSrc === src && !AudioManager.bgm.paused) return; 
+                
                 if (AudioManager.bgm) AudioManager.bgm.pause();
                 
-                AudioManager.bgm = new Audio(src);
-                AudioManager.bgm.loop = true;
-                AudioManager.bgm.volume = vol;
+                AudioManager.bgmSrc = src;
                 
-                if (!AudioManager.isMusicMuted) {
-                    AudioManager.bgm.play().catch(e => console.warn("BGM geblokkeerd:", e));
-                }
+                // De Crossfade Loop functie
+                const startLoopingTrack = (trackSrc) => {
+                    let a = new Audio(trackSrc);
+                    a.volume = AudioManager.isMusicMuted ? 0 : vol;
+                    a.play().catch(e => console.warn("BGM geblokkeerd:", e));
+                    
+                    let hasSpawnedNext = false;
+                    
+                    a.addEventListener('timeupdate', () => {
+                        // ⏱️ 4 seconden voor het einde: start de volgende en fade de huidige uit
+                        if (a.duration && a.currentTime >= a.duration - 4 && !hasSpawnedNext) {
+                            hasSpawnedNext = true;
+                            
+                            // Start alleen de nieuwe loop als deze muziek nog steeds de bedoeling is
+                            if (AudioManager.bgmSrc === trackSrc) {
+                                AudioManager.bgm = startLoopingTrack(trackSrc);
+                            }
+                            
+                            // Fade de oude track soepel uit
+                            let oldVol = a.volume;
+                            let fade = setInterval(() => {
+                                if (oldVol > 0.02) {
+                                    oldVol -= 0.02;
+                                    a.volume = oldVol;
+                                } else {
+                                    a.pause();
+                                    clearInterval(fade);
+                                }
+                            }, 100);
+                        }
+                    });
+                    
+                    return a;
+                };
+
+                AudioManager.bgm = startLoopingTrack(src);
             },
             
             playStadiumLayers: () => {
@@ -636,7 +668,6 @@ const AudioManager = {
                     AudioManager.stadiumChant.volume = 0.4;
                 }
 
-                // Speel alleen af als SFX aan staat (we behandelen stadiongeluid als SFX)
                 if (!AudioManager.isSfxMuted) {
                     AudioManager.stadiumBase.play().catch(e => console.warn("Stadion geblokkeerd:", e));
                     AudioManager.stadiumChant.play().catch(e => console.warn("Chant geblokkeerd:", e));
@@ -1482,6 +1513,7 @@ await rollOptions(role, displayPos);
             const gacha = document.getElementById('gacha-container');
             gacha.innerHTML = '';
             
+            AudioManager.playSFX('audio/pokeball_roll.mp3', 0.6);
             const getBallSvg = (bst) => {
                 if (bst >= 600) {
                     return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl"><circle cx="50" cy="50" r="48" fill="#fff" stroke="#1e293b" stroke-width="4"/><path d="M2,50 A48,48 0 0,1 98,50 Z" fill="#9333ea" stroke="#1e293b" stroke-width="4"/><circle cx="25" cy="28" r="10" fill="#ec4899"/><circle cx="75" cy="28" r="10" fill="#ec4899"/><path d="M36,36 L44,21 L50,27 L56,21 L64,36" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><line x1="2" y1="50" x2="98" y2="50" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="14" fill="#fff" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="6" fill="#1e293b"/></svg>`;
@@ -1547,6 +1579,7 @@ await rollOptions(role, displayPos);
                         }, 150);
                     }
                 }
+                AudioManager.playSFX('audio/pokeball.mp3', 0.6);
             }, 1550);
         }
 
