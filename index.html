@@ -577,14 +577,15 @@
 
 const AudioManager = {
             bgm: null,
-            bgmSrc: null, // Toegevoegd om de actieve track te onthouden
+            bgmSrc: null, 
             stadiumBase: null,
             stadiumChant: null,
             isMusicMuted: false,
             isSfxMuted: false,
             uiPlink: new Audio('audio/pkm-pling.mp3'),
+            sfxChannels: {}, // NIEUW: Voorkomt overlappende geluiden
 
-            playSFX: (src, vol = 0.8) => {
+            playSFX: (src, vol = 0.8, channel = null) => {
                 if (AudioManager.isSfxMuted) return;
                 
                 if (src.includes('pkm-pling.mp3')) {
@@ -594,8 +595,14 @@ const AudioManager = {
                     return;
                 }
 
+                // NIEUW: Als de crowd al juicht/mort, breek dat dan netjes af voor de volgende reactie
+                if (channel && AudioManager.sfxChannels[channel]) {
+                    AudioManager.sfxChannels[channel].pause();
+                }
+
                 let a = new Audio(src);
                 a.volume = vol;
+                if (channel) AudioManager.sfxChannels[channel] = a;
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
             },
             
@@ -603,19 +610,16 @@ const AudioManager = {
                 if (AudioManager.isSfxMuted) return;
                 let cleanName = pokemonName.toLowerCase().replace(/[^a-z0-9]/g, '');
                 let a = new Audio(`https://play.pokemonshowdown.com/audio/cries/${cleanName}.mp3`);
-                a.volume = 0.2; // 📉 Verlaagd van 0.6 naar 0.2 voor aangenamere kreten
+                a.volume = 0.2; 
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
             playBGM: (src, vol = 0.2) => {
-                // Voorkom dat hetzelfde nummer dubbel start als je op schermen klikt
                 if (AudioManager.bgm && AudioManager.bgmSrc === src && !AudioManager.bgm.paused) return; 
-                
                 if (AudioManager.bgm) AudioManager.bgm.pause();
                 
                 AudioManager.bgmSrc = src;
                 
-                // De Crossfade Loop functie
                 const startLoopingTrack = (trackSrc) => {
                     let a = new Audio(trackSrc);
                     a.volume = AudioManager.isMusicMuted ? 0 : vol;
@@ -624,29 +628,24 @@ const AudioManager = {
                     let hasSpawnedNext = false;
                     
                     a.addEventListener('timeupdate', () => {
-                        // ⏱️ 4 seconden voor het einde: start de volgende en fade de huidige uit
                         if (a.duration && a.currentTime >= a.duration - 4 && !hasSpawnedNext) {
                             hasSpawnedNext = true;
-                            
-                            // Start alleen de nieuwe loop als deze muziek nog steeds de bedoeling is
                             if (AudioManager.bgmSrc === trackSrc) {
                                 AudioManager.bgm = startLoopingTrack(trackSrc);
                             }
                             
-                            // Fade de oude track soepel uit
                             let oldVol = a.volume;
                             let fade = setInterval(() => {
                                 if (oldVol > 0.02) {
-                                    oldVol -= 0.02;
-                                    a.volume = oldVol;
+                                oldVol -= 0.02;
+                                a.volume = oldVol;
                                 } else {
-                                    a.pause();
-                                    clearInterval(fade);
+                                a.pause();
+                                clearInterval(fade);
                                 }
                             }, 100);
                         }
                     });
-                    
                     return a;
                 };
 
@@ -659,13 +658,13 @@ const AudioManager = {
                 if (!AudioManager.stadiumBase) {
                     AudioManager.stadiumBase = new Audio('audio/stadium-base.mp3');
                     AudioManager.stadiumBase.loop = true;
-                    AudioManager.stadiumBase.volume = 0.4;
+                    AudioManager.stadiumBase.volume = 0.15; // 📉 Drastisch verlaagd
                 }
                 
                 if (!AudioManager.stadiumChant) {
                     AudioManager.stadiumChant = new Audio('audio/stadium-chant.mp3');
                     AudioManager.stadiumChant.loop = true;
-                    AudioManager.stadiumChant.volume = 0.4;
+                    AudioManager.stadiumChant.volume = 0.10; // 📉 Drastisch verlaagd
                 }
 
                 if (!AudioManager.isSfxMuted) {
@@ -679,14 +678,14 @@ const AudioManager = {
                     if (!audioObj) return;
                     let vol = audioObj.volume;
                     let fade = setInterval(() => {
-                        if (vol > 0.05) {
-                            vol -= 0.05;
+                        if (vol > 0.02) {
+                            vol -= 0.02;
                             audioObj.volume = vol;
                         } else {
                             audioObj.pause();
                             clearInterval(fade);
                         }
-                    }, 200);
+                    }, 150);
                 };
                 
                 fadeAudio(AudioManager.stadiumBase);
@@ -697,7 +696,6 @@ const AudioManager = {
                 AudioManager.playBGM(menuBgmSrc, 0.2);
             }
         };
-
         function toggleMusic() {
             AudioManager.isMusicMuted = !AudioManager.isMusicMuted;
             const btn = document.getElementById('btn-toggle-music');
@@ -1738,6 +1736,8 @@ await rollOptions(role, displayPos);
             
             for(let i=0; i<7; i++) {
                 await simulateMatchday(i + 1, seasonSchedule[i]);
+                // NIEUW: Een kleine adempauze tussen matchen zodat fluitjes niet overlappen
+                if (i < 6) await new Promise(res => setTimeout(res, 800));
             }
             showSeasonSummary();
         }
@@ -1853,23 +1853,20 @@ await rollOptions(role, displayPos);
             const delay = ms => new Promise(res => setTimeout(res, ms));
             let startMin = isExtraTime ? 91 : 1;
             
-            // Start de gelaagde stadion audio en aftrap-fluitje
             AudioManager.playStadiumLayers();
-            if (!isExtraTime) AudioManager.playSFX('audio/whistle.mp3', 0.6);
+            if (!isExtraTime) AudioManager.playSFX('audio/whistle.mp3', 0.4); // Zachter
             
             for(let min=startMin; min<=maxMins; min++) {
                 document.getElementById('tv-clock').innerText = `${min}'`;
                 let playerScored = false;
                 let cpuScored = false;
                 
-                // Jouw team scoort
                 while(homeGoals.length > 0 && homeGoals[0].min === min) {
                     hScore++;
                     document.getElementById('tv-home-score').innerText = hScore;
                     document.getElementById('tv-home-scorers').innerHTML += `<div class="goal-item text-green-400 font-bold text-[10px] md:text-xs flex items-center gap-1">⚽ ${homeGoals.shift().name} <span class="text-slate-500 font-normal ml-auto">${min}'</span></div>`;
                     playerScored = true;
                 }
-                // CPU scoort
                 while(awayGoals.length > 0 && awayGoals[0].min === min) {
                     aScore++;
                     document.getElementById('tv-away-score').innerText = aScore;
@@ -1877,13 +1874,13 @@ await rollOptions(role, displayPos);
                     cpuScored = true;
                 }
                 
-                // Publiek reacties
                 if(playerScored) {
-                    AudioManager.playSFX('audio/goal.mp3', 0.9);
-                    await delay(1400); 
+                    // Kanaal 'crowd' voorkomt geluidsstapeling
+                    AudioManager.playSFX('audio/goal.mp3', 0.75, 'crowd');
+                    await delay(1500); 
                 } else if (cpuScored) {
-                    AudioManager.playSFX('audio/groan.mp3', 0.7);
-                    await delay(1000); 
+                    AudioManager.playSFX('audio/groan.mp3', 0.6, 'crowd');
+                    await delay(1200); 
                 } else {
                     await delay(25); 
                 }
@@ -1896,7 +1893,7 @@ await rollOptions(role, displayPos);
                 document.getElementById('tv-status-text').innerText = 'AET';
             }
             
-            AudioManager.playSFX('audio/whistle-end.mp3', 0.6);
+            AudioManager.playSFX('audio/whistle-end.mp3', 0.4); // Zachter
             await delay(1200);
             return { h: hScore, a: aScore };
         }
@@ -1997,7 +1994,7 @@ await rollOptions(role, displayPos);
         }
 
         function showSeasonSummary() {
-            AudioManager.fadeOutStadium('audio/menu.mp3');
+            AudioManager.fadeOutStadium('audio/Littleroot Town.mp3');
          document.getElementById('tv-scoreboard').classList.add('hidden');
          let currentSquadIds = Object.values(userTeam).filter(p => p !== null).map(p => p.id);
          let allPlayers = Object.values(playerStats).filter(ps => currentSquadIds.includes(ps.p.id));
