@@ -148,6 +148,7 @@
             <button onclick="openHTP()" class="px-2.5 md:px-4 py-1 md:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center gap-1 md:gap-2 shadow-lg shrink-0">
                 <span class="text-blue-400 font-black text-xs md:text-sm">?</span> Rules
             </button>
+
         </div>
 
         <header class="max-w-4xl mx-auto w-full mb-3 md:mb-5 relative z-10">
@@ -171,6 +172,15 @@
                         <p id="score-chem" class="text-lg sm:text-2xl md:text-3xl font-black text-yellow-400 drop-shadow-md">0</p>
                     </div>
                 </div>
+                <!-- Audio Controls (Rechtsboven) -->
+    <div class="fixed top-4 right-4 z-50 flex gap-2">
+        <button id="btn-toggle-music" onclick="toggleMusic()" class="bg-slate-800 border border-slate-600 text-white p-2 rounded shadow-md hover:bg-slate-700 transition-colors text-sm sm:text-base">
+            🎵 Aan
+        </button>
+        <button id="btn-toggle-sfx" onclick="toggleSFX()" class="bg-slate-800 border border-slate-600 text-white p-2 rounded shadow-md hover:bg-slate-700 transition-colors text-sm sm:text-base">
+            🔊 Aan
+        </button>
+    </div>
             </div>
         </header>
         <main class="flex-grow max-w-6xl w-full mx-auto relative mb-20 z-10 flex flex-col" id="main-view">
@@ -553,6 +563,79 @@
         let isPeeking = false;
         window.onload = () => { initStartScreen(); };
 
+
+const AudioManager = {
+            bgm: null,
+            stadiumBase: null,
+            stadiumChant: null,
+            
+            playSFX: (src, vol = 0.8) => {
+                let a = new Audio(src);
+                a.volume = vol;
+                a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
+            },
+            
+            playCry: (pokemonName) => {
+                let cleanName = pokemonName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                let a = new Audio(`https://play.pokemonshowdown.com/audio/cries/${cleanName}.mp3`);
+                a.volume = 0.6;
+                a.play().catch(e => console.warn("Cry niet gevonden:", e));
+            },
+            
+            playBGM: (src, vol = 0.2) => {
+                if (AudioManager.bgm && AudioManager.bgm.src.includes(src) && !AudioManager.bgm.paused) return; 
+                if (AudioManager.bgm) AudioManager.bgm.pause();
+                AudioManager.bgm = new Audio(src);
+                AudioManager.bgm.loop = true;
+                AudioManager.bgm.volume = vol;
+                AudioManager.bgm.play().catch(e => console.warn("BGM geblokkeerd:", e));
+            },
+            
+            playStadiumLayers: () => {
+                // Stop de menu muziek
+                if (AudioManager.bgm) AudioManager.bgm.pause();
+                
+                // Start de basisruis
+                if (!AudioManager.stadiumBase) {
+                    AudioManager.stadiumBase = new Audio('audio/stadium-base.mp3');
+                    AudioManager.stadiumBase.loop = true;
+                    AudioManager.stadiumBase.volume = 0.4;
+                    AudioManager.stadiumBase.play().catch(e => console.warn("Stadion geblokkeerd:", e));
+                }
+                
+                // Start de actieve liederen
+                if (!AudioManager.stadiumChant) {
+                    AudioManager.stadiumChant = new Audio('audio/stadium-chant.mp3');
+                    AudioManager.stadiumChant.loop = true;
+                    AudioManager.stadiumChant.volume = 0.4;
+                    AudioManager.stadiumChant.play().catch(e => console.warn("Chant geblokkeerd:", e));
+                }
+            },
+
+            fadeOutStadium: (menuBgmSrc) => {
+                const fadeAudio = (audioObj) => {
+                    if (!audioObj) return;
+                    let vol = audioObj.volume;
+                    let fade = setInterval(() => {
+                        if (vol > 0.05) {
+                            vol -= 0.05;
+                            audioObj.volume = vol;
+                        } else {
+                            audioObj.pause();
+                            clearInterval(fade);
+                        }
+                    }, 200);
+                };
+                
+                fadeAudio(AudioManager.stadiumBase);
+                fadeAudio(AudioManager.stadiumChant);
+                AudioManager.stadiumBase = null;
+                AudioManager.stadiumChant = null;
+                
+                AudioManager.playBGM(menuBgmSrc, 0.2); // Start de menu muziek weer
+            }
+        };
+
         function openHTP() {
             const modal = document.getElementById('htp-modal');
             modal.classList.remove('hidden');
@@ -585,6 +668,7 @@
         }
 
         function enterSettings() {
+            AudioManager.playBGM('audio/Title Screen.mp3', 0.2);
             // 1. Verander de achtergrond langzaam naar donker
             document.body.classList.remove('bg-landing');
             document.body.classList.add('bg-start');
@@ -1255,6 +1339,8 @@ await rollOptions(role, displayPos);
 
         window.trainStat = function(posId, statKey, role, displayPos) {
             if (actionPoints <= 0) return;
+
+            AudioManager.playSFX('audio/levelup.mp3', 0.5);
             const p = userTeam[posId];
             
             const currentRawVal = p.stats[statKey];
@@ -1399,6 +1485,8 @@ await rollOptions(role, displayPos);
         function selectPokemonByIndex(idx) {
     const pData = currentRolledOptions[idx];
     if (!pData || !currentDraftPos) return;
+
+            AudioManager.playCry(pData.name);
 
     userTeam[currentDraftPos] = pData;
 
@@ -1664,29 +1752,50 @@ await rollOptions(role, displayPos);
             const delay = ms => new Promise(res => setTimeout(res, ms));
             let startMin = isExtraTime ? 91 : 1;
             
+            // Start de gelaagde stadion audio en aftrap-fluitje
+            AudioManager.playStadiumLayers();
+            if (!isExtraTime) AudioManager.playSFX('audio/whistle.mp3', 0.6);
+            
             for(let min=startMin; min<=maxMins; min++) {
                 document.getElementById('tv-clock').innerText = `${min}'`;
-                let goalHappened = false;
+                let playerScored = false;
+                let cpuScored = false;
+                
+                // Jouw team scoort
                 while(homeGoals.length > 0 && homeGoals[0].min === min) {
                     hScore++;
                     document.getElementById('tv-home-score').innerText = hScore;
                     document.getElementById('tv-home-scorers').innerHTML += `<div class="goal-item text-green-400 font-bold text-[10px] md:text-xs flex items-center gap-1">⚽ ${homeGoals.shift().name} <span class="text-slate-500 font-normal ml-auto">${min}'</span></div>`;
-                    goalHappened = true;
+                    playerScored = true;
                 }
+                // CPU scoort
                 while(awayGoals.length > 0 && awayGoals[0].min === min) {
                     aScore++;
                     document.getElementById('tv-away-score').innerText = aScore;
                     document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-red-400 font-bold text-[10px] md:text-xs flex items-center gap-1"><span class="text-slate-500 font-normal mr-auto">${min}'</span> ⚽ ${awayGoals.shift().name}</div>`;
-                    goalHappened = true;
+                    cpuScored = true;
                 }
-                if(goalHappened) await delay(1400); else await delay(25); 
+                
+                // Publiek reacties
+                if(playerScored) {
+                    AudioManager.playSFX('audio/goal.mp3', 0.9);
+                    await delay(1400); 
+                } else if (cpuScored) {
+                    AudioManager.playSFX('audio/groan.mp3', 0.7);
+                    await delay(1000); 
+                } else {
+                    await delay(25); 
+                }
             }
+            
             if(!isExtraTime) {
                 document.getElementById('tv-status-text').innerText = 'FT';
                 document.getElementById('tv-status-dot').classList.remove('animate-pulse');
             } else {
                 document.getElementById('tv-status-text').innerText = 'AET';
             }
+            
+            AudioManager.playSFX('audio/whistle-end.mp3', 0.6);
             await delay(1200);
             return { h: hScore, a: aScore };
         }
