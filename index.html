@@ -175,15 +175,8 @@
                     <p class="text-slate-400 text-[9px] md:text-xs font-bold uppercase tracking-wider md:tracking-widest mb-0.5">Defense</p>
                     <p id="score-def" class="text-xl sm:text-2xl md:text-4xl font-black text-blue-500 drop-shadow-md">--</p>
                 </div>
-                <div class="text-center border-l border-slate-600/50 bg-slate-900/60 rounded-lg md:rounded-xl py-1 md:py-2">
-                    <p class="text-slate-300 text-[8px] md:text-[10px] font-bold uppercase tracking-wider md:tracking-widest mb-0.5">Chemistry</p>
-                    <div class="flex items-center justify-center gap-0.5 md:gap-1.5">
-                        <svg class="w-4 h-4 md:w-6 md:h-6 text-yellow-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clip-rule="evenodd"/></svg>
-                        <p id="score-chem" class="text-lg sm:text-2xl md:text-3xl font-black text-yellow-400 drop-shadow-md">0</p>
-                    </div>
-                </div>
                 <!-- Audio Controls (Rechtsboven) -->
-    <div class="fixed top-4 right-4 z-50 flex gap-2">
+    <div class="fixed top-4 right-8 z-50 flex gap-2">
         <button id="btn-toggle-music" onclick="toggleMusic()" class="bg-slate-800 border border-slate-600 text-white p-2 rounded shadow-md hover:bg-slate-700 transition-colors text-sm sm:text-base">
             🎵 Aan
         </button>
@@ -191,6 +184,14 @@
             🔊 Aan
         </button>
     </div>
+                <div class="text-center border-l border-slate-600/50 bg-slate-900/60 rounded-lg md:rounded-xl py-1 md:py-2">
+                    <p class="text-slate-300 text-[8px] md:text-[10px] font-bold uppercase tracking-wider md:tracking-widest mb-0.5">Chemistry</p>
+                    <div class="flex items-center justify-center gap-0.5 md:gap-1.5">
+                        <svg class="w-4 h-4 md:w-6 md:h-6 text-yellow-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.381z" clip-rule="evenodd"/></svg>
+                        <p id="score-chem" class="text-lg sm:text-2xl md:text-3xl font-black text-yellow-400 drop-shadow-md">0</p>
+                    </div>
+                </div>
+                
             </div>
         </header>
         <main class="flex-grow max-w-6xl w-full mx-auto relative mb-20 z-10 flex flex-col" id="main-view">
