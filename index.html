@@ -2430,6 +2430,18 @@ await rollOptions(role, displayPos);
                 btn.innerHTML = originalText;
             });
         }
+
+        // Global UI Click Sound
+        document.addEventListener('click', (e) => {
+            // Controleer of er op een knop, checkbox of label geklikt is
+            const isButton = e.target.closest('button');
+            const isInput = e.target.closest('input');
+            const isLabel = e.target.closest('label'); // Voor de generatie-knoppen
+            
+            if (isButton || isInput || isLabel) {
+                AudioManager.playSFX('audio/pkm-pling.mp3', 0.4);
+            }
+        });
     </script>
 </body>
 </html>
