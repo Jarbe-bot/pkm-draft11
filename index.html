@@ -816,6 +816,8 @@ const AudioManager = {
             playerStats = {};
             formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
 
+            AudioManager.playBGM('audio/Littleroot Town.mp3', 0.2);
+
             document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
 
             document.getElementById('start-screen').classList.add('opacity-0');
@@ -2381,6 +2383,7 @@ await rollOptions(role, displayPos);
 
 
        function startNewDraft() {
+           AudioManager.playBGM('audio/Title Screen.mp3', 0.2);
             document.body.className = 'min-h-screen flex flex-col relative bg-landing';
             document.getElementById('game-ui').classList.add('hidden');
             document.getElementById('game-ui').classList.remove('flex');
