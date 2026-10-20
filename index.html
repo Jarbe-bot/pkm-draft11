@@ -584,9 +584,8 @@ const AudioManager = {
             isMusicMuted: false,
             isSfxMuted: false,
             uiPlink: new Audio('audio/pkm-pling.mp3'),
-            sfxChannels: {}, // NIEUW: Voorkomt overlappende geluiden
 
-            playSFX: (src, vol = 0.8, channel = null) => {
+            playSFX: (src, vol = 0.8) => {
                 if (AudioManager.isSfxMuted) return;
                 
                 if (src.includes('pkm-pling.mp3')) {
@@ -596,14 +595,9 @@ const AudioManager = {
                     return;
                 }
 
-                // NIEUW: Als de crowd al juicht/mort, breek dat dan netjes af voor de volgende reactie
-                if (channel && AudioManager.sfxChannels[channel]) {
-                    AudioManager.sfxChannels[channel].pause();
-                }
-
+                // Geen kanalen meer: geluiden mogen weer over elkaar heen knallen
                 let a = new Audio(src);
                 a.volume = vol;
-                if (channel) AudioManager.sfxChannels[channel] = a;
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
             },
             
@@ -611,7 +605,7 @@ const AudioManager = {
                 if (AudioManager.isSfxMuted) return;
                 let cleanName = pokemonName.toLowerCase().replace(/[^a-z0-9]/g, '');
                 let a = new Audio(`https://play.pokemonshowdown.com/audio/cries/${cleanName}.mp3`);
-                a.volume = 0.2; 
+                a.volume = 0.6; // 📈 Terug luid gezet
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
@@ -659,13 +653,15 @@ const AudioManager = {
                 if (!AudioManager.stadiumBase) {
                     AudioManager.stadiumBase = new Audio('audio/stadium-base.mp3');
                     AudioManager.stadiumBase.loop = true;
-                    AudioManager.stadiumBase.volume = 0.15; // 📉 Drastisch verlaagd
+                    AudioManager.stadiumBase.volume = 0.4; // 📈 Terug luid gezet
                 }
                 
                 if (!AudioManager.stadiumChant) {
-                    AudioManager.stadiumChant = new Audio('audio/stadium-chant.mp3');
+                    // 🎲 Willekeurige chant kiezen (50% kans op chant 1, 50% kans op chant 2)
+                    const randomChant = Math.random() > 0.5 ? 'audio/stadium-chant.mp3' : 'audio/stadium-chant2.mp3';
+                    AudioManager.stadiumChant = new Audio(randomChant);
                     AudioManager.stadiumChant.loop = true;
-                    AudioManager.stadiumChant.volume = 0.10; // 📉 Drastisch verlaagd
+                    AudioManager.stadiumChant.volume = 0.4; // 📈 Terug luid gezet
                 }
 
                 if (!AudioManager.isSfxMuted) {
@@ -679,8 +675,8 @@ const AudioManager = {
                     if (!audioObj) return;
                     let vol = audioObj.volume;
                     let fade = setInterval(() => {
-                        if (vol > 0.02) {
-                            vol -= 0.02;
+                        if (vol > 0.05) {
+                            vol -= 0.05;
                             audioObj.volume = vol;
                         } else {
                             audioObj.pause();
@@ -694,9 +690,11 @@ const AudioManager = {
                 AudioManager.stadiumBase = null;
                 AudioManager.stadiumChant = null;
                 
+                // Start Littleroot Town weer op
                 AudioManager.playBGM(menuBgmSrc, 0.2);
             }
         };
+        
         function toggleMusic() {
             AudioManager.isMusicMuted = !AudioManager.isMusicMuted;
             const btn = document.getElementById('btn-toggle-music');
@@ -1512,7 +1510,7 @@ await rollOptions(role, displayPos);
             const gacha = document.getElementById('gacha-container');
             gacha.innerHTML = '';
             
-            AudioManager.playSFX('audio/pokeball_roll.mp3', 0.6);
+            AudioManager.playSFX('audio/pokeball_roll.mp3', 0.2);
             const getBallSvg = (bst) => {
                 if (bst >= 600) {
                     return `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-2xl"><circle cx="50" cy="50" r="48" fill="#fff" stroke="#1e293b" stroke-width="4"/><path d="M2,50 A48,48 0 0,1 98,50 Z" fill="#9333ea" stroke="#1e293b" stroke-width="4"/><circle cx="25" cy="28" r="10" fill="#ec4899"/><circle cx="75" cy="28" r="10" fill="#ec4899"/><path d="M36,36 L44,21 L50,27 L56,21 L64,36" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><line x1="2" y1="50" x2="98" y2="50" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="14" fill="#fff" stroke="#1e293b" stroke-width="6"/><circle cx="50" cy="50" r="6" fill="#1e293b"/></svg>`;
@@ -1578,7 +1576,7 @@ await rollOptions(role, displayPos);
                         }, 150);
                     }
                 }
-                AudioManager.playSFX('audio/pokeball.mp3', 0.6);
+                AudioManager.playSFX('audio/pokeball.mp3', 0.3);
             }, 1550);
         }
 
@@ -1855,7 +1853,7 @@ await rollOptions(role, displayPos);
             let startMin = isExtraTime ? 91 : 1;
             
             AudioManager.playStadiumLayers();
-            if (!isExtraTime) AudioManager.playSFX('audio/whistle.mp3', 0.4); // Zachter
+            if (!isExtraTime) AudioManager.playSFX('audio/whistle.mp3', 0.6); 
             
             for(let min=startMin; min<=maxMins; min++) {
                 document.getElementById('tv-clock').innerText = `${min}'`;
@@ -1876,11 +1874,10 @@ await rollOptions(role, displayPos);
                 }
                 
                 if(playerScored) {
-                    // Kanaal 'crowd' voorkomt geluidsstapeling
-                    AudioManager.playSFX('audio/goal.mp3', 0.75, 'crowd');
+                    AudioManager.playSFX('audio/goal.mp3', 0.9); // 📈 Terug luid en mag overlappen
                     await delay(1500); 
                 } else if (cpuScored) {
-                    AudioManager.playSFX('audio/groan.mp3', 0.6, 'crowd');
+                    AudioManager.playSFX('audio/groan.mp3', 0.7); // 📈 Terug luid en mag overlappen
                     await delay(1200); 
                 } else {
                     await delay(25); 
@@ -1894,11 +1891,11 @@ await rollOptions(role, displayPos);
                 document.getElementById('tv-status-text').innerText = 'AET';
             }
             
-            AudioManager.playSFX('audio/whistle-end.mp3', 0.4); // Zachter
+            AudioManager.playSFX('audio/whistle-end.mp3', 0.6);
             await delay(1200);
             return { h: hScore, a: aScore };
         }
-
+        
         function processResult(homeId, awayId, hGoals, aGoals) {
             let h = standings.find(t => t.id === homeId);
             let a = standings.find(t => t.id === awayId);
@@ -2183,6 +2180,8 @@ await rollOptions(role, displayPos);
             userGoals.sort((a,b)=>a.min-b.min);
             cpuGoals.sort((a,b)=>a.min-b.min);
             let finalScore = await runLiveMatch([...userGoals], [...cpuGoals], 90, false);
+
+            AudioManager.fadeOutStadium('audio/Littleroot Town.mp3');
             
             if (finalScore.h === finalScore.a) {
                 document.getElementById('tv-status-text').innerText = 'EXTRA TIME';
@@ -2316,7 +2315,7 @@ await rollOptions(role, displayPos);
         }
 
         function startTransferWindow() {
-            AudioManager.fadeOutStadium('audio/menu.mp3');
+            AudioManager.fadeOutStadium('audio/Littleroot Town.mp3');
     currentSeason++;
     document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
     isTransferWindow = true;
