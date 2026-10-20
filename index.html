@@ -583,15 +583,16 @@ const AudioManager = {
             stadiumBase: null,
             stadiumChant1: null,
             stadiumChant2: null,
-            stadiumMixer: null, // De interval voor de dynamische mix
+            stadiumMixer: null, 
             isMusicMuted: false,
             isSfxMuted: false,
-            uiPlink: new Audio('audio/pling.mp3'),
+            uiPlink: new Audio('audio/pling.mp3'), // Bestandsnaam gecorrigeerd
 
-            playSFX: (src, vol = 0.8) => {
+            // NIEUW: fadeTimeMs toegevoegd om geluiden op het einde mooi uit te faden
+            playSFX: (src, vol = 0.8, fadeTimeMs = 0) => {
                 if (AudioManager.isSfxMuted) return;
                 
-                if (src.includes('pling.mp3')) {
+                if (src.includes('pling.mp3')) { // Bestandsnaam gecorrigeerd
                     let clickSound = AudioManager.uiPlink.cloneNode();
                     clickSound.volume = vol;
                     clickSound.play().catch(e => {});
@@ -601,6 +602,29 @@ const AudioManager = {
                 let a = new Audio(src);
                 a.volume = vol;
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
+                
+                // Auto-fade logica: Fade het geluid zachtjes uit vlak voordat het stopt
+                if (fadeTimeMs > 0) {
+                    a.addEventListener('loadedmetadata', () => {
+                        let durationMs = a.duration * 1000;
+                        let startFade = durationMs - fadeTimeMs;
+                        
+                        if (startFade > 0) {
+                            setTimeout(() => {
+                                let oldVol = a.volume;
+                                let fade = setInterval(() => {
+                                    if (oldVol > 0.05) {
+                                        oldVol -= 0.05;
+                                        a.volume = oldVol;
+                                    } else {
+                                        a.pause();
+                                        clearInterval(fade);
+                                    }
+                                }, 50); // Zachte stapjes
+                            }, startFade);
+                        }
+                    });
+                }
             },
             
             playCry: (cryUrl) => {
@@ -610,16 +634,27 @@ const AudioManager = {
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
-            playBGM: (src, vol = 0.2) => {
-                if (AudioManager.bgm && AudioManager.bgmSrc === src && !AudioManager.bgm.paused) return; 
+           playBGM: (src, vol = 0.2) => {
+                // Als de track al de actieve track is, check of hij na een un-mute weer aan mag
+                if (AudioManager.bgm && AudioManager.bgmSrc === src) {
+                    if (!AudioManager.isMusicMuted && AudioManager.bgm.paused) {
+                        AudioManager.bgm.play().catch(e => console.warn(e));
+                    }
+                    return; 
+                }
+
                 if (AudioManager.bgm) AudioManager.bgm.pause();
                 
                 AudioManager.bgmSrc = src;
                 
                 const startLoopingTrack = (trackSrc) => {
                     let a = new Audio(trackSrc);
-                    a.volume = AudioManager.isMusicMuted ? 0 : vol;
-                    a.play().catch(e => console.warn("BGM geblokkeerd:", e));
+                    a.volume = vol; 
+                    
+                    // DE OPLOSSING VOOR iOS: Audio simpelweg NIET afspelen als het gemute is
+                    if (!AudioManager.isMusicMuted) {
+                        a.play().catch(e => console.warn("BGM geblokkeerd:", e));
+                    }
                     
                     let hasSpawnedNext = false;
                     
@@ -633,11 +668,11 @@ const AudioManager = {
                             let oldVol = a.volume;
                             let fade = setInterval(() => {
                                 if (oldVol > 0.02) {
-                                oldVol -= 0.02;
-                                a.volume = oldVol;
+                                    oldVol -= 0.02;
+                                    a.volume = oldVol;
                                 } else {
-                                a.pause();
-                                clearInterval(fade);
+                                    a.pause();
+                                    clearInterval(fade);
                                 }
                             }, 100);
                         }
@@ -648,7 +683,6 @@ const AudioManager = {
                 AudioManager.bgm = startLoopingTrack(src);
             },
             
-            // NIEUW: Interne fader voor zachte volume-overgangen
             fadeTo: (audioObj, targetVol) => {
                 if (!audioObj) return;
                 let step = (targetVol - audioObj.volume) / 20; 
@@ -669,16 +703,16 @@ const AudioManager = {
                 if (!AudioManager.stadiumBase) {
                     AudioManager.stadiumBase = new Audio('audio/stadium-base.mp3');
                     AudioManager.stadiumBase.loop = true;
-                    AudioManager.stadiumBase.volume = 0.4;
+                    // 📈 Basisvolume fors verhoogd voor meer massa
+                    AudioManager.stadiumBase.volume = 0.7; 
                     
-                    // Beide chants direct inladen
                     AudioManager.stadiumChant1 = new Audio('audio/stadium-chant.mp3');
                     AudioManager.stadiumChant1.loop = true;
-                    AudioManager.stadiumChant1.volume = 0.2;
+                    AudioManager.stadiumChant1.volume = 0.4;
                     
                     AudioManager.stadiumChant2 = new Audio('audio/stadium-chant2.mp3');
                     AudioManager.stadiumChant2.loop = true;
-                    AudioManager.stadiumChant2.volume = 0.0; // Begint stil
+                    AudioManager.stadiumChant2.volume = 0.0; 
                 }
 
                 if (!AudioManager.isSfxMuted) {
@@ -686,11 +720,11 @@ const AudioManager = {
                     AudioManager.stadiumChant1.play().catch(e => {});
                     AudioManager.stadiumChant2.play().catch(e => {});
                     
-                    // De Dynamische Mixer: Bepaalt elke 6 seconden een nieuwe mix
                     if (AudioManager.stadiumMixer) clearInterval(AudioManager.stadiumMixer);
                     AudioManager.stadiumMixer = setInterval(() => {
-                        const vol1 = Math.random() * 0.4; // random tussen 0 en 0.4
-                        const vol2 = Math.random() * 0.4; 
+                        // 📈 De pieken van de chants verhoogd naar 0.7
+                        const vol1 = Math.random() * 0.7; 
+                        const vol2 = Math.random() * 0.7; 
                         
                         AudioManager.fadeTo(AudioManager.stadiumChant1, vol1);
                         AudioManager.fadeTo(AudioManager.stadiumChant2, vol2);
@@ -733,7 +767,6 @@ const AudioManager = {
         function toggleMusic() {
             AudioManager.isMusicMuted = !AudioManager.isMusicMuted;
             
-            // Update het visuele aspect van alle mogelijke music-knoppen op het scherm
             document.querySelectorAll('#btn-toggle-music').forEach(btn => {
                 if (AudioManager.isMusicMuted) {
                     btn.innerHTML = '🎵 OFF';
@@ -747,10 +780,14 @@ const AudioManager = {
             if (AudioManager.isMusicMuted) {
                 if (AudioManager.bgm) AudioManager.bgm.pause();
             } else {
-                // Start de muziek ALLEEN als we niet in een wedstrijd/seizoen zitten
+                // Start de muziek ALLEEN als we niet in het wedstrijd-center zitten
                 const inMatch = document.getElementById('match-center') && document.getElementById('match-center').classList.contains('flex');
-                if (AudioManager.bgm && AudioManager.bgm.src && !inMatch) {
-                    AudioManager.bgm.play().catch(e => console.warn(e));
+                if (!inMatch) {
+                    if (AudioManager.bgm) {
+                        AudioManager.bgm.play().catch(e => console.warn(e));
+                    } else if (AudioManager.bgmSrc) {
+                        AudioManager.playBGM(AudioManager.bgmSrc, 0.2);
+                    }
                 }
             }
         }
@@ -1926,11 +1963,13 @@ await rollOptions(role, displayPos);
                     cpuScored = true;
                 }
                 
-                if(playerScored) {
-                    AudioManager.playSFX('audio/goal1.mp3', 0.9); // 📈 Terug luid en mag overlappen
+               if(playerScored) {
+                    // Voeg de 1200ms fade-out toe als derde parameter
+                    AudioManager.playSFX('audio/goal.mp3', 0.9, 1200); 
                     await delay(1500); 
                 } else if (cpuScored) {
-                    AudioManager.playSFX('audio/groan.mp3', 0.7); // 📈 Terug luid en mag overlappen
+                    // Voeg de 1000ms fade-out toe als derde parameter
+                    AudioManager.playSFX('audio/groan.mp3', 0.7, 1000); 
                     await delay(1200); 
                 } else {
                     await delay(25); 
