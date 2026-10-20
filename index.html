@@ -601,11 +601,10 @@ const AudioManager = {
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
             },
             
-            playCry: (pokemonName) => {
-                if (AudioManager.isSfxMuted) return;
-                let cleanName = pokemonName.toLowerCase().replace(/[^a-z0-9]/g, '');
-                let a = new Audio(`https://play.pokemonshowdown.com/audio/cries/${cleanName}.mp3`);
-                a.volume = 0.6; // 📈 Terug luid gezet
+           playCry: (cryUrl) => {
+                if (AudioManager.isSfxMuted || !cryUrl) return;
+                let a = new Audio(cryUrl);
+                a.volume = 0.4; // Iets zachter gezet voor de nieuwe bestanden
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
@@ -900,6 +899,7 @@ const AudioManager = {
                 return {
                     id: d.id,
                     name: formattedName,
+                    cry: d.cries.latest || d.cries.legacy,
                     generation: getGeneration(d.id),
                     types: d.types.map(t => t.type.name.charAt(0).toUpperCase() + t.type.name.slice(1)),
                     primaryType: d.types[0].type.name.charAt(0).toUpperCase() + d.types[0].type.name.slice(1),
@@ -1600,7 +1600,7 @@ await rollOptions(role, displayPos);
     const pData = currentRolledOptions[idx];
     if (!pData || !currentDraftPos) return;
 
-            AudioManager.playCry(pData.name);
+            AudioManager.playCry(pData.cry);
 
     userTeam[currentDraftPos] = pData;
 
