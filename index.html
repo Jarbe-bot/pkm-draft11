@@ -581,7 +581,9 @@ const AudioManager = {
             bgm: null,
             bgmSrc: null, 
             stadiumBase: null,
-            stadiumChant: null,
+            stadiumChant1: null,
+            stadiumChant2: null,
+            stadiumMixer: null, // De interval voor de dynamische mix
             isMusicMuted: false,
             isSfxMuted: false,
             uiPlink: new Audio('audio/pling.mp3'),
@@ -590,22 +592,21 @@ const AudioManager = {
                 if (AudioManager.isSfxMuted) return;
                 
                 if (src.includes('pling.mp3')) {
-                    AudioManager.uiPlink.volume = vol;
-                    AudioManager.uiPlink.currentTime = 0;
-                    AudioManager.uiPlink.play().catch(e => {});
+                    let clickSound = AudioManager.uiPlink.cloneNode();
+                    clickSound.volume = vol;
+                    clickSound.play().catch(e => {});
                     return;
                 }
 
-                // Geen kanalen meer: geluiden mogen weer over elkaar heen knallen
                 let a = new Audio(src);
                 a.volume = vol;
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
             },
             
-           playCry: (cryUrl) => {
+            playCry: (cryUrl) => {
                 if (AudioManager.isSfxMuted || !cryUrl) return;
                 let a = new Audio(cryUrl);
-                a.volume = 0.3; // Iets zachter gezet voor de nieuwe bestanden
+                a.volume = 0.4; 
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
@@ -647,30 +648,62 @@ const AudioManager = {
                 AudioManager.bgm = startLoopingTrack(src);
             },
             
+            // NIEUW: Interne fader voor zachte volume-overgangen
+            fadeTo: (audioObj, targetVol) => {
+                if (!audioObj) return;
+                let step = (targetVol - audioObj.volume) / 20; 
+                let count = 0;
+                let fader = setInterval(() => {
+                    count++;
+                    let newVol = audioObj.volume + step;
+                    if (newVol < 0) newVol = 0;
+                    if (newVol > 1) newVol = 1;
+                    audioObj.volume = newVol;
+                    if (count >= 20 || audioObj.paused) clearInterval(fader);
+                }, 150);
+            },
+
             playStadiumLayers: () => {
                 if (AudioManager.bgm) AudioManager.bgm.pause();
                 
                 if (!AudioManager.stadiumBase) {
                     AudioManager.stadiumBase = new Audio('audio/stadium-base.mp3');
                     AudioManager.stadiumBase.loop = true;
-                    AudioManager.stadiumBase.volume = 0.4; // 📈 Terug luid gezet
-                }
-                
-                if (!AudioManager.stadiumChant) {
-                    // 🎲 Willekeurige chant kiezen (50% kans op chant 1, 50% kans op chant 2)
-                    const randomChant = Math.random() > 0.5 ? 'audio/stadium-chant.mp3' : 'audio/stadium-chant2.mp3';
-                    AudioManager.stadiumChant = new Audio(randomChant);
-                    AudioManager.stadiumChant.loop = true;
-                    AudioManager.stadiumChant.volume = 0.4; // 📈 Terug luid gezet
+                    AudioManager.stadiumBase.volume = 0.4;
+                    
+                    // Beide chants direct inladen
+                    AudioManager.stadiumChant1 = new Audio('audio/stadium-chant.mp3');
+                    AudioManager.stadiumChant1.loop = true;
+                    AudioManager.stadiumChant1.volume = 0.2;
+                    
+                    AudioManager.stadiumChant2 = new Audio('audio/stadium-chant2.mp3');
+                    AudioManager.stadiumChant2.loop = true;
+                    AudioManager.stadiumChant2.volume = 0.0; // Begint stil
                 }
 
                 if (!AudioManager.isSfxMuted) {
-                    AudioManager.stadiumBase.play().catch(e => console.warn("Stadion geblokkeerd:", e));
-                    AudioManager.stadiumChant.play().catch(e => console.warn("Chant geblokkeerd:", e));
+                    AudioManager.stadiumBase.play().catch(e => {});
+                    AudioManager.stadiumChant1.play().catch(e => {});
+                    AudioManager.stadiumChant2.play().catch(e => {});
+                    
+                    // De Dynamische Mixer: Bepaalt elke 6 seconden een nieuwe mix
+                    if (AudioManager.stadiumMixer) clearInterval(AudioManager.stadiumMixer);
+                    AudioManager.stadiumMixer = setInterval(() => {
+                        const vol1 = Math.random() * 0.4; // random tussen 0 en 0.4
+                        const vol2 = Math.random() * 0.4; 
+                        
+                        AudioManager.fadeTo(AudioManager.stadiumChant1, vol1);
+                        AudioManager.fadeTo(AudioManager.stadiumChant2, vol2);
+                    }, 6000); 
                 }
             },
 
             fadeOutStadium: (menuBgmSrc) => {
+                if (AudioManager.stadiumMixer) {
+                    clearInterval(AudioManager.stadiumMixer);
+                    AudioManager.stadiumMixer = null;
+                }
+
                 const fadeAudio = (audioObj) => {
                     if (!audioObj) return;
                     let vol = audioObj.volume;
@@ -686,11 +719,13 @@ const AudioManager = {
                 };
                 
                 fadeAudio(AudioManager.stadiumBase);
-                fadeAudio(AudioManager.stadiumChant);
-                AudioManager.stadiumBase = null;
-                AudioManager.stadiumChant = null;
+                fadeAudio(AudioManager.stadiumChant1);
+                fadeAudio(AudioManager.stadiumChant2);
                 
-                // Start Littleroot Town weer op
+                AudioManager.stadiumBase = null;
+                AudioManager.stadiumChant1 = null;
+                AudioManager.stadiumChant2 = null;
+                
                 AudioManager.playBGM(menuBgmSrc, 0.2);
             }
         };
@@ -720,10 +755,9 @@ const AudioManager = {
             }
         }
 
-        function toggleSFX() {
+      function toggleSFX() {
             AudioManager.isSfxMuted = !AudioManager.isSfxMuted;
             
-            // Update het visuele aspect van alle mogelijke SFX-knoppen op het scherm
             document.querySelectorAll('#btn-toggle-sfx').forEach(btn => {
                 if (AudioManager.isSfxMuted) {
                     btn.innerHTML = '🔇 OFF';
@@ -736,12 +770,14 @@ const AudioManager = {
 
             if (AudioManager.isSfxMuted) {
                 if (AudioManager.stadiumBase) AudioManager.stadiumBase.pause();
-                if (AudioManager.stadiumChant) AudioManager.stadiumChant.pause();
+                if (AudioManager.stadiumChant1) AudioManager.stadiumChant1.pause();
+                if (AudioManager.stadiumChant2) AudioManager.stadiumChant2.pause();
             } else {
                 const inMatch = document.getElementById('match-center') && document.getElementById('match-center').classList.contains('flex');
                 if (inMatch) {
                     if (AudioManager.stadiumBase) AudioManager.stadiumBase.play().catch(e => {});
-                    if (AudioManager.stadiumChant) AudioManager.stadiumChant.play().catch(e => {});
+                    if (AudioManager.stadiumChant1) AudioManager.stadiumChant1.play().catch(e => {});
+                    if (AudioManager.stadiumChant2) AudioManager.stadiumChant2.play().catch(e => {});
                 }
             }
         }
@@ -778,7 +814,7 @@ const AudioManager = {
         }
 
         function enterSettings() {
-            AudioManager.playBGM('audio/Title Screen.mp3', 0.2);
+            AudioManager.playBGM('audio/Title Screen.mp3', 0.4);
             // 1. Verander de achtergrond langzaam naar donker
             document.body.classList.remove('bg-landing');
             document.body.classList.add('bg-start');
@@ -871,7 +907,7 @@ const AudioManager = {
             playerStats = {};
             formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
 
-            AudioManager.playBGM('audio/Littleroot Town.mp3', 0.2);
+            AudioManager.playBGM('audio/Littleroot Town.mp3', 0.4);
 
             document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
 
