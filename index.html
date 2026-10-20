@@ -570,13 +570,24 @@ const AudioManager = {
             stadiumChant: null,
             isMusicMuted: false,
             isSfxMuted: false,
-            
+            uiPlink: new Audio('audio/pkm-pling.mp3'), // PRELOAD het klikgeluid in het geheugen
+
             playSFX: (src, vol = 0.8) => {
-                if (AudioManager.isSfxMuted) return; // Blokkeer als SFX gemute is
+                if (AudioManager.isSfxMuted) return;
+                
+                // Speel de preloaded plink direct af zonder netwerk-delay
+                if (src.includes('pkm-pling.mp3')) {
+                    AudioManager.uiPlink.volume = vol;
+                    AudioManager.uiPlink.currentTime = 0;
+                    AudioManager.uiPlink.play().catch(e => {});
+                    return;
+                }
+
                 let a = new Audio(src);
                 a.volume = vol;
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
             },
+            // ... (de rest van je playCry, playBGM, playStadiumLayers functies blijven hetzelfde)
             
             playCry: (pokemonName) => {
                 if (AudioManager.isSfxMuted) return; // Blokkeer als SFX gemute is
@@ -1940,6 +1951,7 @@ await rollOptions(role, displayPos);
         }
 
         function showSeasonSummary() {
+            AudioManager.fadeOutStadium('audio/menu.mp3');
          document.getElementById('tv-scoreboard').classList.add('hidden');
          let currentSquadIds = Object.values(userTeam).filter(p => p !== null).map(p => p.id);
          let allPlayers = Object.values(playerStats).filter(ps => currentSquadIds.includes(ps.p.id));
@@ -2260,6 +2272,7 @@ await rollOptions(role, displayPos);
         }
 
         function startTransferWindow() {
+            AudioManager.fadeOutStadium('audio/menu.mp3');
     currentSeason++;
     document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
     isTransferWindow = true;
@@ -2365,31 +2378,7 @@ await rollOptions(role, displayPos);
             document.getElementById('btn-back-to-stats').classList.add('flex');
         }
 
-       function enterSettings() {
-            // 1. Verander de achtergrond langzaam naar donker
-            document.body.classList.remove('bg-landing');
-            document.body.classList.add('bg-start');
-            
-            // 2. Laat de grote knop (step-0) wegvagen
-            const step0 = document.getElementById('step-0');
-            step0.classList.replace('opacity-100', 'opacity-0');
-            step0.classList.replace('translate-y-0', '-translate-y-8');
-            
-            // 3. Wacht even, verberg step-0, toon step-1 en slide hem naar boven
-            setTimeout(() => {
-                step0.classList.add('hidden');
-                step0.classList.remove('flex');
-                
-                const step1 = document.getElementById('step-1');
-                step1.classList.remove('hidden');
-                
-                // Een kleine animatie-pauze voor de soepelheid
-                setTimeout(() => {
-                    step1.classList.replace('opacity-0', 'opacity-100');
-                    step1.classList.replace('translate-y-8', 'translate-y-0');
-                }, 50);
-            }, 500);
-        }
+
 
        function startNewDraft() {
             document.body.className = 'min-h-screen flex flex-col relative bg-landing';
