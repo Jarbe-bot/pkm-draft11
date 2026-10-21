@@ -2268,7 +2268,9 @@ await rollOptions(role, displayPos);
             document.getElementById('bar-home-shots').style.width = `${(userChances/totalChances)*100}%`;
             document.getElementById('bar-away-shots').style.width = `${(cpuChances/totalChances)*100}%`;
 
-            let userGoals = [], cpuGoals = [];
+                        let userGoals = [], cpuGoals = [];
+            let userET = [], cpuET = [];
+
             
             const uCreate = myTeamEnginePools.create || 0; const cPrevent = cpuOp.pools.prevent || 0;
             const cCreate = cpuOp.pools.create || 0; const uPrevent = myTeamEnginePools.prevent || 0;
