@@ -586,13 +586,13 @@ const AudioManager = {
             stadiumMixer: null, 
             isMusicMuted: false,
             isSfxMuted: false,
-            uiPlink: new Audio('audio/pling.mp3'), // Bestandsnaam gecorrigeerd
+            uiPlink: new Audio('audio/pling.mp3'),
 
-            // NIEUW: fadeTimeMs toegevoegd om geluiden op het einde mooi uit te faden
-            playSFX: (src, vol = 0.8, fadeTimeMs = 0) => {
+            // De fade timer triggert nu EXACT na de meegegeven milliseconden!
+            playSFX: (src, vol = 0.8, startFadeAfterMs = 0) => {
                 if (AudioManager.isSfxMuted) return;
                 
-                if (src.includes('pling.mp3')) { // Bestandsnaam gecorrigeerd
+                if (src.includes('pling.mp3')) { 
                     let clickSound = AudioManager.uiPlink.cloneNode();
                     clickSound.volume = vol;
                     clickSound.play().catch(e => {});
@@ -603,27 +603,20 @@ const AudioManager = {
                 a.volume = vol;
                 a.play().catch(e => console.warn("Geluid geblokkeerd:", e));
                 
-                // Auto-fade logica: Fade het geluid zachtjes uit vlak voordat het stopt
-                if (fadeTimeMs > 0) {
-                    a.addEventListener('loadedmetadata', () => {
-                        let durationMs = a.duration * 1000;
-                        let startFade = durationMs - fadeTimeMs;
-                        
-                        if (startFade > 0) {
-                            setTimeout(() => {
-                                let oldVol = a.volume;
-                                let fade = setInterval(() => {
-                                    if (oldVol > 0.05) {
-                                        oldVol -= 0.05;
-                                        a.volume = oldVol;
-                                    } else {
-                                        a.pause();
-                                        clearInterval(fade);
-                                    }
-                                }, 50); // Zachte stapjes
-                            }, startFade);
-                        }
-                    });
+                if (startFadeAfterMs > 0) {
+                    setTimeout(() => {
+                        let currentVol = a.volume;
+                        let fade = setInterval(() => {
+                            currentVol -= 0.05; // Snelle uitdoving
+                            if (currentVol > 0) {
+                                a.volume = currentVol;
+                            } else {
+                                a.volume = 0;
+                                a.pause();
+                                clearInterval(fade);
+                            }
+                        }, 40); // 40ms * 20 stapjes = 800ms totale fade-out tijd
+                    }, startFadeAfterMs);
                 }
             },
             
@@ -634,8 +627,7 @@ const AudioManager = {
                 a.play().catch(e => console.warn("Cry niet gevonden:", e));
             },
             
-           playBGM: (src, vol = 0.2) => {
-                // Als de track al de actieve track is, check of hij na een un-mute weer aan mag
+            playBGM: (src, vol = 0.2) => {
                 if (AudioManager.bgm && AudioManager.bgmSrc === src) {
                     if (!AudioManager.isMusicMuted && AudioManager.bgm.paused) {
                         AudioManager.bgm.play().catch(e => console.warn(e));
@@ -644,26 +636,18 @@ const AudioManager = {
                 }
 
                 if (AudioManager.bgm) AudioManager.bgm.pause();
-                
                 AudioManager.bgmSrc = src;
                 
                 const startLoopingTrack = (trackSrc) => {
                     let a = new Audio(trackSrc);
                     a.volume = vol; 
-                    
-                    // DE OPLOSSING VOOR iOS: Audio simpelweg NIET afspelen als het gemute is
-                    if (!AudioManager.isMusicMuted) {
-                        a.play().catch(e => console.warn("BGM geblokkeerd:", e));
-                    }
+                    if (!AudioManager.isMusicMuted) a.play().catch(e => console.warn("BGM geblokkeerd:", e));
                     
                     let hasSpawnedNext = false;
-                    
                     a.addEventListener('timeupdate', () => {
                         if (a.duration && a.currentTime >= a.duration - 4 && !hasSpawnedNext) {
                             hasSpawnedNext = true;
-                            if (AudioManager.bgmSrc === trackSrc) {
-                                AudioManager.bgm = startLoopingTrack(trackSrc);
-                            }
+                            if (AudioManager.bgmSrc === trackSrc) AudioManager.bgm = startLoopingTrack(trackSrc);
                             
                             let oldVol = a.volume;
                             let fade = setInterval(() => {
@@ -693,7 +677,8 @@ const AudioManager = {
                     if (newVol < 0) newVol = 0;
                     if (newVol > 1) newVol = 1;
                     audioObj.volume = newVol;
-                    if (count >= 20 || audioObj.paused) clearInterval(fader);
+                    // De "audioObj.paused" restrictie is verwijderd: de fader blijft nu gewoon zijn werk doen.
+                    if (count >= 20) clearInterval(fader);
                 }, 150);
             },
 
@@ -703,12 +688,11 @@ const AudioManager = {
                 if (!AudioManager.stadiumBase) {
                     AudioManager.stadiumBase = new Audio('audio/stadium-base.mp3');
                     AudioManager.stadiumBase.loop = true;
-                    // 📈 Basisvolume fors verhoogd voor meer massa
-                    AudioManager.stadiumBase.volume = 0.7; 
+                    AudioManager.stadiumBase.volume = 0.0; 
                     
                     AudioManager.stadiumChant1 = new Audio('audio/stadium-chant.mp3');
                     AudioManager.stadiumChant1.loop = true;
-                    AudioManager.stadiumChant1.volume = 0.4;
+                    AudioManager.stadiumChant1.volume = 0.0; 
                     
                     AudioManager.stadiumChant2 = new Audio('audio/stadium-chant2.mp3');
                     AudioManager.stadiumChant2.loop = true;
@@ -720,14 +704,15 @@ const AudioManager = {
                     AudioManager.stadiumChant1.play().catch(e => {});
                     AudioManager.stadiumChant2.play().catch(e => {});
                     
+                    AudioManager.fadeTo(AudioManager.stadiumBase, 0.6); 
+                    AudioManager.fadeTo(AudioManager.stadiumChant1, 0.4);
+                    
                     if (AudioManager.stadiumMixer) clearInterval(AudioManager.stadiumMixer);
                     AudioManager.stadiumMixer = setInterval(() => {
-                        // 📈 De pieken van de chants verhoogd naar 0.7
-                        const vol1 = Math.random() * 0.7; 
-                        const vol2 = Math.random() * 0.7; 
-                        
-                        AudioManager.fadeTo(AudioManager.stadiumChant1, vol1);
-                        AudioManager.fadeTo(AudioManager.stadiumChant2, vol2);
+                        // DE WIPWAP MIXER: Als de ene chant luider is, dimt de andere automatisch in verhouding.
+                        const balance = Math.random(); 
+                        AudioManager.fadeTo(AudioManager.stadiumChant1, 0.2 + (balance * 0.5));
+                        AudioManager.fadeTo(AudioManager.stadiumChant2, 0.2 + ((1 - balance) * 0.5));
                     }, 6000); 
                 }
             },
@@ -1965,11 +1950,11 @@ await rollOptions(role, displayPos);
                 
                if(playerScored) {
                     // Voeg de 1200ms fade-out toe als derde parameter
-                    AudioManager.playSFX('audio/goal.mp3', 0.9, 1200); 
+                    AudioManager.playSFX('audio/goal.mp3', 0.9, 700); 
                     await delay(1500); 
                 } else if (cpuScored) {
                     // Voeg de 1000ms fade-out toe als derde parameter
-                    AudioManager.playSFX('audio/groan.mp3', 0.7, 1000); 
+                    AudioManager.playSFX('audio/groan.mp3', 0.7, 600); 
                     await delay(1200); 
                 } else {
                     await delay(25); 
@@ -2349,7 +2334,7 @@ await rollOptions(role, displayPos);
             }
         }
 
-        async function simulatePenalties(baseHome, baseAway, cupOp) {
+       async function simulatePenalties(baseHome, baseAway, cupOp) {
             const delay = ms => new Promise(res => setTimeout(res, ms));
             let hPens = 0, aPens = 0; let hTaken = 0, aTaken = 0;
             
@@ -2364,6 +2349,7 @@ await rollOptions(role, displayPos);
             document.getElementById('tv-away-scorers').innerHTML = '<div class="text-center w-full text-red-400 text-xs font-bold mb-2 border-b border-slate-700 pb-1">Shootout</div>';
 
             for(let round=1; round<=11; round++) { 
+                // --- JOUW BEURT ---
                 let taker = userTakers[hTaken % userTakers.length];
                 let takerName = taker ? taker.name : "Player";
                 let takerAtk = taker ? taker.normStats.atk : 70;
@@ -2373,13 +2359,22 @@ await rollOptions(role, displayPos);
                 
                 hTaken++;
                 const isHomeGoal = Math.random() < chance; 
-                if(isHomeGoal) hPens++;
+                if(isHomeGoal) {
+                    hPens++;
+                    // Jij scoort: Luid gejuich (700ms fade timer)
+                    AudioManager.playSFX('audio/goal.mp3', 0.9, 700);
+                } else {
+                    // Jij mist: Teleurstelling (600ms fade timer)
+                    AudioManager.playSFX('audio/groan.mp3', 0.7, 600);
+                }
+
                 document.getElementById('tv-home-scorers').innerHTML += `<div class="goal-item text-white text-[10px] md:text-xs">${isHomeGoal ? '✅' : '❌'} ${takerName}</div>`;
                 document.getElementById('tv-home-score').innerText = `${baseHome} (${hPens})`;
-                await delay(1000);
+                await delay(1200); // 👈 Tijd opgetrokken naar 1.2s voor het geluid
 
                 if(round <= 5) { if (hPens > aPens + (5 - aTaken)) break; if (aPens > hPens + (5 - hTaken)) break; }
 
+                // --- CPU BEURT ---
                 let cpuTakerName = cpuTakers[aTaken % cpuTakers.length];
                 let cpuTakerAtk = 65 + Math.floor(Math.random() * 26); 
                 let cpuChance = 0.65 + ((cpuTakerAtk - userGkDef) / 250); 
@@ -2387,10 +2382,18 @@ await rollOptions(role, displayPos);
 
                 aTaken++;
                 const isAwayGoal = Math.random() < cpuChance;
-                if(isAwayGoal) aPens++;
+                if(isAwayGoal) {
+                    aPens++;
+                    // CPU scoort: Teleurstelling
+                    AudioManager.playSFX('audio/groan.mp3', 0.7, 600);
+                } else {
+                    // CPU mist: Het stadion ontploft van vreugde!
+                    AudioManager.playSFX('audio/goal.mp3', 0.9, 700);
+                }
+
                 document.getElementById('tv-away-scorers').innerHTML += `<div class="goal-item text-white text-[10px] md:text-xs text-right">${cpuTakerName} ${isAwayGoal ? '✅' : '❌'}</div>`;
                 document.getElementById('tv-away-score').innerText = `${baseAway} (${aPens})`;
-                await delay(1000);
+                await delay(1200); // 👈 Tijd opgetrokken naar 1.2s voor het geluid
 
                 if(round <= 5) { if (hPens > aPens + (5 - aTaken)) break; if (aPens > hPens + (5 - hTaken)) break; } else if (hPens !== aPens) break; 
             }
@@ -2402,6 +2405,9 @@ await rollOptions(role, displayPos);
             
             document.getElementById('tv-status-text').innerText = 'FT (PENS)';
             document.getElementById('tv-status-dot').classList.remove('animate-pulse');
+            
+            // Eindfluitje om de shootout af te sluiten
+            AudioManager.playSFX('audio/whistle-end.mp3', 0.6); 
             await delay(1200);
             return { h: baseHome + (hPens > aPens ? 1 : 0), a: baseAway + (aPens > hPens ? 1 : 0) }; 
         }
