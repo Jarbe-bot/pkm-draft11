@@ -705,14 +705,14 @@ const AudioManager = {
                     AudioManager.stadiumChant2.play().catch(e => {});
                     
                     AudioManager.fadeTo(AudioManager.stadiumBase, 0.6); 
-                    AudioManager.fadeTo(AudioManager.stadiumChant1, 0.4);
+                    AudioManager.fadeTo(AudioManager.stadiumChant1, 0.5);
                     
                     if (AudioManager.stadiumMixer) clearInterval(AudioManager.stadiumMixer);
                     AudioManager.stadiumMixer = setInterval(() => {
                         // DE WIPWAP MIXER: Als de ene chant luider is, dimt de andere automatisch in verhouding.
                         const balance = Math.random(); 
                         AudioManager.fadeTo(AudioManager.stadiumChant1, 0.2 + (balance * 0.5));
-                        AudioManager.fadeTo(AudioManager.stadiumChant2, 0.2 + ((1 - balance) * 0.5));
+                        AudioManager.fadeTo(AudioManager.stadiumChant2, 0.5 + ((1 - balance) * 0.5));
                     }, 6000); 
                 }
             },
