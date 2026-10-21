@@ -2213,6 +2213,9 @@ await rollOptions(role, displayPos);
             document.getElementById('tv-matchday-text').classList.remove('hidden');
             document.getElementById('tv-status-text').innerText = 'PRE-MATCH';
             document.getElementById('tv-status-dot').classList.remove('animate-pulse');
+
+            document.getElementById('tv-clock').innerText = "00'"; 
+
             
             document.getElementById('tv-home-team').innerText = userTeamName;
             document.getElementById('tv-away-team').innerText = cupOp.name;
