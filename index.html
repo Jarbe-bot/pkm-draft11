@@ -1072,71 +1072,52 @@ const AudioManager = {
                 let playerScore = 0;
                 let playerWeight = 0;
 
-                if (phase === 'midfield') {
-                    const midScore = (spa * 0.4) + (spd * 0.3) + (hp * 0.3);
-                    if (['CM'].includes(role)) playerWeight = 1.0;
-                    else if (['DM', 'AM'].includes(role)) playerWeight = 0.8;
-                    else if (['WM'].includes(role)) playerWeight = 0.5;
-                    else if (['WG'].includes(role)) playerWeight = 0.4;
-                    playerScore = midScore;
+                // ⚽ FASE 1: BALBEZIT (Strijd om de bal)
+                if (phase === 'poss') {
+                    if (['CM'].includes(role)) { playerScore = (spa * 0.4) + (spd * 0.3) + (hp * 0.3); playerWeight = 1.0; }
+                    else if (['DM', 'AM'].includes(role)) { playerScore = (spa * 0.4) + (spd * 0.3) + (hp * 0.3); playerWeight = 0.8; }
+                    else if (['WM', 'WG'].includes(role)) { playerScore = (spe * 0.5) + (spa * 0.3) + (hp * 0.2); playerWeight = 0.4; }
+                    else if (['FB'].includes(role)) { playerScore = (spe * 0.5) + (spd * 0.3) + (hp * 0.2); playerWeight = 0.3; }
                 } 
-                else if (phase === 'attack') {
-                    if (['ST'].includes(role)) {
-                        const targetScore = (att * 0.6) + (hp * 0.4);
-                        const fastScore = (att * 0.5) + (spe * 0.4) + (spa * 0.1);
-                        playerScore = Math.max(targetScore, fastScore);
-                        playerWeight = 1.0; 
-                    }
-                    else if (['WG'].includes(role)) {
-                        playerScore = (spe * 0.4) + (spa * 0.3) + (att * 0.3);
-                        playerWeight = 0.8;
-                    }
-                    else if (['AM'].includes(role)) {
-                        playerScore = (spa * 0.6) + (spe * 0.2) + (att * 0.2);
-                        playerWeight = 0.8;
-                    }
-                    else if (['WM'].includes(role)) {
-                        playerScore = (spe * 0.4) + (spa * 0.3) + (att * 0.3);
+                // 🎯 FASE 2A: KANSEN CREËREN (Geen pure ATK meer voor middenvelders!)
+                else if (phase === 'create') {
+                    if (['AM'].includes(role)) { playerScore = (spa * 0.7) + (spe * 0.2) + (hp * 0.1); playerWeight = 1.0; }
+                    else if (['WG'].includes(role)) { playerScore = (spe * 0.5) + (spa * 0.4) + (att * 0.1); playerWeight = 0.8; }
+                    else if (['ST'].includes(role)) { 
+                        const target = (hp * 0.6) + (spa * 0.3) + (att * 0.1);
+                        const fast = (spe * 0.6) + (spa * 0.3) + (att * 0.1);
+                        playerScore = Math.max(target, fast); 
                         playerWeight = 0.4; 
                     }
-                    else if (['CM'].includes(role)) {
-                        playerScore = (spa * 0.6) + (att * 0.4);
-                        playerWeight = 0.2; 
-                    }
-                    else if (['FB'].includes(role)) {
-                        playerScore = (spe * 0.6) + (spa * 0.4);
-                        playerWeight = 0.3; 
-                    }
+                    else if (['CM'].includes(role)) { playerScore = (spa * 0.7) + (spe * 0.3); playerWeight = 0.5; }
+                    else if (['FB'].includes(role)) { playerScore = (spe * 0.6) + (spa * 0.4); playerWeight = 0.3; }
                 }
-                else if (phase === 'defense') {
-                    if (['CB'].includes(role)) {
-                        playerScore = (def * 0.5) + (hp * 0.3) + (spd * 0.2);
+                // 💥 FASE 2B: AFWERKING (Puur schieten en kracht)
+                else if (phase === 'finish') {
+                    if (['ST'].includes(role)) {
+                        const target = (att * 0.6) + (hp * 0.4);
+                        const fast = (att * 0.6) + (spe * 0.3) + (spa * 0.1);
+                        playerScore = Math.max(target, fast);
                         playerWeight = 1.0;
                     }
-                    else if (['GK'].includes(role)) {
-                        playerScore = (def * 0.5) + (spd * 0.3) + (spe * 0.2);
-                        playerWeight = 1.0;
-                    }
-                    else if (['FB'].includes(role)) {
-                        playerScore = (def * 0.6) + (spe * 0.4);
-                        playerWeight = 0.8;
-                    }
-                    else if (['DM'].includes(role)) {
-                        playerScore = (spd * 0.5) + (def * 0.4) + (hp * 0.1);
-                        playerWeight = 0.8; 
-                    }
-                    else if (['CM'].includes(role)) {
-                        playerScore = (spd * 0.6) + (def * 0.4);
-                        playerWeight = 0.4;
-                    }
-                    else if (['WM'].includes(role)) {
-                        playerScore = (spe * 0.5) + (spd * 0.5);
-                        playerWeight = 0.3; 
-                    }
-                    else if (['AM', 'WG'].includes(role)) {
-                        playerScore = (spe * 0.5) + (spd * 0.5);
-                        playerWeight = 0.1; 
-                    }
+                    else if (['WG'].includes(role)) { playerScore = (att * 0.5) + (spe * 0.3) + (spa * 0.2); playerWeight = 0.6; }
+                    else if (['AM'].includes(role)) { playerScore = (att * 0.5) + (spa * 0.3) + (spe * 0.2); playerWeight = 0.5; }
+                    else if (['WM', 'CM'].includes(role)) { playerScore = (att * 0.6) + (spa * 0.4); playerWeight = 0.2; }
+                }
+                // 🛡️ FASE 3A: PREVENTIE (Vroege intercepties)
+                else if (phase === 'prevent') {
+                    if (['DM'].includes(role)) { playerScore = (spd * 0.5) + (spe * 0.3) + (hp * 0.2); playerWeight = 1.0; }
+                    else if (['FB'].includes(role)) { playerScore = (spe * 0.6) + (spd * 0.3) + (def * 0.1); playerWeight = 0.8; }
+                    else if (['CB'].includes(role)) { playerScore = (spd * 0.5) + (def * 0.3) + (spe * 0.2); playerWeight = 0.5; }
+                    else if (['CM'].includes(role)) { playerScore = (spd * 0.6) + (spe * 0.4); playerWeight = 0.5; }
+                    else if (['AM', 'WG'].includes(role)) { playerScore = (spe * 0.6) + (spd * 0.4); playerWeight = 0.2; }
+                }
+                // 🧱 FASE 3B: HET BLOK (Reddingen in de zestien)
+                else if (phase === 'block') {
+                    if (['GK'].includes(role)) { playerScore = (def * 0.6) + (spd * 0.3) + (spe * 0.1); playerWeight = 1.0; }
+                    else if (['CB'].includes(role)) { playerScore = (def * 0.6) + (hp * 0.3) + (spd * 0.1); playerWeight = 1.0; }
+                    else if (['DM'].includes(role)) { playerScore = (def * 0.5) + (hp * 0.3) + (spd * 0.2); playerWeight = 0.5; }
+                    else if (['FB'].includes(role)) { playerScore = (def * 0.5) + (spe * 0.3) + (hp * 0.2); playerWeight = 0.4; }
                 }
 
                 if (playerWeight > 0) {
@@ -1149,30 +1130,34 @@ const AudioManager = {
             return Math.round(totalScore / totalWeight);
         }
 
-        function updateScores() {
+       function updateScores() {
             let pCount = 0;
             formations[activeFormation].positions.forEach(pos => {
                 if (userTeam[pos.id]) pCount++;
             });
 
             if(pCount > 0) {
-                const teamAttack = calculateTeamPhaseScore('attack');
-                const teamMidfield = calculateTeamPhaseScore('midfield');
-                const teamDefense = calculateTeamPhaseScore('defense');
+                // Bereken de 5 verborgen motor-onderdelen
+                const scorePoss = calculateTeamPhaseScore('poss');
+                const scoreCreate = calculateTeamPhaseScore('create');
+                const scoreFinish = calculateTeamPhaseScore('finish');
+                const scorePrevent = calculateTeamPhaseScore('prevent');
+                const scoreBlock = calculateTeamPhaseScore('block');
 
-                document.getElementById('score-atk').innerText = teamAttack;
-                document.getElementById('score-mid').innerText = teamMidfield;
-                document.getElementById('score-def').innerText = teamDefense;
+                // De UI toont simpelweg het gemiddelde van deze fases voor een schoon overzicht
+                document.getElementById('score-mid').innerText = scorePoss;
+                document.getElementById('score-atk').innerText = Math.round((scoreCreate + scoreFinish) / 2);
+                document.getElementById('score-def').innerText = Math.round((scorePrevent + scoreBlock) / 2);
 
                 // Kwadratische Kwaliteitscurve: (OVR x OVR) / 7.5
-                // Lage OVRs storten in, hoge OVRs klimmen exponentieel
                 const scaleToEngine = (ovr) => Math.round(Math.pow(ovr, 2) / 7.5);
 
-                myTeamEnginePools.poss = scaleToEngine(teamMidfield);
-                myTeamEnginePools.create = scaleToEngine(teamAttack);
-                myTeamEnginePools.finish = scaleToEngine(teamAttack);
-                myTeamEnginePools.prevent = scaleToEngine(teamDefense);
-                myTeamEnginePools.block = scaleToEngine(teamDefense);
+                // De engine krijgt nu 5 unieke, gespecialiseerde scores gevoed!
+                myTeamEnginePools.poss = scaleToEngine(scorePoss);
+                myTeamEnginePools.create = scaleToEngine(scoreCreate);
+                myTeamEnginePools.finish = scaleToEngine(scoreFinish);
+                myTeamEnginePools.prevent = scaleToEngine(scorePrevent);
+                myTeamEnginePools.block = scaleToEngine(scoreBlock);
             } else {
                 document.getElementById('score-atk').innerText = '--';
                 document.getElementById('score-mid').innerText = '--';
