@@ -154,6 +154,10 @@
             <div class="flex items-center gap-2 md:gap-3 min-w-0">
                 <h2 id="ui-team-name" class="text-lg sm:text-xl md:text-2xl font-black uppercase tracking-wider text-yellow-400 drop-shadow-md truncate max-w-[160px] sm:max-w-xs">My Team</h2>
                 <span id="ui-season-counter" class="bg-blue-600 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0">Season 1</span>
+                
+                <!-- NIEUW: Trofeeën container -->
+                <div id="ui-trophies" class="flex items-center gap-0.5 text-[10px] sm:text-xs md:text-sm drop-shadow-md shrink-0"></div>
+                
                 <button id="btn-resign" onclick="startNewDraft()" class="hidden px-2 py-1 bg-red-900/80 hover:bg-red-800 text-red-200 text-[10px] font-bold rounded border border-red-700 transition-colors uppercase shadow shrink-0">Resign</button>
             </div>
             
@@ -574,6 +578,7 @@
         let actionPoints = 3;
         let gameMode = 'rtg';
         let isPeeking = false;
+        let domesticTitles = 0;
         window.onload = () => { initStartScreen(); };
 
 
@@ -929,6 +934,9 @@ const AudioManager = {
             playerStats = {};
             formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
 
+            domesticTitles = 0; 
+            updateTrophiesUI();
+
             AudioManager.playBGM('audio/Littleroot Town.mp3', 0.4);
 
             document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
@@ -1171,6 +1179,23 @@ const AudioManager = {
                 document.getElementById('score-def').innerText = '--';
                 
                 myTeamEnginePools = { poss: 0, create: 0, prevent: 0, finish: 0, block: 0 };
+            }
+        }
+
+        // NIEUW: Tekent de trofeeën in de UI
+        function updateTrophiesUI() {
+            const container = document.getElementById('ui-trophies');
+            if(!container) return;
+            
+            if(domesticTitles > 0) {
+                // Maximaal 5 bekers tonen, daarna overschakelen naar een "x6" weergave voor mobiele schermen
+                if(domesticTitles <= 5) {
+                    container.innerHTML = '🏆'.repeat(domesticTitles);
+                } else {
+                    container.innerHTML = `🏆 <span class="text-yellow-400 font-black ml-0.5">x${domesticTitles}</span>`;
+                }
+            } else {
+                container.innerHTML = '';
             }
         }
 
@@ -2083,6 +2108,12 @@ await rollOptions(role, displayPos);
          const isSacked = (gameMode === 'rtg' && currentSeason > 1 && isLastPlace);
          const isFirstSeasonWarning = (gameMode === 'rtg' && currentSeason === 1 && isLastPlace);
 
+         // NIEUW: Tel het kampioenschap erbij op en update de UI
+         if (finalPos === 1) {
+             domesticTitles++;
+             updateTrophiesUI();
+         }
+
          let topScorerContent = topScorer && topScorer.seasonGoals > 0 ? `<img src="${topScorer.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-yellow-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest">Season Scorer</p><p class="text-base font-black text-white leading-tight truncate">${topScorer.p.name}</p><p class="text-xs text-slate-400">${topScorer.seasonGoals} Goals <span class="opacity-75">(${topScorer.goals} Tot)</span></p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">📉</div><div class="text-left"><p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Attacking Woes</p><p class="text-base font-black text-white leading-tight">No Goals</p><p class="text-xs text-slate-400">0 goals scored</p></div>`;
          let mvpContent = mvp && mvp.seasonPerfScore > 0 ? `<img src="${mvp.p.sprite}" class="w-14 h-14 object-contain bg-slate-800 rounded-full border-2 border-purple-500 shrink-0"><div class="text-left min-w-0"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight truncate">${mvp.p.name}</p><p class="text-xs text-slate-400">${mvp.seasonPerfScore} Match Pts</p></div>` : `<div class="w-14 h-14 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center text-xl shrink-0">😴</div><div class="text-left"><p class="text-[10px] text-purple-400 font-bold uppercase tracking-widest">Season MVP</p><p class="text-base font-black text-white leading-tight">Nobody</p><p class="text-xs text-slate-400">0 Match Pts</p></div>`;
 
@@ -2578,6 +2609,9 @@ await rollOptions(role, displayPos);
             currentCupRound = 0;
             isTransferWindow = false;
             hasPlayedCup = false;
+            domesticTitles = 0; 
+            updateTrophiesUI();
+           
         }
 
         function backToStandings() {
