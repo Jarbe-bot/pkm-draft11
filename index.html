@@ -1862,7 +1862,8 @@ await rollOptions(role, displayPos);
             document.getElementById('tv-home-scorers').innerHTML = '';
             document.getElementById('tv-away-scorers').innerHTML = '';
             
-            const totalChances = 13; 
+           // 📉 Verlaagd van 13 naar 10 totale kansen per wedstrijd
+            const totalChances = 10; 
             
             const uPoss = myTeamEnginePools.poss || 0;
             const cPoss = cpuOp.pools.poss || 0;
@@ -1888,10 +1889,11 @@ await rollOptions(role, displayPos);
             const uFinish = myTeamEnginePools.finish || 0; const cBlock = cpuOp.pools.block || 0;
             const cFinish = cpuOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
 
-            const userCreateProb = Math.min(0.70, Math.max(0.05, uCreate / (uCreate + cPrevent)));
-            const userFinishProb = Math.min(0.70, Math.max(0.05, uFinish / (uFinish + cBlock)));
-            const cpuCreateProb = Math.min(0.70, Math.max(0.05, cCreate / (cCreate + uPrevent)));
-            const cpuFinishProb = Math.min(0.70, Math.max(0.05, cFinish / (cFinish + uBlock)));
+            // 🛡️ De verdediging (cPrevent / cBlock) krijgt een wiskundige x1.2 bonus én de maximumkans zakt van 0.70 naar 0.60
+            const userCreateProb = Math.min(0.60, Math.max(0.05, uCreate / (uCreate + (cPrevent * 1.2))));
+            const userFinishProb = Math.min(0.60, Math.max(0.05, uFinish / (uFinish + (cBlock * 1.2))));
+            const cpuCreateProb = Math.min(0.60, Math.max(0.05, cCreate / (cCreate + (uPrevent * 1.2))));
+            const cpuFinishProb = Math.min(0.60, Math.max(0.05, cFinish / (cFinish + (uBlock * 1.2))));
 
             let rawUserGoals = 0, rawCpuGoals = 0;
             for(let i=0; i<userChances; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rawUserGoals++; }
@@ -2246,10 +2248,11 @@ await rollOptions(role, displayPos);
             const roundNames = ["Round of 16", "Quarter Final", "Semi Final", "Continental Final"];
             const cupOp = continentalOpponents[currentCupRound];
 
-            const totalChances = 13; 
+            // 📉 Verlaagd van 13 naar 10 totale kansen per wedstrijd
+            const totalChances = 10; 
             
-            const uPoss = myTeamEnginePools.poss || 0; 
-            const cPoss = cupOp.pools.poss || 0;
+            const uPoss = myTeamEnginePools.poss || 0;
+            const cPoss = cpuOp.pools.poss || 0;
             const possRatio = (Math.pow(uPoss, 1.5)) / (Math.pow(uPoss, 1.5) + Math.pow(cPoss, 1.5));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
@@ -2266,17 +2269,17 @@ await rollOptions(role, displayPos);
             document.getElementById('bar-away-shots').style.width = `${(cpuChances/totalChances)*100}%`;
 
             let userGoals = [], cpuGoals = [];
-            let userET = [], cpuET = [];
             
-            const uCreate = myTeamEnginePools.create || 0; const cPrevent = cupOp.pools.prevent || 0;
-            const cCreate = cupOp.pools.create || 0; const uPrevent = myTeamEnginePools.prevent || 0;
-            const uFinish = myTeamEnginePools.finish || 0; const cBlock = cupOp.pools.block || 0;
-            const cFinish = cupOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
+            const uCreate = myTeamEnginePools.create || 0; const cPrevent = cpuOp.pools.prevent || 0;
+            const cCreate = cpuOp.pools.create || 0; const uPrevent = myTeamEnginePools.prevent || 0;
+            const uFinish = myTeamEnginePools.finish || 0; const cBlock = cpuOp.pools.block || 0;
+            const cFinish = cpuOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
 
-            const userCreateProb = Math.min(0.70, Math.max(0.05, uCreate / (uCreate + cPrevent)));
-            const userFinishProb = Math.min(0.70, Math.max(0.05, uFinish / (uFinish + cBlock)));
-            const cpuCreateProb = Math.min(0.70, Math.max(0.05, cCreate / (cCreate + uPrevent)));
-            const cpuFinishProb = Math.min(0.70, Math.max(0.05, cFinish / (cFinish + uBlock)));
+            // 🛡️ De verdediging (cPrevent / cBlock) krijgt een wiskundige x1.2 bonus én de maximumkans zakt van 0.70 naar 0.60
+            const userCreateProb = Math.min(0.60, Math.max(0.05, uCreate / (uCreate + (cPrevent * 1.2))));
+            const userFinishProb = Math.min(0.60, Math.max(0.05, uFinish / (uFinish + (cBlock * 1.2))));
+            const cpuCreateProb = Math.min(0.60, Math.max(0.05, cCreate / (cCreate + (uPrevent * 1.2))));
+            const cpuFinishProb = Math.min(0.60, Math.max(0.05, cFinish / (cFinish + (uBlock * 1.2))));
 
             let rawUserGoals = 0, rawCpuGoals = 0;
             for(let i=0; i<userChances; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rawUserGoals++; }
