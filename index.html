@@ -24,12 +24,14 @@
             <button onclick="closeHTP()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center font-bold transition-colors">✕</button>
             <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-4 md:mb-6 uppercase tracking-wider text-center border-b border-slate-700 pb-3">Tactics & Rules</h2>
             <div class="space-y-5 text-xs md:text-sm text-slate-300">
-                <div>
-                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">1. The Engine (3 Phases)</h3>
+               <div>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">1. The Engine (5 Phases)</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-green-400">Phase 1 (Midfield):</strong> Ball possession. Based on <span class="text-white">Sp.Atk</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span>. Central midfielders dictate the play!</li>
-                        <li><strong class="text-red-400">Phase 2 (Attack):</strong> Chance creation and finishing. Attackers and Wingers rule here. Strikers use <span class="text-white">ATK</span> + <span class="text-white">Speed</span> (Fast) or <span class="text-white">ATK</span> + <span class="text-white">HP</span> (Target Man).</li>
-                        <li><strong class="text-blue-400">Phase 3 (Defense):</strong> The wall. Defenders and CDM's use <span class="text-white">DEF</span>, <span class="text-white">Sp.Def</span> and <span class="text-white">HP</span> to block and intercept.</li>
+                        <li><strong class="text-green-400">Phase 1 (Possession):</strong> Midfielders dictate the play. Based heavily on <span class="text-white">Sp.Atk</span>, <span class="text-white">Sp.Def</span> and Physicality (<span class="text-white">HP</span>).</li>
+                        <li><strong class="text-yellow-400">Phase 2 (Chance Creation):</strong> Wingers and Attacking Mids break the lines using <span class="text-white">Sp.Atk</span> and <span class="text-white">Speed</span>. <span class="text-slate-400 text-xs">Strikers act as decoys using HP or Speed.</span></li>
+                        <li><strong class="text-red-400">Phase 3 (Finishing):</strong> Strikers pull the trigger! Based entirely on <span class="text-white">ATK</span> + <span class="text-white">Speed</span> (Fast) or <span class="text-white">ATK</span> + <span class="text-white">HP</span> (Target Man).</li>
+                        <li><strong class="text-purple-400">Phase 4 (Prevention):</strong> Fullbacks and CDM's cut the passing lanes early using <span class="text-white">Sp.Def</span> and <span class="text-white">Speed</span>.</li>
+                        <li><strong class="text-blue-400">Phase 5 (The Block):</strong> The final wall. Centerbacks and Goalkeepers block the shots with brute <span class="text-white">DEF</span> and <span class="text-white">HP</span>.</li>
                     </ul>
                 </div>
                 <div>
@@ -1708,8 +1710,19 @@ await rollOptions(role, displayPos);
                     const chemInfo = getPlayerChem(pos.id);
                     const applyRobinHood = (stat) => stat + ((115 - stat) * chemInfo.closurePct);
                     
-                    const finalAtk = applyRobinHood(p.normStats.atk);
-                    let finalWeight = Math.max(1, Math.round(baseWeight * (finalAtk / 10)));
+                    const att = applyRobinHood(p.normStats.atk);
+                    const spa = applyRobinHood(p.normStats.spa);
+                    const spe = applyRobinHood(p.normStats.spe);
+                    const hp = applyRobinHood(p.normStats.hp);
+
+                    // Bepaal de 'Finish Score' exact zoals in Fase 2B
+                    let finishScore = att; 
+                    if (pos.role === 'ST') finishScore = Math.max((att * 0.6) + (hp * 0.4), (att * 0.6) + (spe * 0.3) + (spa * 0.1));
+                    else if (pos.role === 'WG') finishScore = (att * 0.5) + (spe * 0.3) + (spa * 0.2);
+                    else if (pos.role === 'AM') finishScore = (att * 0.5) + (spa * 0.3) + (spe * 0.2);
+                    else if (['WM', 'CM'].includes(pos.role)) finishScore = (att * 0.6) + (spa * 0.4);
+
+                    let finalWeight = Math.max(1, Math.round(baseWeight * (finishScore / 10)));
                     
                     for(let i=0; i<finalWeight; i++) pool.push(p);
                 }
