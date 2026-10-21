@@ -1091,6 +1091,11 @@ const AudioManager = {
                     }
                     else if (['CM'].includes(role)) { playerScore = (spa * 0.7) + (spe * 0.3); playerWeight = 0.5; }
                     else if (['FB'].includes(role)) { playerScore = (spe * 0.6) + (spa * 0.4); playerWeight = 0.3; }
+                    else if (['WM'].includes(role)) { 
+                        // Een LM/RM focust op voorzetten (Sp.A) en positiespel (Spe), met een klein beetje fysiek.
+                        playerScore = (spa * 0.5) + (spe * 0.4) + (hp * 0.1); 
+                        playerWeight = 0.6; // Weegt zwaarder dan een CM, maar iets minder dan een pure Winger
+                    }
                 }
                 // 💥 FASE 2B: AFWERKING (Puur schieten en kracht)
                 else if (phase === 'finish') {
@@ -1111,6 +1116,11 @@ const AudioManager = {
                     else if (['CB'].includes(role)) { playerScore = (spd * 0.5) + (def * 0.3) + (spe * 0.2); playerWeight = 0.5; }
                     else if (['CM'].includes(role)) { playerScore = (spd * 0.6) + (spe * 0.4); playerWeight = 0.5; }
                     else if (['AM', 'WG'].includes(role)) { playerScore = (spe * 0.6) + (spd * 0.4); playerWeight = 0.2; }
+                    else if (['WM'].includes(role)) { 
+                        // Zakken in om de flanken dubbel te bezetten
+                        playerScore = (spd * 0.5) + (spe * 0.4) + (hp * 0.1); 
+                        playerWeight = 0.4; 
+                    }
                 }
                 // 🧱 FASE 3B: HET BLOK (Reddingen in de zestien)
                 else if (phase === 'block') {
