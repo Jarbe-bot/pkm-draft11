@@ -765,10 +765,10 @@ const AudioManager = {
             
             document.querySelectorAll('#btn-toggle-music').forEach(btn => {
                 if (AudioManager.isMusicMuted) {
-                    btn.innerHTML = '🎵 OFF';
+                    btn.innerHTML = '<span>🎵</span><span class="hidden sm:inline ml-1 font-bold">OFF</span>';
                     btn.classList.add('opacity-50', 'line-through');
                 } else {
-                    btn.innerHTML = '🎵 ON';
+                    btn.innerHTML = '<span>🎵</span><span class="hidden sm:inline ml-1 font-bold">ON</span>';
                     btn.classList.remove('opacity-50', 'line-through');
                 }
             });
@@ -776,7 +776,6 @@ const AudioManager = {
             if (AudioManager.isMusicMuted) {
                 if (AudioManager.bgm) AudioManager.bgm.pause();
             } else {
-                // Start de muziek ALLEEN als we niet in het wedstrijd-center zitten
                 const inMatch = document.getElementById('match-center') && document.getElementById('match-center').classList.contains('flex');
                 if (!inMatch) {
                     if (AudioManager.bgm) {
@@ -788,15 +787,15 @@ const AudioManager = {
             }
         }
 
-      function toggleSFX() {
+        function toggleSFX() {
             AudioManager.isSfxMuted = !AudioManager.isSfxMuted;
             
             document.querySelectorAll('#btn-toggle-sfx').forEach(btn => {
                 if (AudioManager.isSfxMuted) {
-                    btn.innerHTML = '🔇 OFF';
+                    btn.innerHTML = '<span>🔇</span><span class="hidden sm:inline ml-1 font-bold">OFF</span>';
                     btn.classList.add('opacity-50', 'line-through');
                 } else {
-                    btn.innerHTML = '🔊 ON';
+                    btn.innerHTML = '<span>🔊</span><span class="hidden sm:inline ml-1 font-bold">ON</span>';
                     btn.classList.remove('opacity-50', 'line-through');
                 }
             });
@@ -814,7 +813,6 @@ const AudioManager = {
                 }
             }
         }
-
         function openHTP() {
             const modal = document.getElementById('htp-modal');
             modal.classList.remove('hidden');
