@@ -1314,8 +1314,9 @@ const AudioManager = {
                         const sameType = player.types.some(t => otherPlayer.types.includes(t));
                         const sameGen = player.generation === otherPlayer.generation;
                         
-                        if (sameType) chem += 1;
-                        if (sameGen && !isSingleGen) chem += 1;
+                       // In een single-gen run telt Type dubbel voor de chemie-punten!
+                    if (sameType) chem += isSingleGen ? 2 : 1;
+                    if (sameGen && !isSingleGen) chem += 1;
                     }
                 }
             });
@@ -1583,7 +1584,8 @@ const AudioManager = {
                     const sameType = p1.types.some(t => p2.types.includes(t));
                     const sameGen = p1.generation === p2.generation;
                     
-                    if (sameType && sameGen && !isSingleGen) {
+                   // Groene lijn als je Type+Gen hebt, OF als je Type matcht in een Single Gen run
+                    if ((sameType && sameGen && !isSingleGen) || (sameType && isSingleGen)) {
                         strokeColor = '#4ade80'; 
                         strokeWidth = 3;
                         teamChemScore += 2;
@@ -1592,6 +1594,7 @@ const AudioManager = {
                         strokeWidth = 2.5;
                         teamChemScore += 1;
                     }
+                    
                     svgHTML += `<line x1="${pos1.left}" y1="${pos1.top}" x2="${pos2.left}" y2="${pos2.top}" stroke="rgba(15, 23, 42, 0.85)" stroke-width="${strokeWidth + 2}" stroke-linecap="round"/>`;
                     svgHTML += `<line x1="${pos1.left}" y1="${pos1.top}" x2="${pos2.left}" y2="${pos2.top}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-linecap="round"/>`;
                 } else {
@@ -2033,7 +2036,7 @@ await rollOptions(role, displayPos);
             // In seizoen 1 is (currentSeason - 1) nul, dus er is geen boost. 
             // Daarna groeit de sterkte van de ploegen met +15 per seizoen, met een maximum van +150.
             const maxBoost = 150;
-            const seasonBoost = Math.min((currentSeason - 1) * 15, maxBoost); 
+            const seasonBoost = Math.min((currentSeason - 1) * 12, maxBoost); 
             
             const applyBoost = (pools) => {
                 return {
