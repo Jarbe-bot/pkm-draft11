@@ -1321,15 +1321,15 @@ const AudioManager = {
                 }
             });
 
-            // DE NERF: Hoe makkelijker de pool, hoe strenger we zijn op de bonus
-            let percentPerPoint = 0.05; // Standaard 5% van het gat per punt
-            if (activeGensCount <= 2) percentPerPoint = 0.03;      // Slechts 3% bij 1 of 2 gens (easy mode)
-            else if (activeGensCount <= 4) percentPerPoint = 0.04; // 4% bij 3 of 4 gens
+          // DE VERNIEUWDE ROBIN HOOD BUFF
+            let percentPerPoint = 0.10; // Standaard 10% van het gat per punt!
+            if (activeGensCount <= 2) percentPerPoint = 0.05;      // 5% bij 1 of 2 gens
+            else if (activeGensCount <= 4) percentPerPoint = 0.07; // 7% bij 3 of 4 gens
 
             let closurePct = chem * percentPerPoint;
             
-            // Hard Cap: Een speler kan nóóit meer dan de helft (50%) van zijn gat tot 115 dichten.
-            if (closurePct > 0.50) closurePct = 0.50; 
+            // Verhoogde Hard Cap: Zwakke spelers kunnen nu tot 75% van hun gat dichten
+            if (closurePct > 0.75) closurePct = 0.75;
 
             return { score: chem, closurePct: closurePct };
         }
