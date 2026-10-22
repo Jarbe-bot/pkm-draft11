@@ -639,15 +639,15 @@
                 speedrun: { title: "Speedrun", desc: "Win the Continental Cup in 5 seasons or less", icon: "⏱️", category: "general", condition: (t) => t === 'win_cup' && currentSeason <= 5 },
 
                 // REGIONAL PURIST ACHIEVEMENTS
-                purist_gen1: { title: "Kanto Purist", desc: "Win Continental Cup (Only Gen 1 enabled)", icon: "🔴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(1) },
-                purist_gen2: { title: "Johto Purist", desc: "Win Continental Cup (Only Gen 2 enabled)", icon: "🟡", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(2) },
-                purist_gen3: { title: "Hoenn Purist", desc: "Win Continental Cup (Only Gen 3 enabled)", icon: "🟢", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(3) },
-                purist_gen4: { title: "Sinnoh Purist", desc: "Win Continental Cup (Only Gen 4 enabled)", icon: "⚪", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(4) },
-                purist_gen5: { title: "Unova Purist", desc: "Win Continental Cup (Only Gen 5 enabled)", icon: "⚫", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(5) },
-                purist_gen6: { title: "Kalos Purist", desc: "Win Continental Cup (Only Gen 6 enabled)", icon: "🟣", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(6) },
-                purist_gen7: { title: "Alola Purist", desc: "Win Continental Cup (Only Gen 7 enabled)", icon: "🌴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(7) },
-                purist_gen8: { title: "Galar Purist", desc: "Win Continental Cup (Only Gen 8 enabled)", icon: "⚔️", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(8) },
-                purist_gen9: { title: "Paldea Purist", desc: "Win Continental Cup (Only Gen 9 enabled)", icon: "🎒", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(9) }
+                purist_gen1: { title: "Kanto Purist", desc: "Win Continental Cup (Only Gen 1 on pitch)", icon: "🔴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(1) },
+                purist_gen2: { title: "Johto Purist", desc: "Win Continental Cup (Only Gen 2 on pitch)", icon: "🟡", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(2) },
+                purist_gen3: { title: "Hoenn Purist", desc: "Win Continental Cup (Only Gen 3 on pitch)", icon: "🟢", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(3) },
+                purist_gen4: { title: "Sinnoh Purist", desc: "Win Continental Cup (Only Gen 4 on pitch)", icon: "⚪", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(4) },
+                purist_gen5: { title: "Unova Purist", desc: "Win Continental Cup (Only Gen 5 on pitch)", icon: "⚫", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(5) },
+                purist_gen6: { title: "Kalos Purist", desc: "Win Continental Cup (Only Gen 6 on pitch)", icon: "🟣", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(6) },
+                purist_gen7: { title: "Alola Purist", desc: "Win Continental Cup (Only Gen 7 on pitch)", icon: "🌴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(7) },
+                purist_gen8: { title: "Galar Purist", desc: "Win Continental Cup (Only Gen 8 on pitch)", icon: "⚔️", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(8) },
+                purist_gen9: { title: "Paldea Purist", desc: "Win Continental Cup (Only Gen 9 on pitch)", icon: "🎒", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(9) }
             },
             unlocked: [],
             init: function() {
@@ -699,7 +699,10 @@
             return linked;
         }
         function checkAllGensEnabled() { return genData.every(g => g.active); }
-        function checkOnlyGenEnabled(genId) { return genData.filter(g => g.active).length === 1 && genData[genId-1].active; }
+        function checkOnlyGen(genId) { 
+            const players = Object.values(userTeam).filter(p => p !== null);
+            return players.length === 11 && players.every(p => p.generation === genId);
+        }
         function checkActiveGensCount() { return genData.filter(g => g.active).length; }
         function checkSeasonGoals(amount) { const myStats = standings.find(t => t.isUser); return myStats && myStats.gf > amount; }
         function checkSeasonConceded(amount) { const myStats = standings.find(t => t.isUser); return myStats && myStats.ga === amount; }
@@ -2809,12 +2812,18 @@ await rollOptions(role, displayPos);
                     <span class="text-5xl md:text-6xl mb-3 block">🏆✨</span>
                     <h2 class="pixel-font text-lg md:text-2xl font-black text-yellow-400 mb-3 uppercase tracking-wide" style="line-height:1.4;">${titleText}</h2>
                     <p class="text-white font-bold mb-6 text-sm md:text-base">${winText}</p>
-                    <button onclick="viewTeam()" class="px-8 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-full transition-colors uppercase tracking-wide w-full">View Champion Team</button>
+                    <div class="flex flex-col gap-3 max-w-sm mx-auto">
+                        <button onclick="startTransferWindow()" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_20px_rgba(168,85,247,0.5)] uppercase tracking-wide w-full transform hover:scale-105 transition-all">Keep Playing (Next Season)</button>
+                        <button onclick="viewTeam()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full text-xs md:text-sm">View Champion Team</button>
+                        <button onclick="SaveManager.deleteSaveConfirm()" class="px-6 py-3 bg-red-900/80 hover:bg-red-800 text-red-200 font-bold rounded-full transition-colors border border-red-700 uppercase tracking-wide w-full text-xs md:text-sm">Start New Career</button>
+                    </div>
                 </div>`;
+            
+            AchievementManager.check('win_cup');
             setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
         }
 
-        function viewTeam() {
+       function viewTeam() {
             document.body.className = 'min-h-screen flex flex-col relative bg-office';
             document.getElementById('match-center').classList.add('hidden');
             document.getElementById('match-center').classList.remove('flex');
@@ -2839,14 +2848,18 @@ await rollOptions(role, displayPos);
             const isSacked = (gameMode === 'rtg' && currentSeason > 1 && finalPos === standings.length);
 
             if (!isSacked) {
+                const btnNext = document.getElementById('btn-next-season-pitch');
                 if (wonCup) {
-                    // Already won cup
+                    btnNext.classList.remove('hidden');
+                    btnNext.classList.add('block');
+                    btnNext.innerHTML = "⏭️ Keep Playing (Next Season)";
                 } else if (finalPos <= 2 && !hasPlayedCup) {
                     document.getElementById('btn-play-cup-pitch').classList.remove('hidden'); 
                     document.getElementById('btn-play-cup-pitch').classList.add('block');
                 } else {
-                    document.getElementById('btn-next-season-pitch').classList.remove('hidden');
-                    document.getElementById('btn-next-season-pitch').classList.add('block');
+                    btnNext.classList.remove('hidden');
+                    btnNext.classList.add('block');
+                    btnNext.innerHTML = "⏭️ Next Season (Transfers)"; 
                 }
             }
 
