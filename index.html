@@ -23,17 +23,27 @@
     <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[999] flex flex-col gap-2 pointer-events-none w-[90%] max-w-sm"></div>
 
     <!-- TROPHY ROOM MODAL -->
+    <!-- TROPHY ROOM MODAL -->
     <div id="trophy-modal" class="fixed inset-0 bg-slate-900/95 z-[500] hidden flex-col items-center justify-start pt-10 px-4 pb-10 overflow-y-auto backdrop-blur-md transition-opacity duration-300 opacity-0">
         <div class="max-w-4xl w-full flex flex-col relative">
             <button onclick="closeTrophyRoom()" class="absolute -top-2 right-0 text-slate-400 hover:text-white bg-slate-800 border border-slate-600 hover:bg-slate-700 rounded-full w-10 h-10 flex items-center justify-center font-bold transition-colors z-[510] shadow-lg">✕</button>
-            <div class="text-center mb-8">
+            
+            <div class="text-center mb-6">
                 <h2 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 to-yellow-600 uppercase tracking-wider drop-shadow-lg mb-2">Trophy Room</h2>
-                <p class="text-slate-400 font-bold text-sm md:text-base uppercase tracking-widest">Your Eternal Achievements</p>
-                <div class="mt-4 bg-slate-800/80 inline-block px-6 py-2 rounded-full border border-slate-600 shadow-inner">
-                    <span class="text-white font-black text-xl"><span id="trophy-count" class="text-yellow-400">0</span> / 12</span>
+                <div class="mt-2 bg-slate-800/80 inline-block px-6 py-2 rounded-full border border-slate-600 shadow-inner mb-6">
+                    <span class="text-white font-black text-xl"><span id="trophy-count" class="text-yellow-400">0</span> / 20</span>
+                </div>
+                
+                <!-- DE TAB KNOPPEN -->
+                <div class="flex justify-center gap-4 border-b border-slate-700 pb-2">
+                    <button id="tab-general" onclick="switchTrophyTab('general')" class="text-yellow-400 font-bold uppercase tracking-widest border-b-2 border-yellow-400 px-2 pb-1 transition-colors">General</button>
+                    <button id="tab-regional" onclick="switchTrophyTab('regional')" class="text-slate-500 hover:text-slate-300 font-bold uppercase tracking-widest border-b-2 border-transparent px-2 pb-1 transition-colors">Regional Purist</button>
                 </div>
             </div>
-            <div id="trophy-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10"></div>
+            
+            <div id="trophy-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-10">
+                <!-- Wordt gevuld via JS -->
+            </div>
         </div>
     </div>
 
@@ -613,20 +623,31 @@
         let isPeeking = false;
         let domesticTitles = 0;
         // --- ACHIEVEMENT ENGINE ---
-        const AchievementManager = {
+       const AchievementManager = {
             list: {
-                god_bidoof: { title: "God Bidoof", desc: "Win the league with Bidoof in your team", icon: "🦫", condition: (t) => t === 'end_season' && finalPosCheck() === 1 && checkTeamHas("Bidoof") },
-                royal_couple: { title: "The Royal Couple", desc: "Link Nidoking and Nidoqueen", icon: "👑", condition: (t) => t === 'draft' && checkLink("Nidoking", "Nidoqueen") },
-                eon_duo: { title: "Eon Duo", desc: "Link Latios and Latias", icon: "✈️", condition: (t) => t === 'draft' && checkLink("Latios", "Latias") },
-                perfect_harmony: { title: "Perfect Harmony", desc: "Win the league with 21+ Chemistry", icon: "🧬", condition: (t) => t === 'end_season' && finalPosCheck() === 1 && teamChemScore >= 21 },
-                ultimate_manager: { title: "The Ultimate Manager", desc: "Win Continental Cup with all Gens enabled", icon: "🌎", condition: (t) => t === 'win_cup' && checkAllGensEnabled() },
-                purist_gen1: { title: "Kanto Purist", desc: "Win Continental Cup (Only Gen 1 enabled)", icon: "🔴", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(1) },
-                tactical_master: { title: "Tactical Mastermind", desc: "Get chemistry from every line (Min 3 Gens)", icon: "🧠", condition: (t) => t === 'draft' && checkAllLinesActive() && checkActiveGensCount() >= 3 },
-                offensive_juggernaut: { title: "Offensive Juggernaut", desc: "Score more than 20 goals in one season", icon: "🔥", condition: (t) => t === 'end_season' && checkSeasonGoals(20) },
-                iron_wall: { title: "The Iron Wall", desc: "Concede 0 goals in one season", icon: "🧱", condition: (t) => t === 'end_season' && checkSeasonConceded(0) },
-                positive_energy: { title: "Positive Energy", desc: "Link Plusle and Minun", icon: "⚡", condition: (t) => t === 'draft' && checkLink("Plusle", "Minun") },
-                time_space: { title: "Masters of Time & Space", desc: "Link Palkia and Dialga", icon: "🌌", condition: (t) => t === 'draft' && checkLink("Palkia", "Dialga") },
-                speedrun: { title: "Speedrun", desc: "Win the Continental Cup in 5 seasons or less", icon: "⏱️", condition: (t) => t === 'win_cup' && currentSeason <= 5 }
+                // GENERAL ACHIEVEMENTS
+                god_bidoof: { title: "God Bidoof", desc: "Win the league with Bidoof in your team", icon: "🦫", category: "general", condition: (t) => t === 'end_season' && finalPosCheck() === 1 && checkTeamHas("Bidoof") },
+                royal_couple: { title: "The Royal Couple", desc: "Link Nidoking and Nidoqueen", icon: "👑", category: "general", condition: (t) => t === 'draft' && checkLink("Nidoking", "Nidoqueen") },
+                eon_duo: { title: "Eon Duo", desc: "Link Latios and Latias", icon: "✈️", category: "general", condition: (t) => t === 'draft' && checkLink("Latios", "Latias") },
+                perfect_harmony: { title: "Perfect Harmony", desc: "Win the league with 21+ Chemistry", icon: "🧬", category: "general", condition: (t) => t === 'end_season' && finalPosCheck() === 1 && teamChemScore >= 21 },
+                ultimate_manager: { title: "The Ultimate Manager", desc: "Win Continental Cup with all Gens enabled", icon: "🌎", category: "general", condition: (t) => t === 'win_cup' && checkAllGensEnabled() },
+                tactical_master: { title: "Tactical Mastermind", desc: "Get chemistry from every line (Min 3 Gens)", icon: "🧠", category: "general", condition: (t) => t === 'draft' && checkAllLinesActive() && checkActiveGensCount() >= 3 },
+                offensive_juggernaut: { title: "Offensive Juggernaut", desc: "Score >20 goals in one season", icon: "🔥", category: "general", condition: (t) => t === 'end_season' && checkSeasonGoals(20) },
+                iron_wall: { title: "The Iron Wall", desc: "Concede 0 goals in one season", icon: "🧱", category: "general", condition: (t) => t === 'end_season' && checkSeasonConceded(0) },
+                positive_energy: { title: "Positive Energy", desc: "Link Plusle and Minun", icon: "⚡", category: "general", condition: (t) => t === 'draft' && checkLink("Plusle", "Minun") },
+                time_space: { title: "Masters of Time & Space", desc: "Link Palkia and Dialga", icon: "🌌", category: "general", condition: (t) => t === 'draft' && checkLink("Palkia", "Dialga") },
+                speedrun: { title: "Speedrun", desc: "Win the Continental Cup in 5 seasons or less", icon: "⏱️", category: "general", condition: (t) => t === 'win_cup' && currentSeason <= 5 },
+
+                // REGIONAL PURIST ACHIEVEMENTS
+                purist_gen1: { title: "Kanto Purist", desc: "Win Continental Cup (Only Gen 1 enabled)", icon: "🔴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(1) },
+                purist_gen2: { title: "Johto Purist", desc: "Win Continental Cup (Only Gen 2 enabled)", icon: "🟡", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(2) },
+                purist_gen3: { title: "Hoenn Purist", desc: "Win Continental Cup (Only Gen 3 enabled)", icon: "🟢", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(3) },
+                purist_gen4: { title: "Sinnoh Purist", desc: "Win Continental Cup (Only Gen 4 enabled)", icon: "⚪", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(4) },
+                purist_gen5: { title: "Unova Purist", desc: "Win Continental Cup (Only Gen 5 enabled)", icon: "⚫", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(5) },
+                purist_gen6: { title: "Kalos Purist", desc: "Win Continental Cup (Only Gen 6 enabled)", icon: "🟣", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(6) },
+                purist_gen7: { title: "Alola Purist", desc: "Win Continental Cup (Only Gen 7 enabled)", icon: "🌴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(7) },
+                purist_gen8: { title: "Galar Purist", desc: "Win Continental Cup (Only Gen 8 enabled)", icon: "⚔️", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(8) },
+                purist_gen9: { title: "Paldea Purist", desc: "Win Continental Cup (Only Gen 9 enabled)", icon: "🎒", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGenEnabled(9) }
             },
             unlocked: [],
             init: function() {
@@ -787,27 +808,66 @@
             SaveManager.checkContinueButton();
         };
 
+       let currentTrophyTab = 'general';
+
         function openTrophyRoom() {
             const modal = document.getElementById('trophy-modal');
-            const grid = document.getElementById('trophy-grid');
-            grid.innerHTML = '';
-            for (let key in AchievementManager.list) {
-                const a = AchievementManager.list[key];
-                const isUnlocked = AchievementManager.unlocked.includes(key);
-                const cardClass = isUnlocked ? 'bg-slate-800 border-yellow-400 unlocked' : 'bg-slate-900 border-slate-700 opacity-50 grayscale';
-                const iconColor = isUnlocked ? 'text-4xl drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'text-4xl opacity-50';
-                const titleColor = isUnlocked ? 'text-yellow-400' : 'text-slate-500';
-                grid.innerHTML += `<div class="${cardClass} trophy-card p-4 rounded-xl border-2 shadow-lg flex items-center gap-4"><div class="${iconColor} shrink-0 w-12 text-center">${a.icon}</div><div><h4 class="${titleColor} font-black text-sm uppercase tracking-wide leading-tight mb-1">${a.title}</h4><p class="text-slate-400 text-xs">${a.desc}</p></div></div>`;
-            }
+            renderTrophyGrid();
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             setTimeout(() => modal.classList.remove('opacity-0'), 10);
         }
 
+        function switchTrophyTab(tab) {
+            currentTrophyTab = tab;
+            
+            const tabGen = document.getElementById('tab-general');
+            const tabReg = document.getElementById('tab-regional');
+            
+            if(tab === 'general') {
+                tabGen.className = "text-yellow-400 font-bold uppercase tracking-widest border-b-2 border-yellow-400 px-2 pb-1 transition-colors";
+                tabReg.className = "text-slate-500 hover:text-slate-300 font-bold uppercase tracking-widest border-b-2 border-transparent px-2 pb-1 transition-colors";
+            } else {
+                tabReg.className = "text-yellow-400 font-bold uppercase tracking-widest border-b-2 border-yellow-400 px-2 pb-1 transition-colors";
+                tabGen.className = "text-slate-500 hover:text-slate-300 font-bold uppercase tracking-widest border-b-2 border-transparent px-2 pb-1 transition-colors";
+            }
+            
+            renderTrophyGrid();
+        }
+
+        function renderTrophyGrid() {
+            const grid = document.getElementById('trophy-grid');
+            grid.innerHTML = '';
+
+            for (let key in AchievementManager.list) {
+                const a = AchievementManager.list[key];
+                
+                if(a.category !== currentTrophyTab) continue;
+
+                const isUnlocked = AchievementManager.unlocked.includes(key);
+                const cardClass = isUnlocked ? 'bg-slate-800 border-yellow-400 unlocked' : 'bg-slate-900 border-slate-700 opacity-50 grayscale';
+                const iconColor = isUnlocked ? 'text-4xl drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'text-4xl opacity-50';
+                const titleColor = isUnlocked ? 'text-yellow-400' : 'text-slate-500';
+                
+                grid.innerHTML += `
+                    <div class="${cardClass} trophy-card p-4 rounded-xl border-2 shadow-lg flex items-center gap-4">
+                        <div class="${iconColor} shrink-0 w-12 text-center">${a.icon}</div>
+                        <div>
+                            <h4 class="${titleColor} font-black text-sm uppercase tracking-wide leading-tight mb-1">${a.title}</h4>
+                            <p class="text-slate-400 text-xs">${a.desc}</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
         function closeTrophyRoom() {
             const modal = document.getElementById('trophy-modal');
             modal.classList.add('opacity-0');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
         }
 
 
