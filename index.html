@@ -1919,7 +1919,7 @@ await rollOptions(role, displayPos);
                 const cardHtml = `
                     <div id="card-${idx}" class="fut-card flex-col items-center p-3 sm:p-4 rounded-xl w-full h-full justify-between flex-grow" onclick="selectPokemonByIndex(${idx})">
                         <div class="flex justify-between items-center w-full border-b border-slate-700 pb-1.5 shrink-0">
-                            <span class="font-bold text-xs sm:text-sm uppercase truncate pr-1" style="color: ${typeHex}">${p.primaryType}</span>
+                            <span class="font-bold text-xs sm:text-sm uppercase truncate pr-1" style="color: ${typeHex}">${p.types.join(' / ')}</span>
                             <span class="font-black text-xs sm:text-sm text-slate-300 shrink-0">BST ${p.bst}</span>
                         </div>
                         <div class="flex items-center justify-center w-full relative my-1 aspect-square shrink-0">
