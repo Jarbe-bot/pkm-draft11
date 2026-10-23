@@ -625,20 +625,20 @@
         let gameMode = 'rtg';
         let isPeeking = false;
         let domesticTitles = 0;
-        // --- ACHIEVEMENT ENGINE ---
-       const AchievementManager = {
+       // --- ACHIEVEMENT ENGINE (100% DEBUGGED) ---
+        const AchievementManager = {
             list: {
                 // GENERAL ACHIEVEMENTS
                 god_bidoof: { title: "God Bidoof", desc: "Win the league with Bidoof in your team", icon: "🦫", category: "general", condition: (t) => t === 'end_season' && finalPosCheck() === 1 && checkTeamHas("Bidoof") },
-                royal_couple: { title: "The Royal Couple", desc: "Link Nidoking and Nidoqueen", icon: "👑", category: "general", condition: (t) => t === 'draft' && checkLink("Nidoking", "Nidoqueen") },
-                eon_duo: { title: "Eon Duo", desc: "Link Latios and Latias", icon: "✈️", category: "general", condition: (t) => t === 'draft' && checkLink("Latios", "Latias") },
+                royal_couple: { title: "The Royal Couple", desc: "Link Nidoking and Nidoqueen", icon: "👑", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkLink("Nidoking", "Nidoqueen") },
+                eon_duo: { title: "Eon Duo", desc: "Link Latios and Latias", icon: "✈️", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkLink("Latios", "Latias") },
                 perfect_harmony: { title: "Perfect Harmony", desc: "Win the league with 21+ Chemistry", icon: "🧬", category: "general", condition: (t) => t === 'end_season' && finalPosCheck() === 1 && getChemMistakeProof() >= 21 },
                 ultimate_manager: { title: "The Ultimate Manager", desc: "Win Continental Cup with all Gens enabled", icon: "🌎", category: "general", condition: (t) => t === 'win_cup' && checkAllGensEnabled() },
-                tactical_master: { title: "Tactical Mastermind", desc: "Get chemistry from every line (Min 3 Gens)", icon: "🧠", category: "general", condition: (t) => t === 'draft' && checkAllLinesActive() && checkActiveGensCount() >= 3 },
+                tactical_master: { title: "Tactical Mastermind", desc: "Get chemistry from every line (Min 3 Gens)", icon: "🧠", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkAllLinesActive() && checkActiveGensCount() >= 3 },
                 offensive_juggernaut: { title: "Offensive Juggernaut", desc: "Score >20 goals in one season", icon: "🔥", category: "general", condition: (t) => t === 'end_season' && checkSeasonGoals(20) },
                 iron_wall: { title: "The Iron Wall", desc: "Concede 0 goals in one season", icon: "🧱", category: "general", condition: (t) => t === 'end_season' && checkSeasonConceded(0) },
-                positive_energy: { title: "Positive Energy", desc: "Link Plusle and Minun", icon: "⚡", category: "general", condition: (t) => t === 'draft' && checkLink("Plusle", "Minun") },
-                time_space: { title: "Masters of Time & Space", desc: "Link Palkia and Dialga", icon: "🌌", category: "general", condition: (t) => t === 'draft' && checkLink("Palkia", "Dialga") },
+                positive_energy: { title: "Positive Energy", desc: "Link Plusle and Minun", icon: "⚡", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkLink("Plusle", "Minun") },
+                time_space: { title: "Masters of Time & Space", desc: "Link Palkia and Dialga", icon: "🌌", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkLink("Palkia", "Dialga") },
                 speedrun: { title: "Speedrun", desc: "Win the Continental Cup in 5 seasons or less", icon: "⏱️", category: "general", condition: (t) => t === 'win_cup' && currentSeason <= 5 },
 
                 // REGIONAL PURIST ACHIEVEMENTS
@@ -655,7 +655,9 @@
             unlocked: [],
             init: function() {
                 const saved = localStorage.getItem('draft_achievements');
-                if (saved) this.unlocked = JSON.parse(saved);
+                if (saved) {
+                    try { this.unlocked = JSON.parse(saved); } catch(e) { this.unlocked = []; }
+                }
                 this.updateTrophyCount();
             },
             check: function(trigger) {
@@ -670,13 +672,16 @@
                 localStorage.setItem('draft_achievements', JSON.stringify(this.unlocked));
                 this.showToast(this.list[key]);
                 this.updateTrophyCount();
+                if (!document.getElementById('trophy-modal').classList.contains('hidden')) {
+                    renderTrophyGrid();
+                }
                 AudioManager.playSFX('audio/levelup.mp3', 0.6); 
             },
             showToast: function(achievement) {
                 const container = document.getElementById('toast-container');
                 const toast = document.createElement('div');
-                toast.className = 'bg-slate-900 border-2 border-yellow-400 p-3 rounded-xl shadow-[0_10px_30px_rgba(234,179,8,0.4)] flex items-center gap-3 toast-enter';
-                toast.innerHTML = `<div class="text-3xl">${achievement.icon}</div><div><p class="text-[10px] text-yellow-400 font-black uppercase tracking-widest">Achievement Unlocked!</p><p class="text-white font-bold text-sm leading-tight">${achievement.title}</p></div>`;
+                toast.className = 'bg-slate-900 border-2 border-yellow-400 p-3 rounded-xl shadow-[0_10px_30px_rgba(234,179,8,0.4)] flex items-center gap-3 toast-enter pointer-events-auto';
+                toast.innerHTML = `<div class="text-3xl shrink-0">${achievement.icon}</div><div><p class="text-[10px] text-yellow-400 font-black uppercase tracking-widest">Achievement Unlocked!</p><p class="text-white font-bold text-sm leading-tight">${achievement.title}</p></div>`;
                 container.appendChild(toast);
                 setTimeout(() => {
                     toast.classList.replace('toast-enter', 'toast-exit');
@@ -689,56 +694,102 @@
             }
         };
 
-        // Achievement Helpers
-        // Foutbestendige check voor de positie van de speler
+        // --- FOOLPROOF ACHIEVEMENT HELPERS ---
+        function getUserStandingObj() {
+            if (!standings || standings.length === 0) return null;
+            return standings.find(t => t.isUser || t.id === 0 || t.name === userTeamName);
+        }
+
         function finalPosCheck() {
             if (!standings || standings.length === 0) return 99;
-            // Vind de speler via ID, isUser marker OF de exact gekozen clubnaam
-            const userIndex = standings.findIndex(t => t.isUser || t.id === 0 || t.name === userTeamName);
+            const sorted = [...standings].sort((a,b) => { 
+                if (b.pts !== a.pts) return b.pts - a.pts; 
+                return (b.gf - b.ga) - (a.gf - a.ga); 
+            });
+            const userIndex = sorted.findIndex(t => t.isUser || t.id === 0 || t.name === userTeamName);
             return userIndex !== -1 ? userIndex + 1 : 99;
         }
 
-        // Foutbestendige check voor de actieve chemie
         function getChemMistakeProof() {
+            let liveCalc = 0;
+            if (activeFormation && formations[activeFormation]) {
+                const activeGensCount = genData.filter(g => g.active).length;
+                const isSingleGen = activeGensCount === 1;
+                formations[activeFormation].links.forEach(link => {
+                    const p1 = userTeam[link[0]];
+                    const p2 = userTeam[link[1]];
+                    if (p1 && p2) {
+                        const sameType = p1.types.some(t => p2.types.includes(t));
+                        const sameGen = p1.generation === p2.generation;
+                        if ((sameType && sameGen && !isSingleGen) || (sameType && isSingleGen)) liveCalc += 2;
+                        else if (sameType || (sameGen && !isSingleGen)) liveCalc += 1;
+                    }
+                });
+            }
             const chemEl = document.getElementById('score-chem');
             const domChem = chemEl ? parseInt(chemEl.innerText, 10) : 0;
-            // Neemt de hoogste waarde tussen de achtergrond-score en de live header-waarde
-            return Math.max(teamChemScore || 0, domChem || 0);
+            return Math.max(liveCalc, teamChemScore || 0, domChem || 0);
         }
-        function checkTeamHas(name) { return Object.values(userTeam).some(p => p && p.name === name); }
+
+        function checkTeamHas(name) { 
+            const target = name.toLowerCase();
+            return Object.values(userTeam).some(p => p && p.name.toLowerCase() === target); 
+        }
+
         function checkLink(name1, name2) {
-            if(!activeFormation) return false;
-            let linked = false;
-            formations[activeFormation].links.forEach(link => {
-                const p1 = userTeam[link[0]]; const p2 = userTeam[link[1]];
-                if (p1 && p2) { if ((p1.name === name1 && p2.name === name2) || (p1.name === name2 && p2.name === name1)) linked = true; }
+            if (!activeFormation || !formations[activeFormation]) return false;
+            const n1 = name1.toLowerCase();
+            const n2 = name2.toLowerCase();
+            return formations[activeFormation].links.some(link => {
+                const p1 = userTeam[link[0]]; 
+                const p2 = userTeam[link[1]];
+                if (!p1 || !p2) return false;
+                const p1Name = p1.name.toLowerCase();
+                const p2Name = p2.name.toLowerCase();
+                return (p1Name === n1 && p2Name === n2) || (p1Name === n2 && p2Name === n1);
             });
-            return linked;
         }
-        function checkAllGensEnabled() { return genData.every(g => g.active); }
+
+        function checkAllGensEnabled() { 
+            return genData.every(g => g.active) || (globalIdPool && globalIdPool.length >= 1000); 
+        }
+
         function checkOnlyGen(genId) { 
             const players = Object.values(userTeam).filter(p => p !== null);
             return players.length === 11 && players.every(p => p.generation === genId);
         }
-        function checkActiveGensCount() { return genData.filter(g => g.active).length; }
-        function checkSeasonGoals(amount) { const myStats = standings.find(t => t.isUser); return myStats && myStats.gf > amount; }
-        function checkSeasonConceded(amount) { const myStats = standings.find(t => t.isUser); return myStats && myStats.ga === amount; }
-        function checkAllLinesActive() {
-            if(!activeFormation) return false;
-            let allActive = true;
-            const activeGensCount = genData.filter(g => g.active).length;
-            const isSingleGen = activeGensCount === 1;
-            formations[activeFormation].links.forEach(link => {
-                const p1 = userTeam[link[0]]; const p2 = userTeam[link[1]];
-                if (p1 && p2) {
-                    const sameType = p1.types.some(t => p2.types.includes(t));
-                    const sameGen = p1.generation === p2.generation;
-                    if (!sameType && !(sameGen && !isSingleGen)) allActive = false; 
-                } else { allActive = false; }
-            });
-            return allActive;
+
+        function checkActiveGensCount() { 
+            return genData.filter(g => g.active).length; 
         }
 
+        function checkSeasonGoals(amount) { 
+            const myStats = getUserStandingObj(); 
+            return myStats ? myStats.gf > amount : false; 
+        }
+
+        function checkSeasonConceded(amount) { 
+            const myStats = getUserStandingObj(); 
+            return myStats ? (myStats.p >= 7 && myStats.ga === amount) : false; 
+        }
+
+        function checkAllLinesActive() {
+            if (!activeFormation || !formations[activeFormation]) return false;
+            const players = Object.values(userTeam).filter(p => p !== null);
+            if (players.length < 11) return false;
+
+            const activeGensCount = genData.filter(g => g.active).length;
+            const isSingleGen = activeGensCount === 1;
+            
+            return formations[activeFormation].links.every(link => {
+                const p1 = userTeam[link[0]]; 
+                const p2 = userTeam[link[1]];
+                if (!p1 || !p2) return false;
+                const sameType = p1.types.some(t => p2.types.includes(t));
+                const sameGen = p1.generation === p2.generation;
+                return sameType || (sameGen && !isSingleGen);
+            });
+        }
         // --- AUTO-SAVE ENGINE ---
         const SaveManager = {
             save: function() {
@@ -1867,6 +1918,8 @@ await rollOptions(role, displayPos);
             updateScores();
             
             openTrainingMenu(posId, role, displayPos, statKey);
+
+            SaveManager.save();
         }
 
      window.confirmTransferOut = async function(role, displayPos) {
@@ -1985,23 +2038,25 @@ await rollOptions(role, displayPos);
             }, 1550);
         }
 
-        function selectPokemonByIndex(idx) {
-    const pData = currentRolledOptions[idx];
-    if (!pData || !currentDraftPos) return;
+    function selectPokemonByIndex(idx) {
+            const pData = currentRolledOptions[idx];
+            if (!pData || !currentDraftPos) return;
 
             AudioManager.playCry(pData.cry);
+            userTeam[currentDraftPos] = pData;
 
-    userTeam[currentDraftPos] = pData;
-
-    if(!playerStats[pData.id]) {
-        playerStats[pData.id] = { p: pData, goals: 0, seasonGoals: 0, cleanSheets: 0, perfScore: 0, seasonPerfScore: 0 };
-    }
-    
-    closeModal();
-    renderPitch();
-    updateScores();
-}
-
+            if(!playerStats[pData.id]) {
+                playerStats[pData.id] = { p: pData, goals: 0, seasonGoals: 0, cleanSheets: 0, perfScore: 0, seasonPerfScore: 0 };
+            }
+            
+            closeModal();
+            renderPitch();
+            updateScores();
+            
+            // NIEUW: Check direct op Draft/Link achievements en sla de game op!
+            AchievementManager.check('draft');
+            SaveManager.save();
+        }
         function getWeightedScorer() {
             let pool = [];
             formations[activeFormation].positions.forEach(pos => {
@@ -2468,10 +2523,19 @@ await rollOptions(role, displayPos);
                 <button onclick="startTransferWindow()" class="mt-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_30px_rgba(168,85,247,0.7)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">START NEXT SEASON (OFF-SEASON)</button>`;
          }
 
-         const awards = document.getElementById('post-season-awards');
+        const awards = document.getElementById('post-season-awards');
          awards.classList.remove('hidden');
          awards.classList.add('flex', 'order-first');
          awards.innerHTML = `<div class="poke-box-dark p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${actionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
+         
+         // NIEUW: Trigger alle seizoens-achievements (Perfect Harmony, Bidoof, Goals, Iron Wall)
+         AchievementManager.check('end_season');
+         if (isSacked) {
+             localStorage.removeItem('draft_savegame');
+         } else {
+             SaveManager.save();
+         }
+
          setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
      }
 
@@ -2802,6 +2866,7 @@ await rollOptions(role, displayPos);
     document.getElementById('pitch-view').classList.remove('hidden');
     renderPitch();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+            SaveManager.save();
 }
 
        function finishTransfers() {
@@ -2838,6 +2903,7 @@ await rollOptions(role, displayPos);
             
             AchievementManager.check('win_cup');
             setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+            SaveManager.save();
         }
 
        function viewTeam() {
