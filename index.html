@@ -2110,16 +2110,19 @@ await rollOptions(role, displayPos);
             // De Capped Balans Curve
             // In seizoen 1 is (currentSeason - 1) nul, dus er is geen boost. 
             // Daarna groeit de sterkte van de ploegen met +15 per seizoen, met een maximum van +150.
-            const maxBoost = 150;
+           const maxBoost = 110;
             const seasonBoost = Math.min((currentSeason - 1) * 12, maxBoost); 
             
+            // Topteams groeien mee, maar botsen tegen een plafond van 1040 per stat (net onder de Cup Finalisten van 1050-1100!)
+            const capStat = (baseVal) => Math.min(Math.max(baseVal, 1040), baseVal + seasonBoost);
+
             const applyBoost = (pools) => {
                 return {
-                    poss: pools.poss + seasonBoost,
-                    create: pools.create + seasonBoost,
-                    prevent: pools.prevent + seasonBoost,
-                    finish: pools.finish + seasonBoost,
-                    block: pools.block + seasonBoost
+                    poss: capStat(pools.poss),
+                    create: capStat(pools.create),
+                    prevent: capStat(pools.prevent),
+                    finish: capStat(pools.finish),
+                    block: capStat(pools.block)
                 };
             };
             
@@ -2395,8 +2398,11 @@ await rollOptions(role, displayPos);
                         if(Math.random() < prob * 0.9) cpuGoalsA++;
                         if(Math.random() < (1 - prob) * 0.9) cpuGoalsB++;
                     }
-                    if(s1 > 4200 && Math.random() < 0.25) cpuGoalsA++;
-                    if(s2 > 4200 && Math.random() < 0.25) cpuGoalsB++;
+                   // De drempel groeit mee met het seizoen, zodat alleen échte topteams dominant blijven in de tabel
+                    const currentBoost = Math.min((currentSeason - 1) * 12, 100);
+                    const eliteThreshold = 4200 + (currentBoost * 5);
+                    if(s1 > eliteThreshold && Math.random() < 0.25) cpuGoalsA++;
+                    if(s2 > eliteThreshold && Math.random() < 0.25) cpuGoalsB++;
 
                     t1.gf += cpuGoalsA; t1.ga += cpuGoalsB; t2.gf += cpuGoalsB; t2.ga += cpuGoalsA;
                     if (cpuGoalsA > cpuGoalsB) { t1.w++; t1.pts+=3; t2.l++; }
