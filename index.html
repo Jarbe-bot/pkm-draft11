@@ -2420,7 +2420,7 @@ await rollOptions(role, displayPos);
                     
                     let s1 = (t1.pools.poss + t1.pools.create + t1.pools.prevent + t1.pools.finish + t1.pools.block) || 3500;
                     let s2 = (t2.pools.poss + t2.pools.create + t2.pools.prevent + t2.pools.finish + t2.pools.block) || 3500;
-                    let prob = Math.pow(s1, 2.1) / (Math.pow(s1, 2.1) + Math.pow(s2, 2.1));
+                    let prob = Math.pow(s1, 1.8) / (Math.pow(s1, 1.8) + Math.pow(s2, 1.8));
                     
                     let cpuGoalsA = 0; let cpuGoalsB = 0;
                     for(let c=0; c<4; c++) {
