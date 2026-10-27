@@ -987,9 +987,10 @@ const AudioManager = {
                 if (AudioManager.isSfxMuted) return;
                 
                 if (src.includes('pling.mp3')) { 
-                    let clickSound = AudioManager.uiPlink.cloneNode();
-                    clickSound.volume = vol;
-                    clickSound.play().catch(e => {});
+                    // ZERO-LATENCY FIX: Niet clonen, maar direct terugspoelen en afspelen
+                    AudioManager.uiPlink.currentTime = 0;
+                    AudioManager.uiPlink.volume = vol;
+                    AudioManager.uiPlink.play().catch(e => {});
                     return;
                 }
 
