@@ -3195,6 +3195,39 @@ await rollOptions(role, displayPos);
                 AudioManager.playSFX('audio/pling.mp3', 0.4);
             }
         });
+
+
+        // Meedogenloze audio-pauze voor Homescreen Web-Apps
+        function suspendAudio() {
+            if (AudioManager.bgm) AudioManager.bgm.pause();
+            if (AudioManager.stadiumBase) AudioManager.stadiumBase.pause();
+            if (AudioManager.stadiumChant1) AudioManager.stadiumChant1.pause();
+            if (AudioManager.stadiumChant2) AudioManager.stadiumChant2.pause();
+        }
+
+        function resumeAudio() {
+            if (document.hidden) return; // Veiligheidscheck
+            if (!AudioManager.isMusicMuted && AudioManager.bgm) {
+                AudioManager.bgm.play().catch(e => console.warn(e));
+            }
+            const inMatch = document.getElementById('match-center') && document.getElementById('match-center').classList.contains('flex');
+            if (!AudioManager.isSfxMuted && inMatch) {
+                if (AudioManager.stadiumBase) AudioManager.stadiumBase.play().catch(e => {});
+                if (AudioManager.stadiumChant1) AudioManager.stadiumChant1.play().catch(e => {});
+                if (AudioManager.stadiumChant2) AudioManager.stadiumChant2.play().catch(e => {});
+            }
+        }
+
+        // Standaard tabblad minimalisatie
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) suspendAudio();
+            else resumeAudio();
+        });
+
+        // Extra vallen voor mobiele homescreen shortcuts en vergrendelschermen
+        window.addEventListener("pagehide", suspendAudio);
+        window.addEventListener("blur", suspendAudio);
+        window.addEventListener("focus", resumeAudio);
     </script>
 </body>
 </html>
