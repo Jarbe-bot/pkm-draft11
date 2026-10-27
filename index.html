@@ -640,7 +640,12 @@
                 positive_energy: { title: "Positive Energy", desc: "Link Plusle and Minun", icon: "⚡", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkLink("Plusle", "Minun") },
                 time_space: { title: "Masters of Time & Space", desc: "Link Palkia and Dialga", icon: "🌌", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkLink("Palkia", "Dialga") },
                 speedrun: { title: "Speedrun", desc: "Win the Continental Cup in 5 seasons or less", icon: "⏱️", category: "general", condition: (t) => t === 'win_cup' && currentSeason <= 5 },
-
+                invincibles: { title: "The Invincibles", desc: "Win the league without losing a match", icon: "🛡️", category: "general", condition: (t) => t === 'end_season' && finalPosCheck() === 1 && checkInvincibles() },
+                kanto_kings: { title: "Kanto Kings", desc: "Field Venusaur, Charizard & Blastoise", icon: "🌟", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkKantoStarters() },
+                golden_boot: { title: "Golden Boot", desc: "One player scores 12+ goals in a season", icon: "👟", category: "general", condition: (t) => t === 'end_season' && checkGoldenBoot(12) },
+                eevee_syndicate: { title: "Eevee Syndicate", desc: "Field at least 3 Eeveelutions", icon: "🦊", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkEeveelutions() },
+                weather_wars: { title: "Weather Wars", desc: "Have Kyogre, Groudon & Rayquaza", icon: "🌪️", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkWeatherTrio() },
+                
                 // REGIONAL PURIST ACHIEVEMENTS
                 purist_gen1: { title: "Kanto Purist", desc: "Win Continental Cup (Only Gen 1 on pitch)", icon: "🔴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(1) },
                 purist_gen2: { title: "Johto Purist", desc: "Win Continental Cup (Only Gen 2 on pitch)", icon: "🟡", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(2) },
@@ -790,6 +795,30 @@
                 return sameType || (sameGen && !isSingleGen);
             });
         }
+
+        function checkInvincibles() { 
+            const myStats = getUserStandingObj(); 
+            return myStats ? (myStats.p === 7 && myStats.l === 0) : false; 
+        }
+
+        function checkKantoStarters() { 
+            return checkTeamHas("Venusaur") && checkTeamHas("Charizard") && checkTeamHas("Blastoise"); 
+        }
+
+        function checkGoldenBoot(amount) {
+            return Object.values(playerStats).some(ps => ps.seasonGoals >= amount);
+        }
+
+        function checkEeveelutions() {
+            const eons = ['vaporeon', 'jolteon', 'flareon', 'espeon', 'umbreon', 'leafeon', 'glaceon', 'sylveon'];
+            const count = Object.values(userTeam).filter(p => p && eons.includes(p.name.toLowerCase())).length;
+            return count >= 3;
+        }
+
+        function checkWeatherTrio() {
+            return checkTeamHas("Kyogre") && checkTeamHas("Groudon") && checkTeamHas("Rayquaza");
+        }
+        
         // --- AUTO-SAVE ENGINE ---
         const SaveManager = {
             save: function() {
@@ -2391,7 +2420,7 @@ await rollOptions(role, displayPos);
                     
                     let s1 = (t1.pools.poss + t1.pools.create + t1.pools.prevent + t1.pools.finish + t1.pools.block) || 3500;
                     let s2 = (t2.pools.poss + t2.pools.create + t2.pools.prevent + t2.pools.finish + t2.pools.block) || 3500;
-                    let prob = Math.pow(s1, 1.5) / (Math.pow(s1, 1.5) + Math.pow(s2, 1.5));
+                    let prob = Math.pow(s1, 2.1) / (Math.pow(s1, 2.1) + Math.pow(s2, 2.1));
                     
                     let cpuGoalsA = 0; let cpuGoalsB = 0;
                     for(let c=0; c<4; c++) {
