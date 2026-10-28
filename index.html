@@ -310,8 +310,8 @@
                 </div>
             </div>
 
-            <div id="match-center" class="hidden w-full flex-col-reverse lg:flex-row gap-5 relative">
-                <div id="standings-panel" class="w-full lg:w-1/2 poke-box-dark shadow-2xl flex flex-col standings">
+            <div id="match-center" class="hidden w-full flex-col lg:flex-row gap-5 relative">
+                <div id="standings-panel" class="order-3 lg:order-1 w-full lg:w-1/2 poke-box-dark shadow-2xl flex flex-col standings">
                     <div class="bg-slate-900/50 p-3.5 md:p-4 border-b border-slate-700/50 flex justify-between items-center relative shrink-0">
                         <h2 class="pixel-font text-sm md:text-base font-black text-yellow-400 uppercase tracking-widest flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> Standings
@@ -330,10 +330,10 @@
                     </div>
                 </div>
 
-                <div id="right-panel" class="w-full lg:w-1/2 flex flex-col gap-4 relative">
-                    <div id="post-season-awards" class="hidden flex-col gap-4 transition-all duration-500"></div>
+                <div id="right-panel" class="contents lg:flex lg:flex-col lg:w-1/2 gap-4 relative order-none lg:order-2">
+                    <div id="post-season-awards" class="hidden flex-col gap-4 transition-all duration-500 order-1 lg:order-none w-full"></div>
                     
-                    <div id="tv-scoreboard" class="tv-glass rounded-2xl overflow-hidden shadow-2xl relative w-full border border-slate-600 transition-all duration-500">
+                   <div id="tv-scoreboard" class="tv-glass rounded-2xl overflow-hidden shadow-2xl relative w-full border border-slate-600 transition-all duration-500 order-2 lg:order-none">
                         <div id="kickoff-overlay" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex-col items-center justify-center p-6 text-center">
                             <h3 id="kickoff-title" class="pixel-font text-lg md:text-xl font-black uppercase mb-6 tracking-widest drop-shadow-lg text-blue-400">Round of 16</h3>
                             <div class="flex flex-col items-center gap-4 text-white text-xl md:text-3xl font-bold mb-8 w-full justify-center">
@@ -358,9 +358,9 @@
                         <div class="tv-body-bg flex justify-between items-center p-4 md:p-6 bg-gradient-to-b from-slate-800 to-slate-900 relative z-10 transition-colors">
                             <div class="w-5/12 text-center"><h3 id="tv-home-team" class="text-sm sm:text-lg md:text-2xl font-black text-white leading-tight truncate">My Team</h3></div>
                             <div class="w-2/12 text-center flex justify-center items-center gap-1.5 md:gap-4 shrink-0">
-                                <span id="tv-home-score" class="text-2xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-md">0</span>
+                                <span id="tv-home-score" class="inline-block text-2xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-md">0</span>
                                 <span class="text-xl md:text-3xl text-slate-500 font-bold">:</span>
-                                <span id="tv-away-score" class="text-2xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-md">0</span>
+                                <span id="tv-away-score" class="inline-block text-2xl sm:text-4xl md:text-5xl font-black text-white drop-shadow-md">0</span>
                             </div>
                             <div class="w-5/12 text-center"><h3 id="tv-away-team" class="text-sm sm:text-lg md:text-2xl font-black text-white leading-tight truncate">Opponent</h3></div>
                         </div>
@@ -392,7 +392,7 @@
                         </div>
                     </div>
 
-                    <div id="results-feed" class="bg-slate-800 rounded-2xl border border-slate-700 shadow-inner flex flex-col hidden h-[220px] md:h-[250px] overflow-hidden">
+                    <div id="results-feed" class="order-4 lg:order-none bg-slate-800 rounded-2xl border border-slate-700 shadow-inner flex flex-col hidden h-[220px] md:h-[250px] overflow-hidden w-full">
                         <div class="bg-slate-900 border-b border-slate-700 shrink-0 z-10 flex justify-between items-center pr-3">
                             <h4 class="text-slate-400 uppercase tracking-widest text-xs font-bold p-3 m-0">Your Results</h4>
                         </div>
@@ -915,6 +915,7 @@
         };
 
         window.onload = () => { 
+            updateAudioUI();
             AchievementManager.init();
             initStartScreen(); 
             SaveManager.checkContinueButton();
@@ -1644,70 +1645,62 @@ const AudioManager = {
             if (!activeFormation || !formations[activeFormation]) return;
 
             const groups = {
-                'GOALKEEPERS': ['GK'],
-                'DEFENDERS': ['CB', 'FB'],
-                'MIDFIELDERS': ['DM', 'CM', 'WM', 'AM'],
-                'ATTACKERS': ['WG', 'ST']
+                'GOALKEEPERS': ['GK'], 'DEFENDERS': ['CB', 'FB'],
+                'MIDFIELDERS': ['DM', 'CM', 'WM', 'AM'], 'ATTACKERS': ['WG', 'ST']
             };
 
-            // Kleurcodes (FM-stijl gelinkt aan de groei per training)
             const statColor = (val) => {
-                if (val < 70) return 'text-slate-500'; // Snel trainen
-                if (val < 95) return 'text-slate-200 font-bold'; // Gemiddeld
-                if (val < 120) return 'text-green-400 font-black'; // Goed
-                return 'text-blue-400 font-black drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]'; // Elite
+                if (val < 70) return 'text-slate-500'; 
+                if (val < 95) return 'text-slate-200 font-bold'; 
+                if (val < 120) return 'text-green-400 font-black'; 
+                return 'text-blue-400 font-black drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]'; 
             };
 
-            let html = '<div class="overflow-x-auto pb-2"><table class="w-full text-left text-[10px] md:text-xs text-slate-300 whitespace-nowrap">';
-            html += '<thead class="bg-slate-900 text-slate-400 uppercase border-b border-slate-700"><tr><th class="p-2 md:p-3">Pos</th><th class="p-2 md:p-3">Player</th><th class="p-2 text-center">SPE</th><th class="p-2 text-center">HP</th><th class="p-2 text-center">ATK</th><th class="p-2 text-center">DEF</th><th class="p-2 text-center">SPA</th><th class="p-2 text-center">SPD</th><th class="p-2 text-center bg-slate-900/50">OVR</th><th class="p-2 text-center">Act</th></tr></thead>';
+            let html = '<div class="overflow-x-auto pb-2"><table class="w-full text-left text-[9px] md:text-xs text-slate-300 whitespace-nowrap">';
+            html += '<thead class="bg-slate-900 text-slate-400 uppercase border-b border-slate-700"><tr><th class="px-1 py-2 md:p-3">Pos</th><th class="px-1 py-2 md:p-3">Player</th><th class="px-1 py-2 text-center">SPE</th><th class="px-1 py-2 text-center">HP</th><th class="px-1 py-2 text-center">ATK</th><th class="px-1 py-2 text-center">DEF</th><th class="px-1 py-2 text-center">SPA</th><th class="px-1 py-2 text-center">SPD</th><th class="px-1 py-2 text-center bg-slate-900/50">OVR</th><th class="px-1 py-2 text-center">Act</th></tr></thead>';
             html += '<tbody class="divide-y divide-slate-800">';
 
             for (let [groupName, roles] of Object.entries(groups)) {
                 let positionsInGroup = formations[activeFormation].positions.filter(pos => roles.includes(pos.role));
 
                 if (positionsInGroup.length > 0) {
-                    html += `<tr class="bg-slate-900/60"><td colspan="10" class="p-1.5 md:p-2 text-center font-black text-yellow-500 uppercase tracking-widest text-[9px] md:text-[10px] border-y border-slate-700/50">${groupName}</td></tr>`;
+                    html += `<tr class="bg-slate-900/60"><td colspan="10" class="p-1 md:p-2 text-center font-black text-yellow-500 uppercase tracking-widest text-[8px] md:text-[10px] border-y border-slate-700/50">${groupName}</td></tr>`;
                     
                     positionsInGroup.forEach(pos => {
                         const p = userTeam[pos.id];
-                        
                         if (p) {
                             const ovr = calculatePlayerOVR(p, pos.role, getPlayerChem(pos.id).closurePct);
                             
-                            let actionBtn = '';
-                            if (isTransferWindow && actionPoints > 0) {
-                                actionBtn = `<button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded shadow text-[9px] uppercase font-bold transform hover:scale-105 transition-transform">Manage</button>`;
-                            } else {
-                                actionBtn = `<button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded shadow text-[9px] uppercase font-bold">View</button>`;
-                            }
+                            let actionBtn = (isTransferWindow && actionPoints > 0) 
+                                ? `<button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-blue-600 hover:bg-blue-500 text-white px-1.5 py-1 rounded shadow text-[10px] transform hover:scale-105">✏️</button>`
+                                : `<button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-slate-700 hover:bg-slate-600 text-white px-1.5 py-1 rounded shadow text-[10px]">👁️</button>`;
 
                             html += `<tr class="hover:bg-slate-800/80 transition-colors">
-                                <td class="p-2 md:p-3 font-black text-white" style="color: ${getTypeColorHex(p.primaryType)}">${pos.display}</td>
-                                <td class="p-2 md:p-3 flex items-center gap-1.5 md:gap-2 font-bold text-white"><img src="${p.sprite}" class="w-6 h-6 md:w-8 md:h-8 object-contain drop-shadow-md hidden sm:block">${p.name}</td>
-                                <td class="p-2 text-center ${statColor(p.stats.spe)}">${p.stats.spe}</td>
-                                <td class="p-2 text-center ${statColor(p.stats.hp)}">${p.stats.hp}</td>
-                                <td class="p-2 text-center ${statColor(p.stats.atk)}">${p.stats.atk}</td>
-                                <td class="p-2 text-center ${statColor(p.stats.def)}">${p.stats.def}</td>
-                                <td class="p-2 text-center ${statColor(p.stats.spa)}">${p.stats.spa}</td>
-                                <td class="p-2 text-center ${statColor(p.stats.spd)}">${p.stats.spd}</td>
-                                <td class="p-2 text-center font-black text-yellow-400 bg-slate-900/50 border-x border-slate-700/50">${ovr}</td>
-                                <td class="p-2 text-center">${actionBtn}</td>
+                                <td class="px-1 py-2 md:p-3 font-black text-white" style="color: ${getTypeColorHex(p.primaryType)}">${pos.display}</td>
+                                <td class="px-1 py-2 md:p-3 flex items-center gap-1 font-bold text-white"><img src="${p.sprite}" class="w-5 h-5 md:w-8 md:h-8 object-contain hidden sm:block">${p.name}</td>
+                                <td class="px-1 py-2 text-center ${statColor(p.stats.spe)}">${p.stats.spe}</td>
+                                <td class="px-1 py-2 text-center ${statColor(p.stats.hp)}">${p.stats.hp}</td>
+                                <td class="px-1 py-2 text-center ${statColor(p.stats.atk)}">${p.stats.atk}</td>
+                                <td class="px-1 py-2 text-center ${statColor(p.stats.def)}">${p.stats.def}</td>
+                                <td class="px-1 py-2 text-center ${statColor(p.stats.spa)}">${p.stats.spa}</td>
+                                <td class="px-1 py-2 text-center ${statColor(p.stats.spd)}">${p.stats.spd}</td>
+                                <td class="px-1 py-2 text-center font-black text-yellow-400 bg-slate-900/50 border-x border-slate-700/50">${ovr}</td>
+                                <td class="px-1 py-2 text-center">${actionBtn}</td>
                             </tr>`;
                         } else {
                             html += `<tr class="hover:bg-slate-800/80 transition-colors opacity-60">
-                                <td class="p-2 md:p-3 font-black text-slate-500">${pos.display}</td>
-                                <td class="p-2 md:p-3 font-bold text-slate-500">Empty</td>
-                                <td class="p-2 text-center text-slate-600">-</td><td class="p-2 text-center text-slate-600">-</td>
-                                <td class="p-2 text-center text-slate-600">-</td><td class="p-2 text-center text-slate-600">-</td>
-                                <td class="p-2 text-center text-slate-600">-</td><td class="p-2 text-center text-slate-600">-</td>
-                                <td class="p-2 text-center font-black text-slate-600 bg-slate-900/50 border-x border-slate-700/50">-</td>
-                                <td class="p-2 text-center"><button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded shadow text-[9px] uppercase font-bold">Scout</button></td>
+                                <td class="px-1 py-2 md:p-3 font-black text-slate-500">${pos.display}</td>
+                                <td class="px-1 py-2 md:p-3 font-bold text-slate-500">Empty</td>
+                                <td class="px-1 py-2 text-center text-slate-600">-</td><td class="px-1 py-2 text-center text-slate-600">-</td>
+                                <td class="px-1 py-2 text-center text-slate-600">-</td><td class="px-1 py-2 text-center text-slate-600">-</td>
+                                <td class="px-1 py-2 text-center text-slate-600">-</td><td class="px-1 py-2 text-center text-slate-600">-</td>
+                                <td class="px-1 py-2 text-center font-black text-slate-600 bg-slate-900/50 border-x border-slate-700/50">-</td>
+                                <td class="px-1 py-2 text-center"><button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-green-600 hover:bg-green-500 text-white px-1.5 py-1 rounded shadow text-[10px]">🔍</button></td>
                             </tr>`;
                         }
                     });
                 }
             }
-
             html += '</tbody></table></div>';
             listArea.innerHTML = html;
         }
