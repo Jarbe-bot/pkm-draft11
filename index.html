@@ -262,8 +262,16 @@
                 Skip Remaining Actions &rarr;
             </button>
 
-            <div id="pitch-view" class="w-full max-w-3xl mx-auto pitch-wrapper block pb-8 relative">
-                <div id="pitch-capture-area" class="bg-[#0f172a] p-1 sm:p-2 md:p-4 rounded-xl relative">
+           <div id="pitch-view" class="w-full max-w-3xl mx-auto pitch-wrapper block pb-8 relative">
+                
+                <!-- NIEUW: De List/Pitch view toggle -->
+                <div class="flex justify-end mb-2 px-1">
+                    <button id="btn-toggle-view" onclick="toggleSquadView()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-yellow-400 text-[10px] md:text-xs font-black uppercase tracking-widest rounded-lg border border-slate-600 shadow-md transition-colors flex items-center gap-2 z-20 relative">
+                        📋 List View
+                    </button>
+                </div>
+                
+                <div id="pitch-capture-area" class="bg-[#0f172a] p-1 sm:p-2 md:p-4 rounded-xl relative transition-opacity duration-300">
                     <div class="pitch w-full aspect-[3/4.2] sm:aspect-[3/4] rounded-xl relative shadow-[0_20px_50px_rgba(0,0,0,0.5)] mx-auto">
                         <div class="pitch-lines">
                             <div class="half-way-line"></div>
@@ -274,6 +282,10 @@
                         <svg id="chem-lines"></svg>
                         <div id="pitch-container" class="absolute inset-0 z-10"></div>
                     </div>
+                </div>
+               <!-- NIEUW: De Container voor de List View -->
+                <div id="squad-list-area" class="hidden bg-[#0f172a] p-1 md:p-3 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-slate-700 mx-auto w-full relative">
+                    <!-- Tabel wordt via JS opgebouwd -->
                 </div>
 
                 <div class="mt-5 md:mt-7 flex justify-center gap-2.5 md:gap-4 flex-wrap px-2">
@@ -298,7 +310,7 @@
                 </div>
             </div>
 
-            <div id="match-center" class="hidden w-full flex-col lg:flex-row gap-5 relative">
+            <div id="match-center" class="hidden w-full flex-col-reverse lg:flex-row gap-5 relative">
                 <div id="standings-panel" class="w-full lg:w-1/2 poke-box-dark shadow-2xl flex flex-col standings">
                     <div class="bg-slate-900/50 p-3.5 md:p-4 border-b border-slate-700/50 flex justify-between items-center relative shrink-0">
                         <h2 class="pixel-font text-sm md:text-base font-black text-yellow-400 uppercase tracking-widest flex items-center gap-2">
@@ -1607,6 +1619,99 @@ const AudioManager = {
             return c[type] || '#64748b';
         }
 
+        let isSquadView = false;
+        
+        function toggleSquadView() {
+            isSquadView = !isSquadView;
+            const pitch = document.getElementById('pitch-capture-area');
+            const list = document.getElementById('squad-list-area');
+            const btn = document.getElementById('btn-toggle-view');
+
+            if (isSquadView) {
+                pitch.classList.add('hidden');
+                list.classList.remove('hidden');
+                btn.innerHTML = '⚽ Pitch View';
+                renderSquadList();
+            } else {
+                list.classList.add('hidden');
+                pitch.classList.remove('hidden');
+                btn.innerHTML = '📋 List View';
+            }
+        }
+
+        function renderSquadList() {
+            const listArea = document.getElementById('squad-list-area');
+            if (!activeFormation || !formations[activeFormation]) return;
+
+            const groups = {
+                'GOALKEEPERS': ['GK'],
+                'DEFENDERS': ['CB', 'FB'],
+                'MIDFIELDERS': ['DM', 'CM', 'WM', 'AM'],
+                'ATTACKERS': ['WG', 'ST']
+            };
+
+            // Kleurcodes (FM-stijl gelinkt aan de groei per training)
+            const statColor = (val) => {
+                if (val < 70) return 'text-slate-500'; // Snel trainen
+                if (val < 95) return 'text-slate-200 font-bold'; // Gemiddeld
+                if (val < 120) return 'text-green-400 font-black'; // Goed
+                return 'text-blue-400 font-black drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]'; // Elite
+            };
+
+            let html = '<div class="overflow-x-auto pb-2"><table class="w-full text-left text-[10px] md:text-xs text-slate-300 whitespace-nowrap">';
+            html += '<thead class="bg-slate-900 text-slate-400 uppercase border-b border-slate-700"><tr><th class="p-2 md:p-3">Pos</th><th class="p-2 md:p-3">Player</th><th class="p-2 text-center">SPE</th><th class="p-2 text-center">HP</th><th class="p-2 text-center">ATK</th><th class="p-2 text-center">DEF</th><th class="p-2 text-center">SPA</th><th class="p-2 text-center">SPD</th><th class="p-2 text-center bg-slate-900/50">OVR</th><th class="p-2 text-center">Act</th></tr></thead>';
+            html += '<tbody class="divide-y divide-slate-800">';
+
+            for (let [groupName, roles] of Object.entries(groups)) {
+                let positionsInGroup = formations[activeFormation].positions.filter(pos => roles.includes(pos.role));
+
+                if (positionsInGroup.length > 0) {
+                    html += `<tr class="bg-slate-900/60"><td colspan="10" class="p-1.5 md:p-2 text-center font-black text-yellow-500 uppercase tracking-widest text-[9px] md:text-[10px] border-y border-slate-700/50">${groupName}</td></tr>`;
+                    
+                    positionsInGroup.forEach(pos => {
+                        const p = userTeam[pos.id];
+                        
+                        if (p) {
+                            const ovr = calculatePlayerOVR(p, pos.role, getPlayerChem(pos.id).closurePct);
+                            
+                            let actionBtn = '';
+                            if (isTransferWindow && actionPoints > 0) {
+                                actionBtn = `<button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded shadow text-[9px] uppercase font-bold transform hover:scale-105 transition-transform">Manage</button>`;
+                            } else {
+                                actionBtn = `<button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded shadow text-[9px] uppercase font-bold">View</button>`;
+                            }
+
+                            html += `<tr class="hover:bg-slate-800/80 transition-colors">
+                                <td class="p-2 md:p-3 font-black text-white" style="color: ${getTypeColorHex(p.primaryType)}">${pos.display}</td>
+                                <td class="p-2 md:p-3 flex items-center gap-1.5 md:gap-2 font-bold text-white"><img src="${p.sprite}" class="w-6 h-6 md:w-8 md:h-8 object-contain drop-shadow-md hidden sm:block">${p.name}</td>
+                                <td class="p-2 text-center ${statColor(p.stats.spe)}">${p.stats.spe}</td>
+                                <td class="p-2 text-center ${statColor(p.stats.hp)}">${p.stats.hp}</td>
+                                <td class="p-2 text-center ${statColor(p.stats.atk)}">${p.stats.atk}</td>
+                                <td class="p-2 text-center ${statColor(p.stats.def)}">${p.stats.def}</td>
+                                <td class="p-2 text-center ${statColor(p.stats.spa)}">${p.stats.spa}</td>
+                                <td class="p-2 text-center ${statColor(p.stats.spd)}">${p.stats.spd}</td>
+                                <td class="p-2 text-center font-black text-yellow-400 bg-slate-900/50 border-x border-slate-700/50">${ovr}</td>
+                                <td class="p-2 text-center">${actionBtn}</td>
+                            </tr>`;
+                        } else {
+                            html += `<tr class="hover:bg-slate-800/80 transition-colors opacity-60">
+                                <td class="p-2 md:p-3 font-black text-slate-500">${pos.display}</td>
+                                <td class="p-2 md:p-3 font-bold text-slate-500">Empty</td>
+                                <td class="p-2 text-center text-slate-600">-</td><td class="p-2 text-center text-slate-600">-</td>
+                                <td class="p-2 text-center text-slate-600">-</td><td class="p-2 text-center text-slate-600">-</td>
+                                <td class="p-2 text-center text-slate-600">-</td><td class="p-2 text-center text-slate-600">-</td>
+                                <td class="p-2 text-center font-black text-slate-600 bg-slate-900/50 border-x border-slate-700/50">-</td>
+                                <td class="p-2 text-center"><button onclick="openDraft('${pos.id}', '${pos.display}', '${pos.role}')" class="bg-green-600 hover:bg-green-500 text-white px-2 py-1 rounded shadow text-[9px] uppercase font-bold">Scout</button></td>
+                            </tr>`;
+                        }
+                    });
+                }
+            }
+
+            html += '</tbody></table></div>';
+            listArea.innerHTML = html;
+        }
+
         function renderPitch() {
             const pitchContainer = document.getElementById('pitch-container');
             pitchContainer.innerHTML = '';
@@ -1670,6 +1775,9 @@ const AudioManager = {
                 document.getElementById('btn-simulate').disabled = draftedCount < 11;
             }
             drawChemistry();
+
+            // NIEUW: Werk ook de List View bij als deze open staat!
+            if (isSquadView) renderSquadList();
         }
 
         function drawChemistry() {
@@ -2233,6 +2341,8 @@ await rollOptions(role, displayPos);
             document.getElementById('btn-back-to-stats').classList.remove('flex');
             document.getElementById('match-center').classList.remove('hidden');
             document.getElementById('match-center').classList.add('flex');
+
+            document.querySelector('header').classList.add('hidden');
             
             document.getElementById('post-season-awards').classList.add('hidden');
             document.getElementById('post-season-awards').classList.remove('flex', 'order-first');
@@ -2267,7 +2377,7 @@ await rollOptions(role, displayPos);
             
             const uPoss = myTeamEnginePools.poss || 0;
             const cPoss = cpuOp.pools.poss || 0;
-            const possRatio = (Math.pow(uPoss, 1.5)) / (Math.pow(uPoss, 1.5) + Math.pow(cPoss, 1.5));
+            const possRatio = (Math.pow(uPoss, 1.8)) / (Math.pow(uPoss, 1.8) + Math.pow(cPoss, 1.8));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
             const cpuChances = totalChances - userChances;
@@ -2289,11 +2399,11 @@ await rollOptions(role, displayPos);
             const uFinish = myTeamEnginePools.finish || 0; const cBlock = cpuOp.pools.block || 0;
             const cFinish = cpuOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
 
-            // 🛡️ De verdediging (cPrevent / cBlock) krijgt een wiskundige x1.2 bonus én de maximumkans zakt van 0.70 naar 0.60
-            const userCreateProb = Math.min(0.60, Math.max(0.05, uCreate / (uCreate + (cPrevent * 1.2))));
-            const userFinishProb = Math.min(0.60, Math.max(0.05, uFinish / (uFinish + (cBlock * 1.2))));
-            const cpuCreateProb = Math.min(0.60, Math.max(0.05, cCreate / (cCreate + (uPrevent * 1.2))));
-            const cpuFinishProb = Math.min(0.60, Math.max(0.05, cFinish / (cFinish + (uBlock * 1.2))));
+      
+            const userCreateProb = Math.min(0.85, Math.max(0.10, uCreate / (uCreate + (cPrevent * 1.1))));
+            const userFinishProb = Math.min(0.85, Math.max(0.10, uFinish / (uFinish + (cBlock * 1.1))));
+            const cpuCreateProb = Math.min(0.85, Math.max(0.10, cCreate / (cCreate + (uPrevent * 1.1))));
+            const cpuFinishProb = Math.min(0.85, Math.max(0.10, cFinish / (cFinish + (uBlock * 1.1))));
 
             let rawUserGoals = 0, rawCpuGoals = 0;
             for(let i=0; i<userChances; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rawUserGoals++; }
@@ -2363,6 +2473,14 @@ await rollOptions(role, displayPos);
             let aScore = parseInt(document.getElementById('tv-away-score').innerText); 
             const delay = ms => new Promise(res => setTimeout(res, ms));
             let startMin = isExtraTime ? 91 : 1;
+
+            const popScore = (id) => {
+                const el = document.getElementById(id);
+                el.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                el.style.transform = 'scale(1.7)';
+                el.style.color = '#facc15'; // Geel
+                setTimeout(() => { el.style.transform = 'scale(1)'; el.style.color = 'white'; }, 300);
+            };
             
             AudioManager.playStadiumLayers();
             if (!isExtraTime) AudioManager.playSFX('audio/whistle.mp3', 0.6); 
@@ -2587,6 +2705,7 @@ await rollOptions(role, displayPos);
             document.getElementById('pitch-view').classList.add('hidden');
             document.getElementById('match-center').classList.remove('hidden');
             document.getElementById('match-center').classList.add('flex');
+                    document.querySelector('header').classList.add('hidden');
             
             document.getElementById('btn-play-cup-pitch').classList.add('hidden');
             document.getElementById('btn-play-cup-pitch').classList.remove('block');
@@ -2598,9 +2717,30 @@ await rollOptions(role, displayPos);
             
             document.getElementById('tv-scoreboard').classList.remove('hidden');
             
-            // Sorteer Europese tegenstanders van zwak naar sterk op totale pool-score
+            // ENDGAME FIX: Cup teams schalen mee, maar botsen tegen een "Final Boss Cap" (+250)
+            // Hierdoor is de Cup winnend af te sluiten met een slim 85 OVR team, 
+            // maar kan een 99 OVR monsterploeg ze alsnog genadeloos vernietigen.
+            const maxCupBoost = 250;
+            const cupBoost = Math.min((currentSeason - 1) * 15, maxCupBoost);
+            
+            const applyCupBoost = (op) => {
+                return {
+                    ...op,
+                    pools: {
+                        poss: op.pools.poss + cupBoost,
+                        create: op.pools.create + cupBoost,
+                        prevent: op.pools.prevent + cupBoost,
+                        finish: op.pools.finish + cupBoost,
+                        block: op.pools.block + cupBoost
+                    }
+                };
+            };
+
+            const boostedEuro = euroOpponents.map(applyCupBoost);
+
+            // Sorteer gebuffte Europese tegenstanders van zwak naar sterk op totale pool-score
             const getTotalPool = (op) => op.pools.poss + op.pools.create + op.pools.prevent + op.pools.finish + op.pools.block;
-            let sortedEuro = [...euroOpponents].sort((a, b) => getTotalPool(a) - getTotalPool(b));
+            let sortedEuro = [...boostedEuro].sort((a, b) => getTotalPool(a) - getTotalPool(b));
 
             // Verdeel in 4 sterkte-potten (R16 -> QF -> SF -> Final)
             let pot1 = sortedEuro.slice(0, 4).sort(() => 0.5 - Math.random());   // Subtop
@@ -2612,7 +2752,6 @@ await rollOptions(role, displayPos);
             currentCupRound = 0;
             
             setupNextCupRound();
-        }
 
 
         function setupNextCupRound() {
@@ -2693,10 +2832,10 @@ await rollOptions(role, displayPos);
             const uFinish = myTeamEnginePools.finish || 0; const cBlock = cupOp.pools.block || 0;
             const cFinish = cupOp.pools.finish || 0; const uBlock = myTeamEnginePools.block || 0;
             // 🛡️ De verdediging (cPrevent / cBlock) krijgt een wiskundige x1.2 bonus én de maximumkans zakt van 0.70 naar 0.60
-            const userCreateProb = Math.min(0.60, Math.max(0.05, uCreate / (uCreate + (cPrevent * 1.2))));
-            const userFinishProb = Math.min(0.60, Math.max(0.05, uFinish / (uFinish + (cBlock * 1.2))));
-            const cpuCreateProb = Math.min(0.60, Math.max(0.05, cCreate / (cCreate + (uPrevent * 1.2))));
-            const cpuFinishProb = Math.min(0.60, Math.max(0.05, cFinish / (cFinish + (uBlock * 1.2))));
+            const userCreateProb = Math.min(0.85, Math.max(0.10, uCreate / (uCreate + (cPrevent * 1.1))));
+            const userFinishProb = Math.min(0.85, Math.max(0.10, uFinish / (uFinish + (cBlock * 1.1))));
+            const cpuCreateProb = Math.min(0.85, Math.max(0.10, cCreate / (cCreate + (uPrevent * 1.1))));
+            const cpuFinishProb = Math.min(0.85, Math.max(0.10, cFinish / (cFinish + (uBlock * 1.1))));
 
             let rawUserGoals = 0, rawCpuGoals = 0;
             for(let i=0; i<userChances; i++) { if(Math.random() < userCreateProb && Math.random() < userFinishProb) rawUserGoals++; }
@@ -2886,6 +3025,7 @@ await rollOptions(role, displayPos);
     document.getElementById('match-center').classList.remove('flex');
     document.getElementById('btn-back-to-stats').classList.add('hidden');
     document.getElementById('btn-back-to-stats').classList.remove('flex');
+            document.querySelector('header').classList.remove('hidden');
     
     document.getElementById('btn-simulate').classList.add('hidden');
     document.getElementById('btn-play-cup-pitch').classList.add('hidden');
@@ -2955,6 +3095,7 @@ await rollOptions(role, displayPos);
             document.getElementById('pitch-view').classList.remove('hidden');
             renderPitch(); 
             document.getElementById('btn-simulate').classList.add('hidden');
+           document.querySelector('header').classList.remove('hidden');
             
             const finishTransBtn = document.getElementById('btn-finish-transfers');
             if(finishTransBtn) { finishTransBtn.classList.add('hidden'); finishTransBtn.classList.remove('block'); }
@@ -3002,6 +3143,7 @@ await rollOptions(role, displayPos);
             document.getElementById('match-center').classList.add('hidden');
             document.getElementById('match-center').classList.remove('flex');
             document.getElementById('pitch-view').classList.remove('hidden');
+           document.querySelector('header').classList.remove('hidden');
 
             // --- DE RESET VOOR HET START SCHERM ANIMATIES ---
             const step0 = document.getElementById('step-0');
