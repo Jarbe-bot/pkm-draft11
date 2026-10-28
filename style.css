@@ -150,4 +150,14 @@ height:478px;
         .trophy-card { transition: all 0.3s ease; }
         .trophy-card.unlocked:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.3); border-color: #facc15; }
 
+@keyframes goalPop {
+            0% { transform: scale(1); color: #ffffff; }
+            40% { transform: scale(1.8); color: #facc15; }
+            100% { transform: scale(1); color: #ffffff; }
+        }
+        .goal-pop-anim {
+            display: inline-block;
+            animation: goalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
 ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: #475569; }
