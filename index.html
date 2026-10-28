@@ -1649,11 +1649,13 @@ const AudioManager = {
                 'MIDFIELDERS': ['DM', 'CM', 'WM', 'AM'], 'ATTACKERS': ['WG', 'ST']
             };
 
+            // Nieuwe 5-kleuren FM-stijl weergave
             const statColor = (val) => {
-                if (val < 70) return 'text-slate-500'; 
-                if (val < 95) return 'text-slate-200 font-bold'; 
-                if (val < 120) return 'text-green-400 font-black'; 
-                return 'text-blue-400 font-black drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]'; 
+                if (val < 70) return 'text-red-400 font-bold'; // Laag
+                if (val < 90) return 'text-orange-400 font-bold'; // Redelijk laag
+                if (val < 110) return 'text-slate-200 font-bold'; // Gemiddeld
+                if (val < 125) return 'text-green-400 font-black'; // Goed
+                return 'text-blue-400 font-black drop-shadow-[0_0_5px_rgba(96,165,250,0.5)]'; // Uitstekend
             };
 
             let html = '<div class="overflow-x-auto pb-2"><table class="w-full text-left text-[9px] md:text-xs text-slate-300 whitespace-nowrap">';
