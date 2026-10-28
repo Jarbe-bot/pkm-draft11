@@ -2469,12 +2469,13 @@ await rollOptions(role, displayPos);
             const delay = ms => new Promise(res => setTimeout(res, ms));
             let startMin = isExtraTime ? 91 : 1;
 
+            // NIEUW: De robuuste CSS-animatie trigger
             const popScore = (id) => {
                 const el = document.getElementById(id);
-                el.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                el.style.transform = 'scale(1.7)';
-                el.style.color = '#facc15'; // Geel
-                setTimeout(() => { el.style.transform = 'scale(1)'; el.style.color = 'white'; }, 300);
+                if(!el) return;
+                el.classList.remove('goal-pop-anim');
+                void el.offsetWidth; // Dit is een magische truc: dwingt de browser te refreshen!
+                el.classList.add('goal-pop-anim');
             };
             
             AudioManager.playStadiumLayers();
