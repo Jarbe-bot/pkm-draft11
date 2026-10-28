@@ -972,14 +972,14 @@
 
 
 const AudioManager = {
+            isMusicMuted: localStorage.getItem('pkm_music_muted') === 'true',
+            isSfxMuted: localStorage.getItem('pkm_sfx_muted') === 'true',
             bgm: null,
             bgmSrc: null, 
             stadiumBase: null,
             stadiumChant1: null,
             stadiumChant2: null,
             stadiumMixer: null, 
-            isMusicMuted: false,
-            isSfxMuted: false,
             uiPlink: new Audio('audio/pling.mp3'),
 
             // De fade timer triggert nu EXACT na de meegegeven milliseconden!
@@ -1146,17 +1146,9 @@ const AudioManager = {
         
         function toggleMusic() {
             AudioManager.isMusicMuted = !AudioManager.isMusicMuted;
+            localStorage.setItem('pkm_music_muted', AudioManager.isMusicMuted);
+            updateAudioUI();
             
-            document.querySelectorAll('#btn-toggle-music').forEach(btn => {
-                if (AudioManager.isMusicMuted) {
-                    btn.innerHTML = '<span>🎵</span><span class="hidden sm:inline ml-1 font-bold">OFF</span>';
-                    btn.classList.add('opacity-50', 'line-through');
-                } else {
-                    btn.innerHTML = '<span>🎵</span><span class="hidden sm:inline ml-1 font-bold">ON</span>';
-                    btn.classList.remove('opacity-50', 'line-through');
-                }
-            });
-
             if (AudioManager.isMusicMuted) {
                 if (AudioManager.bgm) AudioManager.bgm.pause();
             } else {
@@ -1173,16 +1165,8 @@ const AudioManager = {
 
         function toggleSFX() {
             AudioManager.isSfxMuted = !AudioManager.isSfxMuted;
-            
-            document.querySelectorAll('#btn-toggle-sfx').forEach(btn => {
-                if (AudioManager.isSfxMuted) {
-                    btn.innerHTML = '<span>🔇</span><span class="hidden sm:inline ml-1 font-bold">OFF</span>';
-                    btn.classList.add('opacity-50', 'line-through');
-                } else {
-                    btn.innerHTML = '<span>🔊</span><span class="hidden sm:inline ml-1 font-bold">ON</span>';
-                    btn.classList.remove('opacity-50', 'line-through');
-                }
-            });
+            localStorage.setItem('pkm_sfx_muted', AudioManager.isSfxMuted);
+            updateAudioUI();
 
             if (AudioManager.isSfxMuted) {
                 if (AudioManager.stadiumBase) AudioManager.stadiumBase.pause();
@@ -1196,6 +1180,28 @@ const AudioManager = {
                     if (AudioManager.stadiumChant2) AudioManager.stadiumChant2.play().catch(e => {});
                 }
             }
+        }
+
+        function updateAudioUI() {
+            document.querySelectorAll('#btn-toggle-music').forEach(btn => {
+                if (AudioManager.isMusicMuted) {
+                    btn.innerHTML = '<span>🎵</span><span class="hidden sm:inline ml-1 font-bold">OFF</span>';
+                    btn.classList.add('opacity-50', 'line-through');
+                } else {
+                    btn.innerHTML = '<span>🎵</span><span class="hidden sm:inline ml-1 font-bold">ON</span>';
+                    btn.classList.remove('opacity-50', 'line-through');
+                }
+            });
+
+            document.querySelectorAll('#btn-toggle-sfx').forEach(btn => {
+                if (AudioManager.isSfxMuted) {
+                    btn.innerHTML = '<span>🔇</span><span class="hidden sm:inline ml-1 font-bold">OFF</span>';
+                    btn.classList.add('opacity-50', 'line-through');
+                } else {
+                    btn.innerHTML = '<span>🔊</span><span class="hidden sm:inline ml-1 font-bold">ON</span>';
+                    btn.classList.remove('opacity-50', 'line-through');
+                }
+            });
         }
         function openHTP() {
             const modal = document.getElementById('htp-modal');
