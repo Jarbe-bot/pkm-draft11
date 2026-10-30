@@ -1390,7 +1390,7 @@ const AudioManager = {
             const s = pokemon.normStats;
             
             // De Robin Hood Toepassing: Gat dichten tot 115!
-            const applyRobinHood = (stat) => stat + ((115 - stat) * closurePct);
+           const applyRobinHood = (stat) => stat >= 115 ? stat : stat + ((115 - stat) * closurePct);
             
             const boostedS = {
                 atk: applyRobinHood(s.atk),
@@ -1466,7 +1466,7 @@ const AudioManager = {
                 const closurePct = chemInfo.closurePct;
                 
                 // Robin Hood in de Engine: Verhoog de onderliggende stats voordat de taart berekend wordt
-                const applyRobinHood = (stat) => stat + ((115 - stat) * closurePct);
+                const applyRobinHood = (stat) => stat >= 115 ? stat : stat + ((115 - stat) * closurePct);
                 
                 const att = applyRobinHood(player.normStats.atk);
                 const def = applyRobinHood(player.normStats.def);
@@ -2210,7 +2210,7 @@ await rollOptions(role, displayPos);
                     else if(pos.role === 'CB' || pos.role === 'FB') baseWeight = 1;
 
                     const chemInfo = getPlayerChem(pos.id);
-                    const applyRobinHood = (stat) => stat + ((115 - stat) * chemInfo.closurePct);
+                    const applyRobinHood = (stat) => stat >= 115 ? stat : stat + ((115 - stat) * closurePct);
                     
                     const att = applyRobinHood(p.normStats.atk);
                     const spa = applyRobinHood(p.normStats.spa);
