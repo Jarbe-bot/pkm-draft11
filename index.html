@@ -2210,7 +2210,8 @@ await rollOptions(role, displayPos);
                     else if(pos.role === 'CB' || pos.role === 'FB') baseWeight = 1;
 
                     const chemInfo = getPlayerChem(pos.id);
-                    const applyRobinHood = (stat) => stat >= 115 ? stat : stat + ((115 - stat) * closurePct);
+                // FIX: chemInfo. toegevoegd voor closurePct zodat hij de variabele herkent
+                const applyRobinHood = (stat) => stat >= 115 ? stat : stat + ((115 - stat) * chemInfo.closurePct);
                     
                     const att = applyRobinHood(p.normStats.atk);
                     const spa = applyRobinHood(p.normStats.spa);
