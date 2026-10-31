@@ -104,6 +104,7 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">7. League &amp; Continental Cup</h3>
                     <ul class="list-disc pl-5 space-y-1">
+                        <li><strong class="text-green-400">Formations:</strong> every formation has its own style. 4-2-4 goes all-out attack (most goals, weak midfield, open games), 5-4-1 parks the bus (fewest goals conceded, lone striker), 3-5-2 controls midfield but is open on the flanks, 4-2-3-1 controls the game, 4-4-2 is compact and solid, 4-3-3 attacks wide, 3-4-3 presses high over the flanks but is thin at the back, the 4-1-2-1-2 diamond overloads the centre without width, 5-3-2 defends deep and counters with two strikers, and 4-4-1-1 runs everything through its second striker. Overall they are equally strong.</li>
                         <li><strong class="text-blue-400">League:</strong> 8 clubs, 7 matchdays. The top 2 qualify for the Continental Cup. Every season all rival clubs get 1.5% stronger (up to +30%), so standing still means falling behind. The strong clubs stay strong and the weak stay weak.</li>
                         <li><strong class="text-yellow-400">Continental Cup:</strong> Four knockout rounds against Europe's elite, each round tougher than the last. Cup nights are open games with more chances, so the better team usually wins. Cup opponents also grow every season.</li>
                     </ul>
@@ -491,8 +492,25 @@
             // Bestuur
             BASE_AP: 3,
             BOARD_CASH: { safe: 0, ambitious: 2, allin: 3 },
-            BOARD_STEP_AMBITIOUS: 2,       // Ambitieus: 2 plaatsen beter dan de verwachting
-            BOARD_STEP_ALLIN: 4,           // All-in: 4 plaatsen beter (of titel + cupwedstrijd als Ambitieus al de titel is)
+            BOARD_STEP_AMBITIOUS: 1,       // Ambitieus: 1 plaats beter dan de verwachting
+            BOARD_STEP_ALLIN: 3,           // All-in: 3 plaatsen beter (of titel + cupwedstrijd als Ambitieus al de titel is)
+            // Competitieclubs: balbezit was structureel te laag (72% van hun andere fasen). Herverdeling, zelfde totale moeilijkheid:
+            LEAGUE_POSS_RATIO: 0.85,       // balbezit minstens 85% van het gemiddelde van hun andere fasen
+            LEAGUE_OTHER_FACTOR: 0.90,     // andere fasen x0,90
+            // Formatieprofielen: vermenigvuldiger per fase (balbezit, creatie, afwerking, preventie, blok).
+            // Geeft elke formatie een eigen stijl; afgesteld zodat alle formaties ongeveer even sterk zijn.
+            FORMATION_PROFILES: {
+                '4-3-3':   { poss: 1.03, create: 1.07, finish: 1.05, prevent: 1.00, block: 1.00 },  // breed aanvallend
+                '4-4-2':   { poss: 0.99, create: 1.01, finish: 1.01, prevent: 1.05, block: 1.01 },  // compact en degelijk
+                '3-5-2':   { poss: 1.04, create: 1.00, finish: 0.96, prevent: 0.89, block: 0.93 },  // middenveld domineren, open op de flanken
+                '5-4-1':   { poss: 0.97, create: 0.95, finish: 0.89, prevent: 1.09, block: 1.11 },  // de bus parkeren
+                '4-2-4':   { poss: 0.94, create: 1.13, finish: 1.15, prevent: 0.98, block: 1.02 },  // alles op de aanval
+                '4-2-3-1': { poss: 1.01, create: 1.02, finish: 0.90, prevent: 0.98, block: 0.96 },  // controle en creativiteit
+                '3-4-3':     { poss: 0.99, create: 1.07, finish: 1.05, prevent: 0.93, block: 0.89 },  // druk zetten over de flanken
+                '4-1-2-1-2': { poss: 1.04, create: 0.92, finish: 1.01, prevent: 0.96, block: 0.94 },  // smal: middenveld-overwicht, geen breedte
+                '5-3-2':     { poss: 0.93, create: 0.97, finish: 1.07, prevent: 1.11, block: 1.13 },  // counteren
+                '4-4-1-1':   { poss: 0.99, create: 1.02, finish: 0.97, prevent: 1.01, block: 0.99 }   // tweede spits als spil
+            },
             TRUST_MAX: 3,
             TRUST_GAIN_ON_SUCCESS: 1,
             TRUST_LOSS_NARROW: { safe: 0, ambitious: 0, allin: 1 },   // 1 plaats tekort
@@ -576,6 +594,74 @@
                     { id: 'GK', display: 'GK', top: '91%', left: '50%', role: 'GK' }
                 ],
                 links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['LB', 'CDM1'], ['CB1', 'CDM1'], ['CB2', 'CDM2'], ['RB', 'CDM2'], ['CDM1', 'CDM2'], ['CDM1', 'LAM'], ['CDM1', 'CAM'], ['CDM2', 'CAM'], ['CDM2', 'RAM'], ['LAM', 'CAM'], ['CAM', 'RAM'], ['LAM', 'ST'], ['CAM', 'ST'], ['RAM', 'ST']]
+            },
+            '3-4-3': {
+                name: '3-4-3 Flank Press', desc: 'Three forwards and flying wing-backs. Thin at the back.',
+                positions: [
+                    { id: 'LW', display: 'LW', top: '18%', left: '18%', role: 'WG' },
+                    { id: 'ST', display: 'ST', top: '13%', left: '50%', role: 'ST' },
+                    { id: 'RW', display: 'RW', top: '18%', left: '82%', role: 'WG' },
+                    { id: 'LWB', display: 'LWB', top: '44%', left: '12%', role: 'FB' },
+                    { id: 'CM1', display: 'CM1', top: '47%', left: '37%', role: 'CM' },
+                    { id: 'CM2', display: 'CM2', top: '47%', left: '63%', role: 'CM' },
+                    { id: 'RWB', display: 'RWB', top: '44%', left: '88%', role: 'FB' },
+                    { id: 'CB1', display: 'CB1', top: '74%', left: '25%', role: 'CB' },
+                    { id: 'CB2', display: 'CB2', top: '76%', left: '50%', role: 'CB' },
+                    { id: 'CB3', display: 'CB3', top: '74%', left: '75%', role: 'CB' },
+                    { id: 'GK', display: 'GK', top: '91%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['GK', 'CB3'], ['CB1', 'CB2'], ['CB2', 'CB3'], ['CB1', 'LWB'], ['CB3', 'RWB'], ['CB1', 'CM1'], ['CB3', 'CM2'], ['LWB', 'CM1'], ['CM1', 'CM2'], ['CM2', 'RWB'], ['LWB', 'LW'], ['RWB', 'RW'], ['CM1', 'LW'], ['CM2', 'RW'], ['LW', 'ST'], ['RW', 'ST'], ['CM1', 'ST'], ['CM2', 'ST']]
+            },
+            '4-1-2-1-2': {
+                name: '4-1-2-1-2 Diamond', desc: 'Narrow diamond: central overload, two strikers, no width.',
+                positions: [
+                    { id: 'LS', display: 'LS', top: '15%', left: '37%', role: 'ST' },
+                    { id: 'RS', display: 'RS', top: '15%', left: '63%', role: 'ST' },
+                    { id: 'CAM', display: 'CAM', top: '32%', left: '50%', role: 'AM' },
+                    { id: 'CM1', display: 'CM1', top: '46%', left: '28%', role: 'CM' },
+                    { id: 'CM2', display: 'CM2', top: '46%', left: '72%', role: 'CM' },
+                    { id: 'CDM', display: 'CDM', top: '57%', left: '50%', role: 'DM' },
+                    { id: 'LB', display: 'LB', top: '72%', left: '14%', role: 'FB' },
+                    { id: 'CB1', display: 'CB1', top: '75%', left: '37%', role: 'CB' },
+                    { id: 'CB2', display: 'CB2', top: '75%', left: '63%', role: 'CB' },
+                    { id: 'RB', display: 'RB', top: '72%', left: '86%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '91%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['CB1', 'CDM'], ['CB2', 'CDM'], ['LB', 'CM1'], ['RB', 'CM2'], ['CDM', 'CM1'], ['CDM', 'CM2'], ['CM1', 'CAM'], ['CM2', 'CAM'], ['CAM', 'LS'], ['CAM', 'RS'], ['LS', 'RS'], ['CM1', 'LS'], ['CM2', 'RS']]
+            },
+            '5-3-2': {
+                name: '5-3-2 Counter', desc: 'Five at the back, two strikers on the break.',
+                positions: [
+                    { id: 'LS', display: 'LS', top: '15%', left: '37%', role: 'ST' },
+                    { id: 'RS', display: 'RS', top: '15%', left: '63%', role: 'ST' },
+                    { id: 'CM1', display: 'CM1', top: '44%', left: '28%', role: 'CM' },
+                    { id: 'CDM', display: 'CDM', top: '52%', left: '50%', role: 'DM' },
+                    { id: 'CM2', display: 'CM2', top: '44%', left: '72%', role: 'CM' },
+                    { id: 'LWB', display: 'LWB', top: '64%', left: '12%', role: 'FB' },
+                    { id: 'CB1', display: 'CB1', top: '75%', left: '30%', role: 'CB' },
+                    { id: 'CB2', display: 'CB2', top: '77%', left: '50%', role: 'CB' },
+                    { id: 'CB3', display: 'CB3', top: '75%', left: '70%', role: 'CB' },
+                    { id: 'RWB', display: 'RWB', top: '64%', left: '88%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '91%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['GK', 'CB3'], ['CB1', 'CB2'], ['CB2', 'CB3'], ['LWB', 'CB1'], ['CB3', 'RWB'], ['LWB', 'CM1'], ['RWB', 'CM2'], ['CB1', 'CM1'], ['CB3', 'CM2'], ['CB2', 'CDM'], ['CDM', 'CM1'], ['CDM', 'CM2'], ['CM1', 'LS'], ['CM2', 'RS'], ['LS', 'RS']]
+            },
+            '4-4-1-1': {
+                name: '4-4-1-1 Second Striker', desc: 'Classic shape with a creative second striker as the hub.',
+                positions: [
+                    { id: 'ST', display: 'ST', top: '13%', left: '50%', role: 'ST' },
+                    { id: 'SS', display: 'SS', top: '30%', left: '50%', role: 'AM' },
+                    { id: 'LM', display: 'LM', top: '42%', left: '16%', role: 'WM' },
+                    { id: 'CM1', display: 'CM1', top: '48%', left: '38%', role: 'CM' },
+                    { id: 'CM2', display: 'CM2', top: '48%', left: '62%', role: 'CM' },
+                    { id: 'RM', display: 'RM', top: '42%', left: '84%', role: 'WM' },
+                    { id: 'LB', display: 'LB', top: '72%', left: '14%', role: 'FB' },
+                    { id: 'CB1', display: 'CB1', top: '75%', left: '37%', role: 'CB' },
+                    { id: 'CB2', display: 'CB2', top: '75%', left: '63%', role: 'CB' },
+                    { id: 'RB', display: 'RB', top: '72%', left: '86%', role: 'FB' },
+                    { id: 'GK', display: 'GK', top: '91%', left: '50%', role: 'GK' }
+                ],
+                links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['LB', 'LM'], ['RB', 'RM'], ['CB1', 'CM1'], ['CB2', 'CM2'], ['LM', 'CM1'], ['CM1', 'CM2'], ['CM2', 'RM'], ['LM', 'SS'], ['CM1', 'SS'], ['CM2', 'SS'], ['RM', 'SS'], ['SS', 'ST'], ['LM', 'ST'], ['RM', 'ST']]
             }
         };
 
@@ -657,6 +743,14 @@
             { id: 57, gen: 9, name: "Montenevera", pools: { poss: 750, create: 950, prevent: 1000, finish: 1000, block: 950 }, names: ["Houndstone", "Mismagius", "Gengar", "Spiritomb", "Mimikyu", "Baxcalibur"] },
             { id: 58, gen: 9, name: "Alfornada FC", pools: { poss: 780, create: 1050, prevent: 950, finish: 1050, block: 900 }, names: ["Espathra", "Gardevoir", "Gallade", "Farigiraf", "Armarouge", "Ceruledge"] }
         ];
+
+        // Herverdeling van de competitieclubs (zie BALANCE.LEAGUE_POSS_RATIO en LEAGUE_OTHER_FACTOR)
+        allOpponents.forEach(o => {
+            const p = o.pools;
+            const others = (p.create + p.prevent + p.finish + p.block) / 4;
+            p.poss = Math.round(Math.max(p.poss, others * BALANCE.LEAGUE_POSS_RATIO));
+            ['create', 'prevent', 'finish', 'block'].forEach(k => { p[k] = Math.round(p[k] * BALANCE.LEAGUE_OTHER_FACTOR); });
+        });
 
                 const euroOpponents = [
             // POT 1: Europese subtop (~81-83 OVR equivalent -> ~880-920 pools)
@@ -1469,7 +1563,7 @@ const AudioManager = {
                         activeFormation = key;
                         document.getElementById('btn-start-draft').disabled = false;
                     };
-                    btn.innerHTML = `<span class="font-black text-xl md:text-2xl text-white group-hover:text-current mb-1">${key}</span><span class="text-xs opacity-80 leading-relaxed">${f.desc}</span>`;
+                    btn.innerHTML = `<span class="font-black text-xl md:text-2xl text-white group-hover:text-current mb-1">${key}</span><span class="text-xs opacity-80 leading-relaxed">${f.desc}</span>${formationTagsHtml(key)}`;
                     grid.appendChild(btn);
                     requestAnimationFrame(() => { btn.classList.add('reveal-anim'); });
                 });
@@ -1700,7 +1794,9 @@ const AudioManager = {
             });
 
             if (totalWeight === 0) return 0;
-            return Math.round(totalScore / totalWeight);
+            const profile = BALANCE.FORMATION_PROFILES[activeFormation];
+            const styleFactor = (profile && profile[phase]) || 1;
+            return Math.round((totalScore / totalWeight) * styleFactor);
         }
 
        function updateScores() {
@@ -2653,6 +2749,31 @@ function showResumeSummaryCard() {
                 <button onclick="openCareerOverview()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full text-xs md:text-sm">📈 Career Overview</button>
             </div>
         </div>`;
+}
+
+
+// Karakter van een formatie, getoond op de formatiekaarten
+const FORMATION_TAGS = {
+    '4-3-3':   [['Attack', 1], ['Wide play', 0]],
+    '4-4-2':   [['Defense', 1], ['Compact', 0]],
+    '3-5-2':   [['Midfield', 1], ['Defense', -1]],
+    '5-4-1':   [['Defense', 2], ['Attack', -2]],
+    '4-2-4':   [['Attack', 2], ['Midfield', -1]],
+    '4-2-3-1': [['Midfield', 1], ['Creativity', 1], ['Finishing', -1]],
+    '3-4-3':   [['Attack', 1], ['Pressing', 0], ['Defense', -2]],
+    '4-1-2-1-2': [['Midfield', 2], ['Width', -1]],
+    '5-3-2':   [['Defense', 1], ['Counter', 0], ['Midfield', -1]],
+    '4-4-1-1': [['Creativity', 1], ['Balanced', 0]]
+};
+function formationTagsHtml(key) {
+    const tags = FORMATION_TAGS[key];
+    if (!tags) return '';
+    const chip = ([label, dir]) => {
+        const arrows = dir > 0 ? ' ' + '▲'.repeat(dir) : (dir < 0 ? ' ' + '▼'.repeat(-dir) : '');
+        const color = dir > 0 ? 'text-green-400 border-green-600/60' : (dir < 0 ? 'text-red-400 border-red-600/60' : 'text-slate-300 border-slate-600');
+        return `<span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border bg-slate-900/60 ${color}">${label}${arrows}</span>`;
+    };
+    return `<span class="flex flex-wrap gap-1 mt-2">${tags.map(chip).join('')}</span>`;
 }
 
 function checkOffSeasonActions() {
