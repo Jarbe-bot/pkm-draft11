@@ -339,7 +339,7 @@
                         <h2 class="pixel-font text-sm md:text-base font-black text-yellow-400 uppercase tracking-widest flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> Standings
                         </h2>
-                        <p id="season-objective-line" class="hidden text-[10px] md:text-xs text-purple-300 font-bold uppercase tracking-wider mt-1"></p>
+                        <p id="season-objective-line" class="hidden text-[10px] md:text-xs font-black uppercase tracking-wider whitespace-nowrap shrink-0 ml-2"></p>
                     </div>
                     <div class="overflow-y-auto flex-grow bg-slate-800/50 relative rounded-b-2xl">
                         <table class="w-full text-left text-xs sm:text-sm md:text-base border-collapse">
@@ -2033,11 +2033,20 @@ function updateObjectiveBanner() {
     el.textContent = boardObjective ? `Board: ${boardObjective.text} (${boardObjective.name})` : 'Swap players or train specific stats';
 }
 
+function objectiveShortText(o) {
+    if (o.cup) return 'Title + cup win';
+    if (o.T === 1) return 'Title';
+    if (o.T === (standings.length || 8) - 1) return 'Avoid last';
+    return `Top ${o.T}`;
+}
+
 function updateObjectiveLine() {
     const el = document.getElementById('season-objective-line');
     if (!el) return;
     if (boardObjective && boardObjective.season === currentSeason) {
-        el.textContent = `Board objective: ${boardObjective.text} (${boardObjective.name})`;
+        const color = { safe: 'text-green-400', ambitious: 'text-yellow-400', allin: 'text-red-400' }[boardObjective.level] || 'text-purple-300';
+        el.innerHTML = `&#127919; <span class="${color}">${objectiveShortText(boardObjective)}</span>`;
+        el.title = `Board objective: ${boardObjective.text} (${boardObjective.name})`;
         el.classList.remove('hidden');
     } else {
         el.classList.add('hidden');
