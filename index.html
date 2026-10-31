@@ -96,7 +96,7 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">6. The Board</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-yellow-400">Board meeting:</strong> Before every off-season the board tells you where it expects you to finish. You choose your promise: <span class="text-green-400">Safe</span> (no bonus), <span class="text-yellow-400">Ambitious</span> (+3 AP) or <span class="text-red-400">All-in</span> (+5 AP). Bonus AP are paid out immediately.</li>
+                        <li><strong class="text-yellow-400">Board meeting:</strong> Before every off-season the board tells you where it expects you to finish. You choose your promise: <span class="text-green-400">Safe</span> (no bonus), <span class="text-yellow-400">Ambitious</span> (+2 AP) or <span class="text-red-400">All-in</span> (+3 AP). Bonus AP are paid out immediately.</li>
                         <li><strong class="text-red-400">Board trust (&hearts;&hearts;&hearts;):</strong> Deliver and you win back 1 heart. Fail and you lose hearts (Safe 1, Ambitious 2, All-in 2). Missing the target by just one place costs nothing on Safe or Ambitious, and 1 heart on All-in.</li>
                         <li><strong class="text-white">No hearts left = sacked.</strong> Finishing last from season 2 onwards still gets you sacked as well.</li>
                     </ul>
@@ -490,7 +490,9 @@
             SWAP_COST: 1,
             // Bestuur
             BASE_AP: 3,
-            BOARD_CASH: { safe: 0, ambitious: 3, allin: 5 },
+            BOARD_CASH: { safe: 0, ambitious: 2, allin: 3 },
+            BOARD_STEP_AMBITIOUS: 2,       // Ambitieus: 2 plaatsen beter dan de verwachting
+            BOARD_STEP_ALLIN: 4,           // All-in: 4 plaatsen beter (of titel + cupwedstrijd als Ambitieus al de titel is)
             TRUST_MAX: 3,
             TRUST_GAIN_ON_SUCCESS: 1,
             TRUST_LOSS_NARROW: { safe: 0, ambitious: 0, allin: 1 },   // 1 plaats tekort
@@ -2080,12 +2082,12 @@ function openBoardMeeting() {
     const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
     // Elk niveau is minstens 1 plaats ambitieuzer dan het vorige
     const safeT = clamp(P, 2, n - 1);
-    const ambT = Math.max(1, Math.min(P - 1, safeT - 1));
-    const allinT = Math.max(1, Math.min(P - 2, ambT - 1));
+    const ambT = Math.max(1, Math.min(P - BALANCE.BOARD_STEP_AMBITIOUS, safeT - 1));
+    const allinT = Math.max(1, Math.min(P - BALANCE.BOARD_STEP_ALLIN, ambT - 1));
     const opts = [
         { level: 'safe', name: 'Safe', T: safeT, cup: false },
         { level: 'ambitious', name: 'Ambitious', T: ambT, cup: false },
-        { level: 'allin', name: 'All-in', T: allinT, cup: P <= 2 }
+        { level: 'allin', name: 'All-in', T: allinT, cup: ambT === 1 }
     ];
     window._boardOptions = { P, opts };
 
