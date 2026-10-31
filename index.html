@@ -31,7 +31,7 @@
             <div class="text-center mb-6">
                 <h2 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 to-yellow-600 uppercase tracking-wider drop-shadow-lg mb-2">Trophy Room</h2>
                 <div class="mt-2 bg-slate-800/80 inline-block px-6 py-2 rounded-full border border-slate-600 shadow-inner mb-6">
-                    <span class="text-white font-black text-xl"><span id="trophy-count" class="text-yellow-400">0</span> / 28</span>
+                    <span class="text-white font-black text-xl"><span id="trophy-count" class="text-yellow-400">0</span> / <span id="trophy-total">28</span></span>
                 </div>
                 
                 <!-- DE TAB KNOPPEN -->
@@ -784,6 +784,8 @@
             updateTrophyCount: function() {
                 const el = document.getElementById('trophy-count');
                 if (el) el.innerText = this.unlocked.length;
+                const total = document.getElementById('trophy-total');
+                if (total) total.innerText = Object.keys(this.list).length;
             }
         };
 
@@ -1084,9 +1086,56 @@ const AudioManager = {
             stadiumMixer: null, 
             uiPlink: new Audio('audio/pling.mp3'),
 
+            // WEB AUDIO: korte effecten worden 1x geladen en gedecodeerd en daarna zonder vertraging afgespeeld.
+            // Muziek en stadiongeluid blijven via <audio> lopen (lange bestanden).
+            ctx: null,
+            sfxBuffers: {},
+            sfxLoading: false,
+            SFX_FILES: ['audio/pling.mp3', 'audio/levelup.mp3', 'audio/pokeball_roll.mp3', 'audio/ball.mp3', 'audio/whistle.mp3', 'audio/goal1.mp3', 'audio/groan.mp3', 'audio/whistle-end.mp3'],
+
+            initWebAudio: () => {
+                if (AudioManager.ctx) {
+                    if (AudioManager.ctx.state !== 'running') AudioManager.ctx.resume().catch(() => {});
+                    return;
+                }
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) return;
+                try { AudioManager.ctx = new Ctx(); } catch (e) { AudioManager.ctx = null; return; }
+                if (AudioManager.ctx.resume) AudioManager.ctx.resume().catch(() => {});
+                if (AudioManager.sfxLoading) return;
+                AudioManager.sfxLoading = true;
+                AudioManager.SFX_FILES.forEach(src => {
+                    fetch(src)
+                        .then(r => r.ok ? r.arrayBuffer() : Promise.reject(r.status))
+                        .then(buf => new Promise((res, rej) => AudioManager.ctx.decodeAudioData(buf, res, rej)))
+                        .then(decoded => { AudioManager.sfxBuffers[src] = decoded; })
+                        .catch(() => {});   // lukt het niet, dan blijft de oude manier (<audio>) als reserve
+                });
+            },
+
+            playBuffer: (src, vol, startFadeAfterMs) => {
+                const ctx = AudioManager.ctx, buf = AudioManager.sfxBuffers[src];
+                if (!ctx || !buf || ctx.state !== 'running') return false;
+                const node = ctx.createBufferSource();
+                node.buffer = buf;
+                const gain = ctx.createGain();
+                gain.gain.value = vol;
+                node.connect(gain);
+                gain.connect(ctx.destination);
+                node.start(0);
+                if (startFadeAfterMs > 0) {
+                    const t = ctx.currentTime + startFadeAfterMs / 1000;
+                    gain.gain.setValueAtTime(vol, t);
+                    gain.gain.linearRampToValueAtTime(0, t + 0.8);   // zelfde fade-out van 800ms als voorheen
+                    node.stop(t + 0.85);
+                }
+                return true;
+            },
+
             // De fade timer triggert nu EXACT na de meegegeven milliseconden!
             playSFX: (src, vol = 0.8, startFadeAfterMs = 0) => {
                 if (AudioManager.isSfxMuted) return;
+                if (AudioManager.playBuffer(src, vol, startFadeAfterMs)) return;   // snelle weg (Web Audio)
                 
                 if (src.includes('pling.mp3')) { 
                     // ZERO-LATENCY FIX: Niet clonen, maar direct terugspoelen en afspelen
@@ -4040,6 +4089,7 @@ await rollOptions(role, displayPos);
 
         // Global UI Click Sound (veranderd naar pointerdown voor zero-latency)
         document.addEventListener('pointerdown', (e) => {
+            AudioManager.initWebAudio();
             const isButton = e.target.closest('button');
             const isInput = e.target.closest('input');
             const isLabel = e.target.closest('label');
@@ -4051,16 +4101,22 @@ await rollOptions(role, displayPos);
         });
 
 
+        // iOS ontgrendelt audio soms pas bij touchend/click: daar ook proberen
+        document.addEventListener('touchend', () => AudioManager.initWebAudio(), { passive: true });
+        document.addEventListener('click', () => AudioManager.initWebAudio());
+
         // Meedogenloze audio-pauze voor Homescreen Web-Apps
         function suspendAudio() {
             if (AudioManager.bgm) AudioManager.bgm.pause();
             if (AudioManager.stadiumBase) AudioManager.stadiumBase.pause();
             if (AudioManager.stadiumChant1) AudioManager.stadiumChant1.pause();
             if (AudioManager.stadiumChant2) AudioManager.stadiumChant2.pause();
+            if (AudioManager.ctx && AudioManager.ctx.state === 'running') AudioManager.ctx.suspend().catch(() => {});
         }
 
         function resumeAudio() {
             if (document.hidden) return; // Veiligheidscheck
+            if (AudioManager.ctx && AudioManager.ctx.state !== 'running') AudioManager.ctx.resume().catch(() => {});
             if (!AudioManager.isMusicMuted && AudioManager.bgm) {
                 AudioManager.bgm.play().catch(e => console.warn(e));
             }
