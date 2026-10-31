@@ -72,6 +72,7 @@
                         <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-pink-400">Sp.D:</strong> Tactical Awareness, Interceptions.</div>
                         <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-700"><strong class="text-yellow-400">SPE:</strong> Pace, Agility, Wing Play.</div>
                     </div>
+                    <p class="mt-2 text-slate-400">Base stats count fully up to 130. Above that every point still helps, at 40% strength.</p>
                 </div>
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">3. Robin Hood Chemistry</h3>
@@ -85,9 +86,26 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">5. Off-Season: Action Points</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-purple-400">Action Points (3 per season):</strong> Spend your 3 points freely on transfers or training.</li>
-                        <li><strong class="text-red-400">Transfers (1 AP):</strong> Swap out a weak link for a new scout.</li>
-                        <li><strong class="text-blue-400">Training (1 AP):</strong> Train a specific stat. Weak stats level up much faster (+4 to +8) than elite stats (+0 to +2).</li>
+                        <li><strong class="text-purple-400">Action Points:</strong> 3 per off-season, plus the bonus from the board objective you choose.</li>
+                        <li><strong class="text-red-400">Transfers (1 AP):</strong> Swap out a weak link for a new scout. You must pick one of the four options.</li>
+                        <li><strong class="text-blue-400">Training (1 AP):</strong> Train one stat of one player. A training closes about a third of the gap to 130 (with a small dice roll): weak stats grow fast, elite stats barely. A second training on the same player in one off-season gives half.</li>
+                        <li><strong class="text-green-400">Training Camp (2 AP):</strong> Your whole squad trains one stat. Every player improves a little, weak stats the most.</li>
+                        <li><strong class="text-yellow-400">Position Swap (1 AP):</strong> Two players in the same line (attack, midfield or defence) trade places. The goalkeeper stays in goal.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">6. The Board</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong class="text-yellow-400">Board meeting:</strong> Before every off-season the board tells you where it expects you to finish. You choose your promise: <span class="text-green-400">Safe</span> (no bonus), <span class="text-yellow-400">Ambitious</span> (+3 AP) or <span class="text-red-400">All-in</span> (+5 AP). Bonus AP are paid out immediately.</li>
+                        <li><strong class="text-red-400">Board trust (&hearts;&hearts;&hearts;):</strong> Deliver and you win back 1 heart. Fail and you lose hearts (Safe 1, Ambitious 2, All-in 2). Missing the target by just one place costs nothing on Safe or Ambitious, and 1 heart on All-in.</li>
+                        <li><strong class="text-white">No hearts left = sacked.</strong> Finishing last from season 2 onwards still gets you sacked as well.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">7. League &amp; Continental Cup</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li><strong class="text-blue-400">League:</strong> 8 clubs, 7 matchdays. The top 2 qualify for the Continental Cup. Every season all rival clubs get 1.5% stronger (up to +30%), so standing still means falling behind. The strong clubs stay strong and the weak stay weak.</li>
+                        <li><strong class="text-yellow-400">Continental Cup:</strong> Four knockout rounds against Europe's elite, each round tougher than the last. Cup nights are open games with more chances, so the better team usually wins. Cup opponents also grow every season.</li>
                     </ul>
                 </div>
             </div>
@@ -197,6 +215,7 @@
                 
                 <div class="flex items-center gap-1.5 md:gap-2 flex-wrap">
                     <span id="ui-season-counter" class="bg-blue-600 text-white text-[9px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0">Season 1</span>
+                    <span id="ui-board-trust" title="Board trust" class="bg-slate-800 border border-slate-600 text-[9px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0"></span>
                     
                     <div id="ui-trophies" class="flex items-center gap-0.5 text-[10px] sm:text-xs md:text-sm drop-shadow-md shrink-0"></div>
                     
@@ -215,6 +234,9 @@
                 <button onclick="openTrophyRoom()" class="px-2 md:px-3 py-1.5 md:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors shadow-lg flex items-center justify-center min-w-[32px] ml-0.5 md:ml-1">
     <span>🏆</span><span class="hidden sm:inline ml-1 font-bold">TROPHIES</span>
 </button>
+                <button onclick="openCareerOverview()" class="px-2 md:px-3 py-1.5 md:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors shadow-lg flex items-center justify-center">
+                    <span>📈</span><span class="hidden sm:inline ml-1 font-bold">CAREER</span>
+                </button>
                 <button onclick="openHTP()" class="px-2 md:px-4 py-1.5 md:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center justify-center shadow-lg ml-0.5 md:ml-1 min-w-[32px]">
                     <span class="text-blue-400 font-black text-xs md:text-sm">?</span><span class="hidden sm:inline ml-1.5 font-bold">Rules</span>
                 </button>
@@ -251,9 +273,10 @@
             <div id="transfer-banner" class="hidden w-full max-w-3xl mx-auto bg-gradient-to-r from-purple-700 to-purple-600 text-white font-black px-3.5 py-2.5 md:px-5 md:py-3 rounded-xl mb-2.5 shadow-xl border-2 border-purple-400 items-center justify-between gap-2">
                 <div class="flex flex-col">
                     <span class="uppercase tracking-widest text-xs md:text-base leading-tight">Off-Season Window</span>
-                    <span class="text-[10px] md:text-xs text-purple-200 font-medium">Swap players or train specific stats</span>
+                    <span id="board-objective-text" class="text-[10px] md:text-xs text-purple-200 font-medium">Swap players or train specific stats</span>
                 </div>
                 <div class="flex gap-2 shrink-0">
+                    <button id="btn-camp" onclick="openTrainingCamp()" class="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg text-white shadow text-xs md:text-sm font-bold uppercase tracking-wide">&#9978; Camp</button>
                     <span class="bg-slate-900 px-3 py-1.5 rounded-lg text-yellow-400 shadow-inner text-xs md:text-sm font-bold">Action Points: <span id="action-count">3</span></span>
                 </div>
             </div>
@@ -316,6 +339,7 @@
                         <h2 class="pixel-font text-sm md:text-base font-black text-yellow-400 uppercase tracking-widest flex items-center gap-2">
                             <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span> Standings
                         </h2>
+                        <p id="season-objective-line" class="hidden text-[10px] md:text-xs text-purple-300 font-bold uppercase tracking-wider mt-1"></p>
                     </div>
                     <div class="overflow-y-auto flex-grow bg-slate-800/50 relative rounded-b-2xl">
                         <table class="w-full text-left text-xs sm:text-sm md:text-base border-collapse">
@@ -403,6 +427,14 @@
         </main>
     </div>
 
+    <div id="career-modal" class="fixed inset-0 bg-slate-900/95 z-[400] hidden flex-col items-center p-4 overflow-y-auto backdrop-blur-sm">
+        <div id="career-modal-content" class="max-w-3xl w-full poke-box-dark p-5 md:p-6 shadow-2xl relative my-auto"></div>
+    </div>
+
+    <div id="board-modal" class="fixed inset-0 bg-slate-900/95 z-[400] hidden flex-col items-center justify-center p-4 overflow-y-auto backdrop-blur-sm">
+        <div id="board-modal-content" class="max-w-2xl w-full poke-box-dark p-5 md:p-6 shadow-2xl relative my-auto"></div>
+    </div>
+
     <div id="draft-modal" class="fixed inset-0 bg-black/90 hidden z-[60] flex-col items-center justify-start p-3 sm:p-6 backdrop-blur-sm transition-all duration-300 overflow-y-auto" onclick="handleModalClick(event)">
         <button id="btn-floating-close" onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800 border border-slate-600 rounded-full w-10 h-10 flex items-center justify-center font-bold transition-colors z-[400] shadow-lg">✕</button>
         
@@ -438,6 +470,41 @@
     </button>
 
     <script>
+        // ================================================================
+        // BALANCE: alle afstelbare getallen van het midgame-systeem
+        // ================================================================
+        const BALANCE = {
+            // Normalisatie: tot raw 130 lineair naar 99, daarboven nog 40% per punt (max 120)
+            NORM_SOFTCAP_SLOPE: 0.4,
+            NORM_MAX: 120,
+            // Training (1 AP): winst = deel van het gat tot 130, met een dobbelsteen van +/- 20%
+            TRAIN_GAP_SHARE: 1 / 3,
+            TRAIN_ROLL: 0.20,
+            TRAIN_REPEAT_FACTOR: 0.5,   // 2e training op dezelfde speler in hetzelfde venster: x0.5
+            // Training Camp: heel het team traint 1 stat
+            CAMP_COST: 2,
+            CAMP_GAP_SHARE: 0.20,
+            CAMP_ROLL: 0.20,
+            CAMP_STAT_MULT: { atk: 1.7, def: 1.35, hp: 1.15, spa: 0.95, spd: 0.95, spe: 0.75 },
+            // Positiewissel binnen dezelfde linie
+            SWAP_COST: 1,
+            // Bestuur
+            BASE_AP: 3,
+            BOARD_CASH: { safe: 0, ambitious: 3, allin: 5 },
+            TRUST_MAX: 3,
+            TRUST_GAIN_ON_SUCCESS: 1,
+            TRUST_LOSS_NARROW: { safe: 0, ambitious: 0, allin: 1 },   // 1 plaats tekort
+            TRUST_LOSS_MISS: { safe: 1, ambitious: 2, allin: 2 },     // 2+ plaatsen tekort
+            // Competitie: alle CPU-ploegen groeien met hetzelfde percentage (onderlinge verhoudingen blijven gelijk)
+            LEAGUE_GROWTH: 0.015,          // +1,5% per seizoen
+            LEAGUE_GROWTH_MAX: 1.30,       // maximaal +30%
+            // Continental Cup
+            CUP_POSS_EXP: 1.8,             // balbezit weegt even zwaar als in de competitie
+            CUP_CHANCES: 14,               // meer kansen = minder toeval, de sterkste ploeg wint vaker
+            CUP_OPP_SHIFT: -90,            // cuptegenstanders iets zwakker (op elke pool)
+            CUP_GROWTH_PER_SEASON: 15,     // groei van de cuptegenstanders per seizoen (op elke pool)
+            CUP_GROWTH_MAX: 250
+        };
         const genData = [
             { id: 1, name: "Gen 1", range: [1, 151], active: true }, { id: 2, name: "Gen 2", range: [152, 251], active: false },
             { id: 3, name: "Gen 3", range: [252, 386], active: false }, { id: 4, name: "Gen 4", range: [387, 493], active: false },
@@ -634,6 +701,11 @@
         let currentSeason = 1;
         let isTransferWindow = false;
         let actionPoints = 3;
+        let boardTrust = 3;          // bestuursvertrouwen (hartjes)
+        let boardObjective = null;   // gekozen doel voor het lopende seizoen
+        let leagueReady = false;     // competitie voor het volgende seizoen al opgebouwd tijdens de bestuursvergadering
+        let trainCounts = {};        // aantal trainingen per speler in dit venster
+        let careerLog = null;        // carrièregeschiedenis voor het carrièreoverzicht
         let gameMode = 'rtg';
         let isPeeking = false;
         let domesticTitles = 0;
@@ -658,6 +730,10 @@
                 eevee_syndicate: { title: "Eevee Syndicate", desc: "Field at least 3 Eeveelutions", icon: "🦊", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkEeveelutions() },
                 weather_wars: { title: "Weather Wars", desc: "Have Kyogre, Groudon & Rayquaza", icon: "🌪️", category: "general", condition: (t) => (t === 'draft' || t === 'end_season') && checkWeatherTrio() },
                 
+                the_double: { title: "The Double", desc: "Win the league and the Continental Cup in the same season", icon: "🥇", category: "general", condition: (t) => t === 'win_cup' && seasonWasTitle() },
+                back_to_back: { title: "Back-to-Back", desc: "Win the Continental Cup two seasons in a row", icon: "🔁", category: "general", condition: (t) => t === 'win_cup' && cupWonInSeason(currentSeason - 1) },
+                dynasty: { title: "Dynasty", desc: "Win the Continental Cup three times in one career", icon: "🏛️", category: "general", condition: (t) => t === 'win_cup' && cupWinsCount() >= 3 },
+
                 // REGIONAL PURIST ACHIEVEMENTS
                 purist_gen1: { title: "Kanto Purist", desc: "Win Continental Cup (Only Gen 1 on pitch)", icon: "🔴", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(1) },
                 purist_gen2: { title: "Johto Purist", desc: "Win Continental Cup (Only Gen 2 on pitch)", icon: "🟡", category: "regional", condition: (t) => t === 'win_cup' && checkOnlyGen(2) },
@@ -840,6 +916,7 @@
                     myTeamEnginePools, teamChemScore, playerStats, standings,
                     seasonSchedule, continentalOpponents, currentCupRound, hasPlayedCup,
                     currentSeason, isTransferWindow, actionPoints, domesticTitles,
+                    boardTrust, boardObjective, leagueReady, trainCounts, careerLog,
                     genDataActive: genData.map(g => g.active)
                 };
                 localStorage.setItem('draft_savegame', JSON.stringify(saveData));
@@ -855,11 +932,19 @@
                     continentalOpponents = data.continentalOpponents || []; currentCupRound = data.currentCupRound || 0;
                     hasPlayedCup = data.hasPlayedCup || false; currentSeason = data.currentSeason;
                     isTransferWindow = data.isTransferWindow; actionPoints = data.actionPoints; domesticTitles = data.domesticTitles || 0;
+                    boardTrust = (typeof data.boardTrust === 'number') ? data.boardTrust : BALANCE.TRUST_MAX;
+                    boardObjective = data.boardObjective || null;
+                    leagueReady = !!data.leagueReady;
+                    trainCounts = data.trainCounts || {};
+                    careerLog = data.careerLog || newCareerLog(currentSeason);
+                    renormalizeTeam();
                     data.genDataActive.forEach((isActive, i) => genData[i].active = isActive);
                     
                     document.getElementById('ui-team-name').innerText = userTeamName;
                     document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
                     updateTrophiesUI();
+                    updateTrustUI();
+                    updateObjectiveBanner();
                     AudioManager.playBGM('audio/Littleroot Town.mp3', 0.4);
 
                     document.getElementById('start-screen').classList.add('opacity-0');
@@ -877,6 +962,10 @@
                             document.getElementById('btn-finish-transfers').classList.add('block');
                             document.getElementById('action-count').innerText = actionPoints;
                             checkOffSeasonActions();
+                            if (!boardObjective && currentSeason > 1) {
+                                if (!leagueReady) { initStandings(); leagueReady = true; }
+                                setTimeout(openBoardMeeting, 100);
+                            }
                             document.getElementById('btn-simulate').classList.add('hidden');
                             document.getElementById('btn-resign').classList.remove('hidden');
                             document.getElementById('btn-resign').classList.add('block');
@@ -1341,7 +1430,7 @@ const AudioManager = {
             playerStats = {};
             formations[activeFormation].positions.forEach(pos => userTeam[pos.id] = null);
 
-            domesticTitles = 0; 
+            domesticTitles = 0; resetBoardState();
             updateTrophiesUI();
 
             AudioManager.playBGM('audio/Littleroot Town.mp3', 0.4);
@@ -1361,7 +1450,9 @@ const AudioManager = {
             for (let g of genData) { if (id >= g.range[0] && id <= g.range[1]) return g.id; } return 1;
         }
 
-        const scaleStat = (val) => Math.min(99, Math.round((val / 130) * 99));
+        const scaleStat = (val) => val <= 130
+            ? Math.round((val / 130) * 99)
+            : Math.round(Math.min(BALANCE.NORM_MAX, 99 + BALANCE.NORM_SOFTCAP_SLOPE * (val - 130)));
 
         async function fetchPokemonDetail(id) {
             try {
@@ -1838,9 +1929,602 @@ const AudioManager = {
         }
 
      // NIEUW: Checkt of de 'Skip' knop groen mag worden
+
+// ====================================================================
+// MIDGAME: BESTUUR, TRAINING, TRAINING CAMP EN POSITIEWISSEL
+// ====================================================================
+const LINE_OF = { ST: 'att', WG: 'att', AM: 'mid', CM: 'mid', DM: 'mid', WM: 'mid', FB: 'def', CB: 'def', GK: 'gk' };
+const TRAIN_STAT_LABELS = [
+    { key: 'spe', label: 'Speed', color: 'text-yellow-400' },
+    { key: 'hp', label: 'HP', color: 'text-green-400' },
+    { key: 'atk', label: 'Attack', color: 'text-red-400' },
+    { key: 'def', label: 'Defense', color: 'text-blue-400' },
+    { key: 'spa', label: 'Sp.Atk', color: 'text-purple-400' },
+    { key: 'spd', label: 'Sp.Def', color: 'text-pink-400' }
+];
+
+function resetBoardState() {
+    careerLog = newCareerLog(1);
+    boardTrust = BALANCE.TRUST_MAX;
+    boardObjective = null;
+    leagueReady = false;
+    trainCounts = {};
+    updateTrustUI();
+}
+
+function trustHearts() {
+    let html = '';
+    for (let i = 0; i < BALANCE.TRUST_MAX; i++) {
+        html += i < boardTrust ? '<span class="text-red-500">&hearts;</span>' : '<span class="text-slate-600">&hearts;</span>';
+    }
+    return html;
+}
+
+function updateTrustUI() {
+    const el = document.getElementById('ui-board-trust');
+    if (el) el.innerHTML = `<span class="text-slate-400 mr-1">Board</span>${trustHearts()}`;
+}
+
+function ordinalText(n) {
+    const v = n % 100;
+    if (v >= 11 && v <= 13) return n + 'th';
+    return n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
+}
+
+function objectiveTargetText(T, cup) {
+    if (cup) return 'Win the league + win a Continental Cup match';
+    if (T === 1) return 'Win the league';
+    if (T === (standings.length || 8) - 1) return 'Avoid last place';
+    return `Finish top ${T}`;
+}
+
+function updateObjectiveBanner() {
+    const el = document.getElementById('board-objective-text');
+    if (!el) return;
+    el.textContent = boardObjective ? `Board: ${boardObjective.text} (${boardObjective.name})` : 'Swap players or train specific stats';
+}
+
+function updateObjectiveLine() {
+    const el = document.getElementById('season-objective-line');
+    if (!el) return;
+    if (boardObjective && boardObjective.season === currentSeason) {
+        el.textContent = `Board objective: ${boardObjective.text} (${boardObjective.name})`;
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+}
+
+function computeBoardExpectation() {
+    const total = o => o.poss + o.create + o.prevent + o.finish + o.block;
+    const mine = total(myTeamEnginePools);
+    return 1 + standings.filter(t => !t.isUser && total(t.pools) > mine).length;
+}
+
+function openBoardMeeting() {
+    const P = computeBoardExpectation();
+    const n = standings.length || 8;
+    const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+    // Elk niveau is minstens 1 plaats ambitieuzer dan het vorige
+    const safeT = clamp(P, 2, n - 1);
+    const ambT = Math.max(1, Math.min(P - 1, safeT - 1));
+    const allinT = Math.max(1, Math.min(P - 2, ambT - 1));
+    const opts = [
+        { level: 'safe', name: 'Safe', T: safeT, cup: false },
+        { level: 'ambitious', name: 'Ambitious', T: ambT, cup: false },
+        { level: 'allin', name: 'All-in', T: allinT, cup: P <= 2 }
+    ];
+    window._boardOptions = { P, opts };
+
+    const style = {
+        safe: { box: 'border-green-500/60 hover:border-green-400', name: 'text-green-400' },
+        ambitious: { box: 'border-yellow-500/60 hover:border-yellow-400', name: 'text-yellow-400' },
+        allin: { box: 'border-red-500/60 hover:border-red-400', name: 'text-red-400' }
+    };
+    const cards = opts.map(o => {
+        const cash = BALANCE.BOARD_CASH[o.level];
+        const narrow = BALANCE.TRUST_LOSS_NARROW[o.level];
+        const miss = BALANCE.TRUST_LOSS_MISS[o.level];
+        return `
+            <button onclick="chooseBoardObjective('${o.level}')" class="w-full text-left bg-slate-900 hover:bg-slate-800 border-2 ${style[o.level].box} rounded-xl p-4 transition-all transform hover:scale-[1.02] shadow-lg">
+                <div class="flex justify-between items-center mb-1 gap-2">
+                    <span class="font-black uppercase tracking-widest text-sm md:text-base ${style[o.level].name}">${o.name}</span>
+                    <span class="bg-slate-800 px-2 py-1 rounded text-yellow-400 font-black text-xs md:text-sm shrink-0">${cash > 0 ? `+${cash} AP now` : 'No bonus AP'}</span>
+                </div>
+                <p class="text-white font-bold text-sm md:text-base">${objectiveTargetText(o.T, o.cup)}</p>
+                <p class="text-[10px] md:text-xs text-slate-400 mt-1">Delivered: +${BALANCE.TRUST_GAIN_ON_SUCCESS} &hearts; &nbsp;|&nbsp; Just short: ${narrow > 0 ? `-${narrow} &hearts;` : 'no penalty'} &nbsp;|&nbsp; Failed: -${miss} &hearts;</p>
+            </button>`;
+    }).join('');
+
+    document.getElementById('board-modal-content').innerHTML = `
+        <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-1 uppercase tracking-wider text-center">Board Meeting</h2>
+        <p class="text-center text-slate-400 text-xs md:text-sm font-bold uppercase tracking-widest mb-4">Season ${currentSeason}</p>
+        <p class="text-center text-white font-bold text-base md:text-lg mb-2">"We expect you to finish ${ordinalText(P)} this season."</p>
+        <div class="text-center text-xl md:text-2xl mb-2">${trustHearts()}</div>
+        <p class="text-center text-[10px] md:text-xs text-slate-400 mb-5">Make your promise. Bonus Action Points are paid out right away. Lose all your hearts and you are sacked.</p>
+        <div class="flex flex-col gap-3">${cards}</div>`;
+    const modal = document.getElementById('board-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+window.chooseBoardObjective = function(level) {
+    const data = window._boardOptions;
+    if (!data || boardObjective) return;
+    const o = data.opts.find(x => x.level === level);
+    boardObjective = { level, name: o.name, T: o.T, cup: o.cup, P: data.P, season: currentSeason, resolved: false, text: objectiveTargetText(o.T, o.cup) };
+    actionPoints += BALANCE.BOARD_CASH[level];
+    document.getElementById('action-count').innerText = actionPoints;
+    const modal = document.getElementById('board-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    updateObjectiveBanner();
+    checkOffSeasonActions();
+    renderPitch();
+    SaveManager.save();
+};
+
+// stage: 'league' (einde competitie), 'cupwin' of 'cuploss' (eerste cupmatch, enkel voor het titel+cup doel)
+function evaluateBoardObjective(stage) {
+    const o = boardObjective;
+    if (!o || o.resolved || o.season !== currentSeason) return null;
+    const pos = standings.findIndex(t => t.isUser) + 1;
+    let outcome;
+    if (o.cup) {
+        if (stage === 'league') {
+            if (pos === 1) return o;                    // titel binnen, cup moet nog beslissen
+            outcome = pos <= 2 ? 'narrow' : 'miss';
+        } else {
+            outcome = stage === 'cupwin' ? 'success' : 'narrow';
+        }
+    } else {
+        outcome = pos <= o.T ? 'success' : (pos === o.T + 1 ? 'narrow' : 'miss');
+    }
+    let delta;
+    if (outcome === 'success') delta = Math.min(BALANCE.TRUST_GAIN_ON_SUCCESS, BALANCE.TRUST_MAX - boardTrust);
+    else if (outcome === 'narrow') delta = -BALANCE.TRUST_LOSS_NARROW[o.level];
+    else delta = -BALANCE.TRUST_LOSS_MISS[o.level];
+    boardTrust = Math.max(0, boardTrust + delta);
+    o.resolved = true;
+    o.outcome = outcome;
+    o.delta = delta;
+    updateTrustUI();
+    return o;
+}
+
+function boardResultHtml(o) {
+    if (!o) return '';
+    if (!o.resolved) {
+        return `<div class="mt-4 bg-slate-900 rounded-xl p-3 border border-yellow-600/60 text-center">
+            <p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest mb-1">Board Objective (${o.name})</p>
+            <p class="text-sm text-white font-bold">${o.text}</p>
+            <p class="text-xs text-slate-400 mt-1">League won! Now win a Continental Cup match to deliver.</p>
+        </div>`;
+    }
+    const look = {
+        success: { txt: '&#9989; Delivered', color: 'text-green-400', border: 'border-green-600/60' },
+        narrow: { txt: '&#10134; Just short', color: 'text-yellow-400', border: 'border-yellow-600/60' },
+        miss: { txt: '&#10060; Failed', color: 'text-red-400', border: 'border-red-600/60' }
+    }[o.outcome];
+    const trustTxt = o.delta > 0 ? `+${o.delta} &hearts;` : (o.delta < 0 ? `${o.delta} &hearts;` : 'trust unchanged');
+    return `<div class="mt-4 bg-slate-900 rounded-xl p-3 border ${look.border} text-center">
+        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Board Objective (${o.name})</p>
+        <p class="text-sm text-white font-bold">${o.text}</p>
+        <p class="text-xs font-black ${look.color} mt-1">${look.txt} &nbsp;|&nbsp; ${trustTxt}</p>
+        <div class="mt-1 text-lg">${trustHearts()}</div>
+    </div>`;
+}
+
+function sackedBlockHtml() {
+    return `
+        <div class="mt-5 bg-red-900/40 border border-red-600 rounded-xl p-4 text-center shadow-inner">
+            <span class="text-3xl mb-1 block">&#128201;&#10060;</span>
+            <p class="text-lg text-red-500 font-black uppercase tracking-widest mb-1">You Have Been Sacked!</p>
+            <p class="text-xs text-red-200 font-medium mb-4">You failed to deliver on your promises. The board has lost all faith and terminated your contract.</p>
+            <button onclick="openCareerOverview(true)" class="px-6 py-3 mb-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full border border-slate-500 uppercase tracking-widest text-xs md:text-sm w-full transition-all">📈 View Your Career</button>
+            <button onclick="startNewDraft()" class="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] uppercase tracking-widest text-sm md:text-base w-full transition-all">START NEW CAREER</button>
+        </div>`;
+}
+
+// ---------------- Training ----------------
+function trainingMid(p, statKey) {
+    const gap = Math.max(0, 130 - p.stats[statKey]);
+    const repeat = Math.pow(BALANCE.TRAIN_REPEAT_FACTOR, trainCounts[p.id] || 0);
+    return Math.max(1, gap * BALANCE.TRAIN_GAP_SHARE * repeat);
+}
+
+function trainingGainRange(p, statKey) {
+    const mid = trainingMid(p, statKey);
+    return [Math.max(1, Math.round(mid * (1 - BALANCE.TRAIN_ROLL))), Math.max(1, Math.round(mid * (1 + BALANCE.TRAIN_ROLL)))];
+}
+
+function rollTrainingGain(mid, roll) {
+    return Math.max(1, Math.round(mid * (1 - roll + 2 * roll * Math.random())));
+}
+
+function renormalizeTeam() {
+    Object.values(userTeam).forEach(p => {
+        if (!p || !p.stats) return;
+        ['hp', 'atk', 'def', 'spa', 'spd', 'spe'].forEach(k => { p.normStats[k] = scaleStat(p.stats[k]); });
+    });
+}
+
+// ---------------- Preview van de teamratings (Attack / Midfield / Defense) ----------------
+function computeHeaderScores() {
+    const c = calculateTeamPhaseScore('create'), f = calculateTeamPhaseScore('finish');
+    const po = calculateTeamPhaseScore('poss');
+    const pr = calculateTeamPhaseScore('prevent'), b = calculateTeamPhaseScore('block');
+    return { atk: Math.round((c + f) / 2), mid: po, def: Math.round((pr + b) / 2) };
+}
+
+function deltaChips(d) {
+    const chip = (label, v) => {
+        const color = v > 0 ? 'text-green-400' : (v < 0 ? 'text-red-400' : 'text-slate-500');
+        return `<span class="${color} font-black">${label} ${v > 0 ? '+' : ''}${v}</span>`;
+    };
+    return `<span class="flex gap-2 justify-center text-[9px] sm:text-[10px] uppercase tracking-wider mt-1">${chip('ATT', d.atk)}${chip('MID', d.mid)}${chip('DEF', d.def)}</span>`;
+}
+
+function previewStatChange(applyFn) {
+    const before = computeHeaderScores();
+    const snap = [];
+    Object.keys(userTeam).forEach(id => { const p = userTeam[id]; if (p) snap.push([p, { ...p.stats }, { ...p.normStats }]); });
+    applyFn();
+    const after = computeHeaderScores();
+    snap.forEach(([p, st, ns]) => { p.stats = st; p.normStats = ns; });
+    return { atk: after.atk - before.atk, mid: after.mid - before.mid, def: after.def - before.def };
+}
+
+// ---------------- Training Camp ----------------
+function campMid(p, statKey) {
+    const gap = Math.max(0, 130 - p.stats[statKey]);
+    return Math.max(1, gap * BALANCE.CAMP_GAP_SHARE * BALANCE.CAMP_STAT_MULT[statKey]);
+}
+
+function openModalShell(title, label) {
+    const modal = document.getElementById('draft-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.getElementById('draft-modal-title').innerText = title;
+    document.getElementById('draft-position-label').innerText = label;
+    document.getElementById('btn-reroll').classList.add('hidden');
+    document.getElementById('btn-reroll').classList.remove('flex');
+    document.getElementById('reroll-wrapper').classList.add('hidden');
+    const btnCancel = document.getElementById('btn-cancel-draft');
+    btnCancel.classList.remove('hidden');
+    btnCancel.innerText = 'Close';
+    document.getElementById('btn-floating-close').classList.remove('hidden');
+}
+
+window.openTrainingCamp = function(lastStat = null, lastSummary = '') {
+    if (!isTransferWindow) return;
+    openModalShell(`Training Camp (${BALANCE.CAMP_COST} AP)`, `${actionPoints} AP left`);
+    const players = formations[activeFormation].positions.map(pos => userTeam[pos.id]).filter(Boolean);
+    const canAfford = actionPoints >= BALANCE.CAMP_COST;
+
+    const statsHtml = TRAIN_STAT_LABELS.map(s => {
+        let lo = Infinity, hi = 0;
+        players.forEach(p => {
+            const mid = campMid(p, s.key);
+            lo = Math.min(lo, Math.max(1, Math.round(mid * (1 - BALANCE.CAMP_ROLL))));
+            hi = Math.max(hi, Math.max(1, Math.round(mid * (1 + BALANCE.CAMP_ROLL))));
+        });
+        const d = previewStatChange(() => {
+            players.forEach(p => {
+                p.stats[s.key] = Math.min(255, p.stats[s.key] + Math.round(campMid(p, s.key)));
+                p.normStats[s.key] = scaleStat(p.stats[s.key]);
+            });
+        });
+        const isJust = lastStat === s.key;
+        const border = isJust ? 'border-green-500 bg-green-900/20 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'border-slate-600 bg-slate-900 hover:border-blue-500';
+        return `
+            <button onclick="runTrainingCamp('${s.key}')" ${canAfford ? '' : 'disabled'} class="${border} border-2 p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center transition-all transform ${canAfford ? 'hover:scale-105' : 'opacity-50 cursor-not-allowed'} shadow-lg w-full relative">
+                ${isJust ? '<span class="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">+UP</span>' : ''}
+                <span class="font-black text-base sm:text-lg ${s.color} uppercase tracking-widest">${s.label}</span>
+                <span class="text-[9px] sm:text-[10px] text-slate-300 mt-1 font-bold">+${lo} to +${hi} per player</span>
+                ${deltaChips(d)}
+            </button>`;
+    }).join('');
+
+    document.getElementById('gacha-container').innerHTML = `
+        <div class="col-span-full w-full max-w-md mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
+            <p class="text-xs sm:text-sm text-slate-300 text-center mb-2">Your whole squad trains one stat. Weak stats improve the most.</p>
+            ${lastSummary ? `<p class="text-xs sm:text-sm text-green-400 font-bold text-center mb-2">${lastSummary}</p>` : ''}
+            ${canAfford ? '' : `<p class="text-xs text-yellow-400 font-bold uppercase tracking-widest text-center mb-2">You need ${BALANCE.CAMP_COST} AP for a camp</p>`}
+            <div class="grid grid-cols-2 gap-3 w-full mt-2">${statsHtml}</div>
+        </div>`;
+};
+
+window.runTrainingCamp = function(statKey) {
+    if (!isTransferWindow || actionPoints < BALANCE.CAMP_COST) return;
+    AudioManager.playSFX('audio/levelup.mp3', 0.5);
+    let total = 0, n = 0;
+    formations[activeFormation].positions.forEach(pos => {
+        const p = userTeam[pos.id];
+        if (!p) return;
+        const gain = rollTrainingGain(campMid(p, statKey), BALANCE.CAMP_ROLL);
+        p.stats[statKey] = Math.min(255, p.stats[statKey] + gain);
+        p.normStats[statKey] = scaleStat(p.stats[statKey]);
+        p.bst = Object.values(p.stats).reduce((sum, val) => sum + val, 0);
+        total += gain; n++;
+    });
+    actionPoints -= BALANCE.CAMP_COST;
+    if (careerLog) careerLog.counts.camps++;
+    document.getElementById('action-count').innerText = actionPoints;
+    checkOffSeasonActions();
+    if (window.confetti) confetti({ particleCount: 80, spread: 80, origin: { y: 0.6 }, colors: ['#3b82f6', '#4ade80', '#facc15'] });
+    renderPitch();
+    updateScores();
+    SaveManager.save();
+    const label = TRAIN_STAT_LABELS.find(s => s.key === statKey).label;
+    openTrainingCamp(statKey, `Camp complete: ${label} +${Math.round(total / Math.max(1, n))} per player on average.`);
+};
+
+// ---------------- Positiewissel ----------------
+function getSwapPartners(posId) {
+    const f = formations[activeFormation];
+    const me = f.positions.find(p => p.id === posId);
+    if (!me || !userTeam[posId]) return [];
+    const line = LINE_OF[me.role];
+    if (!line || line === 'gk') return [];
+    return f.positions.filter(p => p.id !== posId && LINE_OF[p.role] === line && userTeam[p.id]);
+}
+
+window.openSwapMenu = function(posId) {
+    const f = formations[activeFormation];
+    const me = f.positions.find(p => p.id === posId);
+    const partners = getSwapPartners(posId);
+    openModalShell(`Swap Position (${BALANCE.SWAP_COST} AP)`, me.display);
+    const before = computeHeaderScores();
+
+    const cards = partners.map(pos => {
+        const other = userTeam[pos.id];
+        const a = userTeam[posId];
+        userTeam[posId] = other; userTeam[pos.id] = a;
+        const after = computeHeaderScores();
+        userTeam[posId] = a; userTeam[pos.id] = other;
+        const d = { atk: after.atk - before.atk, mid: after.mid - before.mid, def: after.def - before.def };
+        return `
+            <button onclick="doSwap('${posId}', '${pos.id}')" class="border-2 border-slate-600 bg-slate-900 hover:border-purple-500 p-3 rounded-xl flex flex-col items-center justify-center transition-all transform hover:scale-105 shadow-lg w-full">
+                <img src="${other.sprite}" class="w-14 h-14 object-contain drop-shadow-xl">
+                <span class="text-yellow-400 font-black text-xs uppercase tracking-widest mt-1">${pos.display}</span>
+                <span class="text-white font-bold text-xs sm:text-sm truncate max-w-full">${other.name}</span>
+                ${deltaChips(d)}
+            </button>`;
+    }).join('');
+
+    const p = userTeam[posId];
+    document.getElementById('gacha-container').innerHTML = `
+        <div class="col-span-full w-full max-w-md mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
+            <img src="${p.sprite}" class="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-xl mb-1">
+            <p class="text-xs sm:text-sm text-slate-300 text-center mb-3">Swap <strong class="text-white">${p.name}</strong> (${me.display}) with a teammate in the same line. Chemistry links change with the positions.</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full">${cards}</div>
+            <button onclick="openDraft('${posId}', '${me.display}', '${me.role}')" class="mt-6 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold rounded-full uppercase tracking-widest border border-slate-500">
+                &#128281; Back to Profile
+            </button>
+        </div>`;
+};
+
+window.doSwap = function(posA, posB) {
+    if (!isTransferWindow || actionPoints < BALANCE.SWAP_COST) return;
+    const tmp = userTeam[posA];
+    userTeam[posA] = userTeam[posB];
+    userTeam[posB] = tmp;
+    actionPoints -= BALANCE.SWAP_COST;
+    if (careerLog) careerLog.counts.swaps++;
+    document.getElementById('action-count').innerText = actionPoints;
+    checkOffSeasonActions();
+    closeModal();
+    renderPitch();
+    updateScores();
+    SaveManager.save();
+};
+
+
+// ====================================================================
+// CARRIÈRE: LOGBOEK EN OVERZICHT
+// ====================================================================
+function newCareerLog(startSeason) {
+    return {
+        startedSeason: startSeason || 1,
+        status: 'active',                      // 'active' | 'retired' | 'sacked'
+        seasons: [],
+        matches: { w: 0, d: 0, l: 0, gf: 0, ga: 0 },
+        unbeaten: 0, longestUnbeaten: 0,
+        biggestWin: null, bestPlayerSeason: null, highestRating: null,
+        counts: { transfers: 0, trainings: 0, camps: 0, swaps: 0 }
+    };
+}
+
+function ensureCareerLog() { if (!careerLog) careerLog = newCareerLog(currentSeason); return careerLog; }
+
+function logMatch(comp, gf, ga, opponent) {
+    const L = ensureCareerLog();
+    L.matches.gf += gf; L.matches.ga += ga;
+    if (gf > ga) L.matches.w++; else if (gf < ga) L.matches.l++; else L.matches.d++;
+    if (gf >= ga) { L.unbeaten++; L.longestUnbeaten = Math.max(L.longestUnbeaten, L.unbeaten); } else { L.unbeaten = 0; }
+    const margin = gf - ga;
+    if (margin > 0 && (!L.biggestWin || margin > L.biggestWin.margin || (margin === L.biggestWin.margin && gf > L.biggestWin.gf))) {
+        L.biggestWin = { margin, gf, ga, opponent, season: currentSeason, comp };
+    }
+}
+
+function recordSeasonInLog(finalPos, boardResult) {
+    const L = ensureCareerLog();
+    const me = standings.find(t => t.isUser) || { pts: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 };
+    const h = computeHeaderScores();
+    const rating = Math.round((h.atk + h.mid + h.def) / 3);
+    const best = Object.values(playerStats).filter(ps => ps && ps.p).sort((a, b) => b.seasonGoals - a.seasonGoals)[0];
+    const rec = {
+        season: currentSeason, pos: finalPos, clubs: standings.length,
+        pts: me.pts, w: me.w, d: me.d, l: me.l, gf: me.gf, ga: me.ga,
+        cup: finalPos <= 2 ? 0 : -1,          // -1 niet gekwalificeerd, 0..3 rondes gewonnen, 4 = cup gewonnen
+        rating,
+        topScorer: best && best.seasonGoals > 0 ? { name: best.p.name, goals: best.seasonGoals } : null,
+        board: boardResult ? { name: boardResult.name, text: boardResult.text, outcome: boardResult.resolved ? boardResult.outcome : 'pending' } : null
+    };
+    const idx = L.seasons.findIndex(x => x.season === currentSeason);
+    if (idx >= 0) L.seasons[idx] = rec; else L.seasons.push(rec);
+    if (best && best.seasonGoals > 0 && (!L.bestPlayerSeason || best.seasonGoals > L.bestPlayerSeason.goals)) {
+        L.bestPlayerSeason = { name: best.p.name, sprite: best.p.sprite, goals: best.seasonGoals, season: currentSeason };
+    }
+    if (!L.highestRating || rating > L.highestRating.value) L.highestRating = { value: rating, season: currentSeason };
+}
+
+function logCupProgress(won) {
+    const rec = ensureCareerLog().seasons.find(x => x.season === currentSeason);
+    if (rec) rec.cup = won ? currentCupRound + 1 : currentCupRound;
+}
+
+function updateLogBoard(o) {
+    const rec = ensureCareerLog().seasons.find(x => x.season === currentSeason);
+    if (rec && o) rec.board = { name: o.name, text: o.text, outcome: o.resolved ? o.outcome : 'pending' };
+}
+
+function seasonWasTitle() { const r = ensureCareerLog().seasons.find(x => x.season === currentSeason); return !!r && r.pos === 1; }
+function cupWonInSeason(n) { const r = ensureCareerLog().seasons.find(x => x.season === n); return !!r && r.cup === 4; }
+function cupWinsCount() { return ensureCareerLog().seasons.filter(x => x.cup === 4).length; }
+
+window.retireAsLegend = function() {
+    ensureCareerLog().status = 'retired';
+    localStorage.removeItem('draft_savegame');
+    openCareerOverview(true);
+};
+
+window.closeCareerOverview = function() {
+    const m = document.getElementById('career-modal');
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+};
+
+function careerChartSvg(seasons) {
+    const n = seasons.length;
+    const clubs = Math.max(8, ...seasons.map(x => x.clubs || 8));
+    const step = 52, left = 44, right = 24, top = 18, plotH = 150;
+    const W = Math.max(320, left + right + step * Math.max(1, n - 1));
+    const H = top + plotH + 62;
+    const x = i => n === 1 ? (left + (W - left - right) / 2) : left + i * ((W - left - right) / (n - 1));
+    const y = pos => top + (pos - 1) * (plotH / (clubs - 1));
+    let g = '';
+    for (let p = 1; p <= clubs; p++) {
+        g += `<line x1="${left - 6}" x2="${W - right + 6}" y1="${y(p)}" y2="${y(p)}" stroke="${p <= 2 ? '#1e3a8a' : (p === clubs ? '#7f1d1d' : '#334155')}" stroke-width="1" stroke-dasharray="${p <= 2 || p === clubs ? '0' : '3,4'}"/>`;
+        g += `<text x="${left - 12}" y="${y(p) + 3}" fill="#94a3b8" font-size="9" text-anchor="end" font-weight="700">${ordinalText(p)}</text>`;
+    }
+    const path = seasons.map((r, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(r.pos)}`).join(' ');
+    let dots = '';
+    seasons.forEach((r, i) => {
+        const col = r.pos === 1 ? '#facc15' : (r.pos <= 2 ? '#60a5fa' : (r.pos === clubs ? '#f87171' : '#cbd5e1'));
+        dots += r.pos === 1
+            ? `<circle cx="${x(i)}" cy="${y(r.pos)}" r="9" fill="#facc15" stroke="#0f172a" stroke-width="2"/><text x="${x(i)}" y="${y(r.pos) + 4}" font-size="10" text-anchor="middle">🏆</text>`
+            : `<circle cx="${x(i)}" cy="${y(r.pos)}" r="5.5" fill="${col}" stroke="#0f172a" stroke-width="2"/>`;
+        const cupTxt = r.cup === -1 ? '–' : (r.cup === 4 ? '🏆' : ['R16', 'QF', 'SF', 'F'][r.cup]);
+        const cupCol = r.cup === 4 ? '#facc15' : (r.cup >= 2 ? '#60a5fa' : (r.cup >= 0 ? '#93c5fd' : '#475569'));
+        const board = r.board ? ({ success: '✅', narrow: '➖', miss: '❌', pending: '⏳' }[r.board.outcome] || '') : '';
+        dots += `<text x="${x(i)}" y="${top + plotH + 20}" fill="#cbd5e1" font-size="10" text-anchor="middle" font-weight="800">S${r.season}</text>`;
+        dots += `<text x="${x(i)}" y="${top + plotH + 38}" fill="${cupCol}" font-size="10" text-anchor="middle" font-weight="800">${cupTxt}</text>`;
+        dots += `<text x="${x(i)}" y="${top + plotH + 56}" font-size="10" text-anchor="middle">${board}</text>`;
+    });
+    const labels = `<text x="4" y="${top + plotH + 38}" fill="#64748b" font-size="8" font-weight="700">CUP</text><text x="4" y="${top + plotH + 56}" fill="#64748b" font-size="8" font-weight="700">BOARD</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="max-width:none; display:block; margin:0 auto;" xmlns="http://www.w3.org/2000/svg">
+        ${g}${labels}<path d="${path}" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>${dots}</svg>`;
+}
+
+window.openCareerOverview = function(final = false) {
+    const L = ensureCareerLog();
+    const S = L.seasons;
+    const titles = S.filter(x => x.pos === 1);
+    const cups = S.filter(x => x.cup === 4);
+    const statusTxt = { active: 'Active career', retired: '👑 Retired as a legend', sacked: '❌ Sacked' }[L.status] || 'Active career';
+    const squadIds = Object.values(userTeam).filter(Boolean).map(p => p.id);
+    const scorers = Object.values(playerStats).filter(ps => ps && ps.p && ps.goals > 0).sort((a, b) => b.goals - a.goals).slice(0, 10);
+    const bestSeason = S.length ? [...S].sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga))[0] : null;
+    const M = L.matches;
+    const seasonList = arr => arr.length ? arr.map(x => 'S' + x.season).join(', ') : '–';
+    const tile = (label, value, sub = '') => `
+        <div class="bg-slate-900 rounded-lg p-3 border border-slate-700">
+            <p class="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest">${label}</p>
+            <p class="text-sm md:text-base text-white font-black mt-0.5">${value}</p>
+            ${sub ? `<p class="text-[10px] text-slate-500 font-bold mt-0.5">${sub}</p>` : ''}
+        </div>`;
+
+    const chart = S.length
+        ? `<div class="overflow-x-auto bg-slate-900 rounded-xl border border-slate-700 p-3">${careerChartSvg(S)}</div>
+           <p class="text-[10px] text-slate-500 text-center mt-1">League finish per season. 🏆 = title. CUP: how far you got (– = not qualified). BOARD: ✅ delivered, ➖ just short, ❌ failed.</p>`
+        : `<p class="text-center text-slate-400 text-sm py-8 bg-slate-900 rounded-xl border border-slate-700">Finish your first season to start writing your story.</p>`;
+
+    const scorersHtml = scorers.length ? scorers.map((ps, i) => `
+        <div class="flex items-center gap-3 bg-slate-900 rounded-lg px-3 py-2 border border-slate-700">
+            <span class="text-slate-500 font-black w-5 text-right text-sm">${i + 1}</span>
+            <img src="${ps.p.sprite}" class="w-9 h-9 object-contain">
+            <span class="text-white font-bold text-sm flex-1 truncate">${ps.p.name}${squadIds.includes(ps.p.id) ? '' : ' <span class="text-[9px] text-slate-500 font-bold uppercase ml-1">left the club</span>'}</span>
+            <span class="text-yellow-400 font-black text-sm">${ps.goals} ⚽</span>
+        </div>`).join('') : '<p class="text-slate-400 text-sm text-center py-3">No goals scored yet.</p>';
+
+    const rows = S.map(r => `
+        <tr class="border-t border-slate-700">
+            <td class="py-1.5 px-2 font-black text-slate-300">S${r.season}</td>
+            <td class="py-1.5 px-2 font-bold ${r.pos === 1 ? 'text-yellow-400' : (r.pos <= 2 ? 'text-blue-400' : (r.pos === r.clubs ? 'text-red-400' : 'text-white'))}">${ordinalText(r.pos)}</td>
+            <td class="py-1.5 px-2 text-white">${r.pts}</td>
+            <td class="py-1.5 px-2 text-slate-300">${r.w}-${r.d}-${r.l}</td>
+            <td class="py-1.5 px-2 text-slate-300">${r.cup === -1 ? '–' : (r.cup === 4 ? '🏆 Winner' : ['Round of 16', 'Quarter-final', 'Semi-final', 'Final'][r.cup])}</td>
+            <td class="py-1.5 px-2 text-slate-300 truncate max-w-[140px]">${r.topScorer ? `${r.topScorer.name} (${r.topScorer.goals})` : '–'}</td>
+        </tr>`).join('');
+
+    const bw = L.biggestWin;
+    document.getElementById('career-modal-content').innerHTML = `
+        ${final ? '' : '<button onclick="closeCareerOverview()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-black border border-slate-600">✕</button>'}
+        <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-1 uppercase tracking-wider text-center">Career Overview</h2>
+        <p class="text-center text-white font-bold text-base md:text-lg">${userTeamName}</p>
+        <p class="text-center text-slate-400 text-xs md:text-sm font-bold uppercase tracking-widest mb-4">${statusTxt} &nbsp;|&nbsp; ${S.length} season${S.length === 1 ? '' : 's'}${L.startedSeason > 1 ? ` (logged since season ${L.startedSeason})` : ''}</p>
+
+        <div class="grid grid-cols-3 gap-2 mb-4 text-center">
+            <div class="bg-slate-900 rounded-lg p-3 border border-yellow-600/50"><p class="text-2xl">🏆</p><p class="text-white font-black text-lg">${titles.length}</p><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">League titles</p></div>
+            <div class="bg-slate-900 rounded-lg p-3 border border-blue-600/50"><p class="text-2xl">🌍</p><p class="text-white font-black text-lg">${cups.length}</p><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Continental Cups</p></div>
+            <div class="bg-slate-900 rounded-lg p-3 border border-red-600/50"><p class="text-2xl">❤️</p><p class="text-white font-black text-lg">${trustHearts()}</p><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Board trust</p></div>
+        </div>
+
+        <h3 class="text-sm md:text-base font-black text-white uppercase tracking-widest mb-2">Your journey</h3>
+        ${chart}
+
+        ${S.length ? `<div class="overflow-x-auto mt-4"><table class="w-full text-[11px] md:text-xs text-left">
+            <thead><tr class="text-slate-500 uppercase tracking-wider"><th class="py-1 px-2">Season</th><th class="py-1 px-2">Finish</th><th class="py-1 px-2">Pts</th><th class="py-1 px-2">W-D-L</th><th class="py-1 px-2">Cup</th><th class="py-1 px-2">Top scorer</th></tr></thead>
+            <tbody>${rows}</tbody></table></div>` : ''}
+
+        <h3 class="text-sm md:text-base font-black text-white uppercase tracking-widest mt-5 mb-2">All-time top scorers</h3>
+        <div class="flex flex-col gap-1.5">${scorersHtml}</div>
+
+        <h3 class="text-sm md:text-base font-black text-white uppercase tracking-widest mt-5 mb-2">Career stats</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            ${tile('Titles won in', seasonList(titles))}
+            ${tile('Cups won in', seasonList(cups))}
+            ${tile('Record (all matches)', `${M.w}W ${M.d}D ${M.l}L`, `${M.w + M.d + M.l} matches`)}
+            ${tile('Goals', `${M.gf} scored`, `${M.ga} conceded`)}
+            ${tile('Best season', bestSeason ? `S${bestSeason.season}: ${bestSeason.pts} pts` : '–', bestSeason ? `${ordinalText(bestSeason.pos)} place` : '')}
+            ${tile('Biggest win', bw ? `${bw.gf}-${bw.ga}` : '–', bw ? `vs ${bw.opponent} (${bw.comp}, S${bw.season})` : '')}
+            ${tile('Longest unbeaten run', `${L.longestUnbeaten} matches`)}
+            ${tile('Best scoring season', L.bestPlayerSeason ? `${L.bestPlayerSeason.name}: ${L.bestPlayerSeason.goals}` : '–', L.bestPlayerSeason ? `Season ${L.bestPlayerSeason.season}` : '')}
+            ${tile('Highest team rating', L.highestRating ? `${L.highestRating.value}` : '–', L.highestRating ? `Season ${L.highestRating.season}` : '')}
+            ${tile('Transfers', L.counts.transfers)}
+            ${tile('Trainings / camps', `${L.counts.trainings} / ${L.counts.camps}`)}
+            ${tile('Position swaps', L.counts.swaps)}
+        </div>
+
+        <div class="flex flex-col gap-3 max-w-sm mx-auto mt-6">
+            ${final
+                ? '<button onclick="closeCareerOverview(); startNewDraft();" class="px-6 py-3.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-sm md:text-base w-full">Start New Career</button>'
+                : '<button onclick="closeCareerOverview()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full border border-slate-500 uppercase tracking-widest text-xs md:text-sm w-full">Close</button>'}
+        </div>`;
+    const m = document.getElementById('career-modal');
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+    m.scrollTop = 0;
+};
+
 function checkOffSeasonActions() {
     const btn = document.getElementById('btn-finish-transfers');
     if (!btn) return;
+    const campBtn = document.getElementById('btn-camp');
+    if (campBtn) campBtn.disabled = !(isTransferWindow && actionPoints >= BALANCE.CAMP_COST);
     
     if (actionPoints <= 0) {
         btn.innerHTML = "Start Next Season &rarr;";
@@ -1916,11 +2600,18 @@ function handleModalClick(event) {
                     </button>
                 ` : '';
 
+                const swapBtnHtml = (isTransferWindow && actionPoints >= BALANCE.SWAP_COST && getSwapPartners(posId).length > 0) ? `
+                    <button onclick="openSwapMenu('${posId}')" class="mt-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-xs sm:text-sm w-full max-w-[240px] sm:max-w-[280px]">
+                        &#128256; Swap Position
+                    </button>
+                ` : '';
+
                 const actionButtons = (isTransferWindow && actionPoints > 0) ? `
                     <div class="flex gap-2 w-full max-w-[240px] sm:max-w-[280px] mt-4">
                         ${transferBtnHtml}
                         ${trainBtnHtml}
                     </div>
+                    ${swapBtnHtml}
                 ` : '';
                 
                 gacha.innerHTML = `
@@ -1994,11 +2685,8 @@ await rollOptions(role, displayPos);
                 const currentVal = p.stats[s.key]; 
                 
                 // De agressieve UI-labels
-                let rangeText = "";
-                if (currentVal < 70) rangeText = "(+10 to +15)";
-                else if (currentVal < 95) rangeText = "(+7 to +10)";
-                else if (currentVal < 120) rangeText = "(+4 to +6)";
-                else rangeText = "(+1 to +3)";
+                const [rLo, rHi] = trainingGainRange(p, s.key);
+                let rangeText = rLo === rHi ? `(+${rLo})` : `(+${rLo} to +${rHi})`;
 
                 const isJustTrained = (lastTrainedStat === s.key);
                 const displayColor = isJustTrained ? 'text-green-400' : s.color;
@@ -2018,6 +2706,7 @@ await rollOptions(role, displayPos);
             gacha.innerHTML = `
                 <div class="col-span-full w-full max-w-sm mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
                     <img src="${p.sprite}" class="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl mb-4">
+                    ${(trainCounts[p.id] || 0) > 0 ? '<p class="text-[10px] sm:text-xs text-yellow-400 font-bold uppercase tracking-widest mb-3 text-center">Already trained this off-season: gains are halved</p>' : ''}
                     <div class="grid grid-cols-2 gap-3 w-full">
                         ${statsHtml}
                     </div>
@@ -2036,15 +2725,12 @@ await rollOptions(role, displayPos);
             
             const currentRawVal = p.stats[statKey];
             
-            let gain = 0;
-            // De exponentiële trainings-engine
-            if (currentRawVal < 70) gain = Math.floor(Math.random() * 6) + 10;       // +10 tot +15
-            else if (currentRawVal < 95) gain = Math.floor(Math.random() * 4) + 7;   // +7 tot +10
-            else if (currentRawVal < 120) gain = Math.floor(Math.random() * 3) + 4;  // +4 tot +6
-            else gain = Math.floor(Math.random() * 3) + 1;                           // +1 tot +3
+            const gain = rollTrainingGain(trainingMid(p, statKey), BALANCE.TRAIN_ROLL);
+            trainCounts[p.id] = (trainCounts[p.id] || 0) + 1;
+            if (careerLog) careerLog.counts.trainings++;
 
             p.stats[statKey] = Math.min(255, currentRawVal + gain);
-            p.normStats[statKey] = Math.min(99, Math.round((p.stats[statKey] / 130) * 99));
+            p.normStats[statKey] = scaleStat(p.stats[statKey]);
             p.bst = Object.values(p.stats).reduce((sum, val) => sum + val, 0);
 
             actionPoints--;
@@ -2064,6 +2750,7 @@ await rollOptions(role, displayPos);
      window.confirmTransferOut = async function(role, displayPos) {
     if (actionPoints <= 0) return;
     actionPoints--;
+    if (careerLog) careerLog.counts.transfers++;
     document.getElementById('action-count').innerText = actionPoints;
     checkOffSeasonActions();
 
@@ -2247,22 +2934,17 @@ await rollOptions(role, displayPos);
             
             if (pool.length < 7) pool = [...allOpponents]; 
  
-            // De Capped Balans Curve
-            // In seizoen 1 is (currentSeason - 1) nul, dus er is geen boost. 
-            // Daarna groeit de sterkte van de ploegen met +15 per seizoen, met een maximum van +150.
-           const maxBoost = 110;
-            const seasonBoost = Math.min((currentSeason - 1) * 12, maxBoost); 
-            
-            // Topteams groeien mee, maar botsen tegen een plafond van 1040 per stat (net onder de Cup Finalisten van 1050-1100!)
-            const capStat = (baseVal) => Math.min(Math.max(baseVal, 1040), baseVal + seasonBoost);
+            // Competitiegroei: elke CPU-ploeg wordt per seizoen hetzelfde percentage sterker.
+            // Omdat iedereen procentueel groeit, blijven de onderlinge sterkteverschillen behouden.
+            const leagueFactor = Math.min(Math.pow(1 + BALANCE.LEAGUE_GROWTH, currentSeason - 1), BALANCE.LEAGUE_GROWTH_MAX);
 
             const applyBoost = (pools) => {
                 return {
-                    poss: capStat(pools.poss),
-                    create: capStat(pools.create),
-                    prevent: capStat(pools.prevent),
-                    finish: capStat(pools.finish),
-                    block: capStat(pools.block)
+                    poss: Math.round(pools.poss * leagueFactor),
+                    create: Math.round(pools.create * leagueFactor),
+                    prevent: Math.round(pools.prevent * leagueFactor),
+                    finish: Math.round(pools.finish * leagueFactor),
+                    block: Math.round(pools.block * leagueFactor)
                 };
             };
             
@@ -2297,7 +2979,8 @@ await rollOptions(role, displayPos);
                     }
                 }
                 standings = newStandings;
-                let nextOpponents = standings.filter(t => !t.isUser).map(t => allOpponents.find(o => o.id === t.id));
+                // FIX: jij speelt tegen dezelfde (gegroeide) sterkte als in de stand
+                let nextOpponents = standings.filter(t => !t.isUser).map(t => ({ ...allOpponents.find(o => o.id === t.id), pools: t.pools }));
                 seasonSchedule = nextOpponents.sort(() => 0.5 - Math.random());
                 
             } else {
@@ -2344,7 +3027,9 @@ await rollOptions(role, displayPos);
             document.getElementById('post-season-awards').classList.remove('flex', 'order-first');
             document.getElementById('tv-scoreboard').classList.remove('hidden', 'cup-theme');
             
-            initStandings();
+            if (!leagueReady) initStandings();
+            leagueReady = false;
+            updateObjectiveLine();
             updateTableUI();
             document.getElementById('results-feed').classList.remove('hidden');
             document.getElementById('results-feed-list').innerHTML = ''; 
@@ -2422,6 +3107,7 @@ await rollOptions(role, displayPos);
             cpuGoals.sort((a,b)=>a.min-b.min);
             await runLiveMatch([...userGoals], [...cpuGoals], 90, false);
             processResult(0, cpuOp.id, userGoals.length, cpuGoals.length);
+            logMatch('League', userGoals.length, cpuGoals.length, cpuOp.name);
             
             userGoals.forEach(g => { 
                 if(g.p && playerStats[g.p.id]) { 
@@ -2550,8 +3236,7 @@ await rollOptions(role, displayPos);
                         if(Math.random() < (1 - prob) * 0.9) cpuGoalsB++;
                     }
                    // De drempel groeit mee met het seizoen, zodat alleen échte topteams dominant blijven in de tabel
-                    const currentBoost = Math.min((currentSeason - 1) * 12, 100);
-                    const eliteThreshold = 4200 + (currentBoost * 5);
+                    const eliteThreshold = 4200 * Math.min(Math.pow(1 + BALANCE.LEAGUE_GROWTH, currentSeason - 1), BALANCE.LEAGUE_GROWTH_MAX);
                     if(s1 > eliteThreshold && Math.random() < 0.25) cpuGoalsA++;
                     if(s2 > eliteThreshold && Math.random() < 0.25) cpuGoalsB++;
 
@@ -2635,7 +3320,14 @@ await rollOptions(role, displayPos);
          const finalPos = standings.findIndex(t => t.isUser) + 1;
          const qualified = finalPos <= 2;
          const isLastPlace = (finalPos === standings.length);
-         const isSacked = (gameMode === 'rtg' && currentSeason > 1 && isLastPlace);
+         const boardResult = evaluateBoardObjective('league');
+         recordSeasonInLog(finalPos, boardResult);
+         const boardSacked = boardTrust <= 0;
+         const isSacked = (gameMode === 'rtg' && currentSeason > 1 && isLastPlace) || boardSacked;
+         if (isSacked && careerLog) careerLog.status = 'sacked';
+         const sackText = (boardSacked && !(currentSeason > 1 && isLastPlace))
+             ? "You failed to deliver on your promises. The board has lost all faith and terminated your contract."
+             : "Finishing dead last resulted in relegation. The club board has terminated your contract.";
          const isFirstSeasonWarning = (gameMode === 'rtg' && currentSeason === 1 && isLastPlace);
 
          // NIEUW: Tel het kampioenschap erbij op en update de UI
@@ -2660,8 +3352,9 @@ await rollOptions(role, displayPos);
                  <div class="mt-5 bg-red-900/40 border border-red-600 rounded-xl p-4 text-center shadow-inner">
                      <span class="text-3xl mb-1 block">📉❌</span>
                      <p class="text-lg text-red-500 font-black uppercase tracking-widest mb-1">You Have Been Sacked!</p>
-                     <p class="text-xs text-red-200 font-medium mb-4">Finishing dead last resulted in relegation. The club board has terminated your contract.</p>
-                     <button onclick="startNewDraft()" class="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] uppercase tracking-widest text-sm md:text-base w-full transition-all">START NEW CAREER</button>
+                     <p class="text-xs text-red-200 font-medium mb-4">${sackText}</p>
+                     <button onclick="openCareerOverview(true)" class="px-6 py-3 mb-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full border border-slate-500 uppercase tracking-widest text-xs md:text-sm w-full transition-all">📈 View Your Career</button>
+            <button onclick="startNewDraft()" class="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] uppercase tracking-widest text-sm md:text-base w-full transition-all">START NEW CAREER</button>
                  </div>
              `;
          } else if (isFirstSeasonWarning) {
@@ -2683,7 +3376,7 @@ await rollOptions(role, displayPos);
         const awards = document.getElementById('post-season-awards');
          awards.classList.remove('hidden');
          awards.classList.add('flex', 'order-first');
-         awards.innerHTML = `<div class="poke-box-dark p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${actionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
+         awards.innerHTML = `<div class="poke-box-dark p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${boardResultHtml(boardResult)}${actionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
          
          // NIEUW: Trigger alle seizoens-achievements (Perfect Harmony, Bidoof, Goals, Iron Wall)
          AchievementManager.check('end_season');
@@ -2717,8 +3410,7 @@ await rollOptions(role, displayPos);
             // ENDGAME FIX: Cup teams schalen mee, maar botsen tegen een "Final Boss Cap" (+250)
             // Hierdoor is de Cup winnend af te sluiten met een slim 85 OVR team, 
             // maar kan een 99 OVR monsterploeg ze alsnog genadeloos vernietigen.
-            const maxCupBoost = 250;
-            const cupBoost = Math.min((currentSeason - 1) * 15, maxCupBoost);
+            const cupBoost = Math.min((currentSeason - 1) * BALANCE.CUP_GROWTH_PER_SEASON, BALANCE.CUP_GROWTH_MAX) + BALANCE.CUP_OPP_SHIFT;
             
             const applyCupBoost = (op) => {
                 return {
@@ -2800,12 +3492,12 @@ await rollOptions(role, displayPos);
             const cupOp = continentalOpponents[currentCupRound];
 
             // 📉 Verlaagd van 13 naar 10 totale kansen per wedstrijd
-            const totalChances = 10; 
+            const totalChances = BALANCE.CUP_CHANCES; 
             
             const uPoss = myTeamEnginePools.poss || 0;
             // FIX: Veranderd van cpuOp naar cupOp
             const cPoss = cupOp.pools.poss || 0; 
-            const possRatio = (Math.pow(uPoss, 1.5)) / (Math.pow(uPoss, 1.5) + Math.pow(cPoss, 1.5));
+            const possRatio = (Math.pow(uPoss, BALANCE.CUP_POSS_EXP)) / (Math.pow(uPoss, BALANCE.CUP_POSS_EXP) + Math.pow(cPoss, BALANCE.CUP_POSS_EXP));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
             const cpuChances = totalChances - userChances;
@@ -2909,6 +3601,12 @@ await rollOptions(role, displayPos);
             newResult.innerHTML = `<span class="text-blue-400 font-bold">${roundNames[currentCupRound]}</span><span class="font-bold text-white">${userTeamName} ${finalScore.h} - ${finalScore.a} ${cupOp.name}</span>`;
             feed.insertBefore(newResult, feed.firstChild);
 
+            logMatch('Cup', finalScore.h, finalScore.a, cupOp.name);
+            logCupProgress(finalScore.h > finalScore.a);
+            const cupBoardResult = (boardObjective && boardObjective.cup && !boardObjective.resolved && boardObjective.season === currentSeason)
+                ? evaluateBoardObjective(finalScore.h > finalScore.a ? 'cupwin' : 'cuploss') : null;
+            const cupBoardHtml = cupBoardResult ? boardResultHtml(cupBoardResult) : '';
+            if (cupBoardResult) updateLogBoard(cupBoardResult);
             if (finalScore.h > finalScore.a) {
                 currentCupRound++;
                 if (currentCupRound > 3) {
@@ -2916,7 +3614,7 @@ await rollOptions(role, displayPos);
                 } else {
                     document.getElementById('post-season-awards').classList.remove('hidden');
                     document.getElementById('post-season-awards').classList.add('flex', 'order-first');
-                    document.getElementById('post-season-awards').innerHTML = `<div class="poke-box-dark border-blue-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(59,130,246,0.3)]"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Victory!</h2><p class="text-blue-400 font-bold mb-5 text-sm">You advanced to the ${roundNames[currentCupRound]}!</p><button onclick="document.getElementById('post-season-awards').classList.add('hidden'); setupNextCupRound();" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-sm md:text-base">Play Next Match</button></div>`;                    setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+                    document.getElementById('post-season-awards').innerHTML = `<div class="poke-box-dark border-blue-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(59,130,246,0.3)]"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Victory!</h2><p class="text-blue-400 font-bold mb-5 text-sm">You advanced to the ${roundNames[currentCupRound]}!</p>${cupBoardHtml ? cupBoardHtml.replace('mt-4', 'mb-4') : ''}<button onclick="document.getElementById('post-season-awards').classList.add('hidden'); setupNextCupRound();" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-sm md:text-base">Play Next Match</button></div>`;                    setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
                 }
             } else {
                 document.getElementById('post-season-awards').classList.remove('hidden');
@@ -2926,7 +3624,8 @@ await rollOptions(role, displayPos);
                     `<button onclick="startTransferWindow()" class="mt-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_30px_rgba(168,85,247,0.8)] uppercase tracking-widest text-sm md:text-lg w-full transform hover:scale-105 transition-all">START NEXT SEASON (TRANSFERS)</button>`
                     : ``;
 
-                document.getElementById('post-season-awards').innerHTML = `<div class="poke-box-dark border-red-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Eliminated</h2><p class="text-red-400 font-bold mb-5 text-sm">Knocked out in the ${roundNames[currentCupRound]}.</p>${lossActionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-xs md:text-sm">View Team</button></div>`;
+                if (boardTrust <= 0) { lossActionHtml = sackedBlockHtml(); localStorage.removeItem('draft_savegame'); if (careerLog) careerLog.status = 'sacked'; }
+                document.getElementById('post-season-awards').innerHTML = `<div class="poke-box-dark border-red-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Eliminated</h2><p class="text-red-400 font-bold mb-5 text-sm">Knocked out in the ${roundNames[currentCupRound]}.</p>${cupBoardHtml}${lossActionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-xs md:text-sm">View Team</button></div>`;
                 setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             }
         }
@@ -3014,8 +3713,10 @@ await rollOptions(role, displayPos);
     currentSeason++;
     document.getElementById('ui-season-counter').innerText = `Season ${currentSeason}`;
     isTransferWindow = true;
-    actionPoints = 3;
+    actionPoints = BALANCE.BASE_AP;
     hasReroll = false;
+    trainCounts = {};
+    boardObjective = null;
 
     document.body.className = 'min-h-screen flex flex-col relative bg-office';        
     document.getElementById('match-center').classList.add('hidden');
@@ -3045,7 +3746,11 @@ await rollOptions(role, displayPos);
     document.getElementById('pitch-view').classList.remove('hidden');
     renderPitch();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    initStandings();          // competitie van het nieuwe seizoen (incl. degradatie) voor de verwachting van het bestuur
+    leagueReady = true;
+    updateObjectiveBanner();
             SaveManager.save();
+    openBoardMeeting();
 }
 
        function finishTransfers() {
@@ -3066,17 +3771,20 @@ await rollOptions(role, displayPos);
             document.getElementById('post-season-awards').classList.add('flex', 'order-first');
             
             const winText = gameMode === 'rtg' ? `You won the Continental Cup in ${currentSeason} ${currentSeason === 1 ? 'season' : 'seasons'}!` : `You won the Continental Cup with your drafted team!`;
-            const titleText = gameMode === 'rtg' ? `ROAD TO GLORY COMPLETED!` : `CHAMPIONS OF EUROPE!`;
+            const cupCount = cupWinsCount();
+            const titleText = cupCount > 1 ? `CONTINENTAL CHAMPIONS x${cupCount}!` : (gameMode === 'rtg' ? `ROAD TO GLORY COMPLETED!` : `CHAMPIONS OF EUROPE!`);
 
            document.getElementById('post-season-awards').innerHTML = `
                 <div class="poke-box-dark border-yellow-400 p-6 md:p-8 text-center shadow-[0_0_50px_rgba(234,179,8,0.5)]">
                     <span class="text-5xl md:text-6xl mb-3 block">🏆✨</span>
                     <h2 class="pixel-font text-lg md:text-2xl font-black text-yellow-400 mb-3 uppercase tracking-wide" style="line-height:1.4;">${titleText}</h2>
-                    <p class="text-white font-bold mb-6 text-sm md:text-base">${winText}</p>
+                    <p class="text-white font-bold mb-2 text-sm md:text-base">${winText}</p>
+                    <p class="text-slate-300 text-xs md:text-sm mb-6">Retire as a legend, or defend the crown?</p>
                     <div class="flex flex-col gap-3 max-w-sm mx-auto">
-                        <button onclick="startTransferWindow()" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_20px_rgba(168,85,247,0.5)] uppercase tracking-wide w-full transform hover:scale-105 transition-all">Keep Playing (Next Season)</button>
+                        <button onclick="retireAsLegend()" class="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-400 text-slate-900 font-black rounded-full shadow-[0_0_20px_rgba(234,179,8,0.5)] uppercase tracking-wide w-full transform hover:scale-105 transition-all">👑 Retire as a Legend</button>
+                        <button onclick="startTransferWindow()" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_20px_rgba(168,85,247,0.5)] uppercase tracking-wide w-full transform hover:scale-105 transition-all">⚔️ Defend the Crown (Next Season)</button>
                         <button onclick="viewTeam()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full text-xs md:text-sm">View Champion Team</button>
-                        <button onclick="SaveManager.deleteSaveConfirm()" class="px-6 py-3 bg-red-900/80 hover:bg-red-800 text-red-200 font-bold rounded-full transition-colors border border-red-700 uppercase tracking-wide w-full text-xs md:text-sm">Start New Career</button>
+                        <button onclick="openCareerOverview()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full text-xs md:text-sm">📈 Career Overview</button>
                     </div>
                 </div>`;
             
@@ -3108,7 +3816,7 @@ await rollOptions(role, displayPos);
             
             const finalPos = standings.findIndex(t => t.isUser) + 1;
             const wonCup = currentCupRound > 3;
-            const isSacked = (gameMode === 'rtg' && currentSeason > 1 && finalPos === standings.length);
+            const isSacked = (gameMode === 'rtg' && currentSeason > 1 && finalPos === standings.length) || boardTrust <= 0;
 
             if (!isSacked) {
                 const btnNext = document.getElementById('btn-next-season-pitch');
@@ -3190,7 +3898,7 @@ await rollOptions(role, displayPos);
             currentCupRound = 0;
             isTransferWindow = false;
             hasPlayedCup = false;
-            domesticTitles = 0; 
+            domesticTitles = 0; resetBoardState();
             updateTrophiesUI();
            
         }
