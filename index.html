@@ -706,6 +706,8 @@
         let leagueReady = false;     // competitie voor het volgende seizoen al opgebouwd tijdens de bestuursvergadering
         let trainCounts = {};        // aantal trainingen per speler in dit venster
         let careerLog = null;        // carrièregeschiedenis voor het carrièreoverzicht
+        let savePhase = 'draft';     // waar de speler zit: draft | season | summary | cup | cupwon | transfer
+        let seasonMatchday = 0;      // aantal gespeelde speeldagen in het lopende seizoen
         let gameMode = 'rtg';
         let isPeeking = false;
         let domesticTitles = 0;
@@ -919,6 +921,8 @@
                     seasonSchedule, continentalOpponents, currentCupRound, hasPlayedCup,
                     currentSeason, isTransferWindow, actionPoints, domesticTitles,
                     boardTrust, boardObjective, leagueReady, trainCounts, careerLog,
+                    savePhase, seasonMatchday,
+                    resultsFeedHtml: (document.getElementById('results-feed-list') || {}).innerHTML || '',
                     genDataActive: genData.map(g => g.active)
                 };
                 localStorage.setItem('draft_savegame', JSON.stringify(saveData));
@@ -939,6 +943,9 @@
                     leagueReady = !!data.leagueReady;
                     trainCounts = data.trainCounts || {};
                     careerLog = data.careerLog || newCareerLog(currentSeason);
+                    savePhase = data.savePhase || (data.isTransferWindow ? 'transfer' : 'draft');
+                    seasonMatchday = data.seasonMatchday || 0;
+                    window._resumeFeedHtml = data.resultsFeedHtml || '';
                     renormalizeTeam();
                     data.genDataActive.forEach((isActive, i) => genData[i].active = isActive);
                     
@@ -955,6 +962,12 @@
                         document.getElementById('game-ui').classList.remove('hidden');
                         document.getElementById('game-ui').classList.add('flex');
                         
+                        if (['season', 'summary', 'cup', 'cupwon'].includes(savePhase)) {
+                            renderPitch();
+                            updateScores();
+                            resumeMatchCenter();
+                            return;
+                        }
                         if (isTransferWindow) {
                             document.body.className = 'min-h-screen flex flex-col relative bg-office';
                             document.getElementById('pitch-view').classList.remove('hidden');
@@ -1994,6 +2007,8 @@ const TRAIN_STAT_LABELS = [
 
 function resetBoardState() {
     careerLog = newCareerLog(1);
+    savePhase = 'draft';
+    seasonMatchday = 0;
     boardTrust = BALANCE.TRUST_MAX;
     boardObjective = null;
     leagueReady = false;
@@ -2578,6 +2593,66 @@ window.openCareerOverview = function(final = false) {
     m.scrollTop = 0;
 };
 
+
+// ====================================================================
+// HERVATTEN VAN EEN SAVE IN DE JUISTE FASE
+// ====================================================================
+function resumeMatchCenter() {
+    document.body.className = 'min-h-screen flex flex-col relative bg-stadium';
+    document.getElementById('pitch-view').classList.add('hidden');
+    document.getElementById('btn-back-to-stats').classList.add('hidden');
+    document.getElementById('btn-back-to-stats').classList.remove('flex');
+    document.getElementById('match-center').classList.remove('hidden');
+    document.getElementById('match-center').classList.add('flex');
+    document.querySelector('header').classList.add('hidden');
+    document.getElementById('results-feed').classList.remove('hidden');
+    document.getElementById('results-feed-list').innerHTML = window._resumeFeedHtml || '';
+    updateObjectiveLine();
+    updateTableUI();
+
+    const awards = document.getElementById('post-season-awards');
+    if (savePhase === 'season') {
+        awards.classList.add('hidden');
+        awards.classList.remove('flex', 'order-first');
+        document.getElementById('tv-scoreboard').classList.remove('hidden', 'cup-theme');
+        runLeagueFrom(seasonMatchday);
+    } else if (savePhase === 'cup') {
+        awards.classList.add('hidden');
+        awards.classList.remove('flex', 'order-first');
+        document.getElementById('tv-scoreboard').classList.remove('hidden');
+        setupNextCupRound();
+    } else if (savePhase === 'cupwon') {
+        celebrateGloryWin();
+    } else {
+        showResumeSummaryCard();
+    }
+}
+
+function showResumeSummaryCard() {
+    const finalPos = standings.findIndex(t => t.isUser) + 1;
+    const me = standings.find(t => t.isUser) || { pts: 0 };
+    const canPlayCup = finalPos <= 2 && !hasPlayedCup;
+    const boardHtml = (boardObjective && boardObjective.season === currentSeason) ? boardResultHtml(boardObjective) : '';
+    const nextBtn = canPlayCup
+        ? `<button onclick="startContinentalCup()" class="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-400 text-white font-black rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] uppercase tracking-widest text-sm md:text-base w-full transition-all">🏆 Play Continental Cup</button>`
+        : `<button onclick="startTransferWindow()" class="px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_20px_rgba(168,85,247,0.5)] uppercase tracking-widest text-sm md:text-base w-full transition-all">Start Next Season (Transfers)</button>`;
+    const awards = document.getElementById('post-season-awards');
+    awards.classList.remove('hidden');
+    awards.classList.add('flex', 'order-first');
+    document.getElementById('tv-scoreboard').classList.add('hidden');
+    awards.innerHTML = `
+        <div class="poke-box-dark p-5 md:p-6 text-center shadow-2xl relative overflow-hidden w-full">
+            <h2 class="pixel-font text-lg md:text-xl font-black text-yellow-400 mb-2 uppercase tracking-wide" style="line-height:1.4;">Season ${currentSeason} Finished</h2>
+            <p class="text-white font-bold text-sm md:text-base">You finished ${ordinalText(finalPos)} with ${me.pts} points.</p>
+            ${boardHtml}
+            <div class="flex flex-col gap-3 max-w-sm mx-auto mt-5">
+                ${nextBtn}
+                <button onclick="viewTeam()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full text-xs md:text-sm">View Team</button>
+                <button onclick="openCareerOverview()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full text-xs md:text-sm">📈 Career Overview</button>
+            </div>
+        </div>`;
+}
+
 function checkOffSeasonActions() {
     const btn = document.getElementById('btn-finish-transfers');
     if (!btn) return;
@@ -3092,8 +3167,18 @@ await rollOptions(role, displayPos);
             document.getElementById('results-feed').classList.remove('hidden');
             document.getElementById('results-feed-list').innerHTML = ''; 
             
-            for(let i=0; i<7; i++) {
+            seasonMatchday = 0;
+            savePhase = 'season';
+            SaveManager.save();
+            await runLeagueFrom(0);
+        }
+
+        // Speelt de competitie vanaf een bepaalde speeldag (ook gebruikt bij het hervatten van een save)
+        async function runLeagueFrom(startIndex) {
+            for (let i = startIndex; i < 7; i++) {
                 await simulateMatchday(i + 1, seasonSchedule[i]);
+                seasonMatchday = i + 1;
+                SaveManager.save();
                 // NIEUW: Een kleine adempauze tussen matchen zodat fluitjes niet overlappen
                 if (i < 6) await new Promise(res => setTimeout(res, 800));
             }
@@ -3441,6 +3526,7 @@ await rollOptions(role, displayPos);
          if (isSacked) {
              localStorage.removeItem('draft_savegame');
          } else {
+             savePhase = 'summary';
              SaveManager.save();
          }
 
@@ -3497,6 +3583,8 @@ await rollOptions(role, displayPos);
 
             continentalOpponents = [pot1[0], pot2[0], pot3[0], pot4[0]];
             currentCupRound = 0;
+            savePhase = 'cup';
+            SaveManager.save();
             
             setupNextCupRound();
         }
@@ -3667,6 +3755,8 @@ await rollOptions(role, displayPos);
             if (cupBoardResult) updateLogBoard(cupBoardResult);
             if (finalScore.h > finalScore.a) {
                 currentCupRound++;
+                savePhase = currentCupRound > 3 ? 'cupwon' : 'cup';
+                SaveManager.save();
                 if (currentCupRound > 3) {
                     celebrateGloryWin();
                 } else {
@@ -3683,6 +3773,7 @@ await rollOptions(role, displayPos);
                     : ``;
 
                 if (boardTrust <= 0) { lossActionHtml = sackedBlockHtml(); localStorage.removeItem('draft_savegame'); if (careerLog) careerLog.status = 'sacked'; }
+                else { savePhase = 'summary'; SaveManager.save(); }
                 document.getElementById('post-season-awards').innerHTML = `<div class="poke-box-dark border-red-500 p-5 md:p-6 text-center shadow-[0_0_30px_rgba(239,68,68,0.3)]"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Eliminated</h2><p class="text-red-400 font-bold mb-5 text-sm">Knocked out in the ${roundNames[currentCupRound]}.</p>${cupBoardHtml}${lossActionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full transition-colors uppercase tracking-wide w-full text-xs md:text-sm">View Team</button></div>`;
                 setTimeout(() => { document.getElementById('post-season-awards').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
             }
@@ -3807,6 +3898,7 @@ await rollOptions(role, displayPos);
     initStandings();          // competitie van het nieuwe seizoen (incl. degradatie) voor de verwachting van het bestuur
     leagueReady = true;
     updateObjectiveBanner();
+    savePhase = 'transfer';
             SaveManager.save();
     openBoardMeeting();
 }
