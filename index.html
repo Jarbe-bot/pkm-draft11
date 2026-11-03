@@ -281,6 +281,7 @@
                     <span id="board-objective-text" class="text-[10px] md:text-xs text-purple-200 font-medium">Swap players or train specific stats</span>
                 </div>
                 <div class="flex gap-2 shrink-0">
+                    <button id="btn-swap" onclick="openSwapOverview()" class="bg-purple-900 hover:bg-purple-800 border border-purple-300 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg text-white shadow text-xs md:text-sm font-bold uppercase tracking-wide">&#8645; Swap <span id="swap-hint" class="hidden bg-green-400 text-slate-900 rounded px-1 ml-1 text-[10px] md:text-xs font-black"></span></button>
                     <button id="btn-camp" onclick="openTrainingCamp()" class="bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg text-white shadow text-xs md:text-sm font-bold uppercase tracking-wide">&#9978; Camp</button>
                     <span class="bg-slate-900 px-3 py-1.5 rounded-lg text-yellow-400 shadow-inner text-xs md:text-sm font-bold">Action Points: <span id="action-count">3</span></span>
                 </div>
@@ -528,6 +529,9 @@
                 '4-4-1-1':   { poss: 0.99, create: 1.02, finish: 0.97, prevent: 1.01, block: 0.99 }   // tweede spits als spil
             },
             // Bestuursvertrouwen (intern een percentage; de speler ziet alleen een woord)
+            // Algemene sterkte per formatie (los van de stijl hierboven): gekalibreerd zodat een speler die op de OVR van de kaart draft en traint
+            // in elke formatie ongeveer evenveel punten haalt. Stijl bepaalt waar je sterk bent, dit bepaalt hoe sterk je in totaal bent.
+            FORMATION_POWER: { '4-3-3': 0.978, '4-4-2': 0.992, '3-5-2': 1.012, '5-4-1': 1.007, '4-2-4': 0.982, '4-2-3-1': 1.023, '3-4-3': 0.998, '4-1-2-1-2': 1.014, '5-3-2': 0.993, '4-4-1-1': 1.001 },
             TRUST_START: 70,
             EXPECT_MIN_NON_CHAMPION: 2,      // wie vorig seizoen niet kampioen werd, krijgt nooit een beter dan 2e plaats als verwachting
             TRUST_SEL_PER_POINT: 3,          // selectiescore (-2..+2): +-3% per punt
@@ -551,21 +555,24 @@
             // Elke generatie heeft een eigen vorm (herspeelbaarheid), maar even moeilijk voor een team van de sterkte die bij die generatie past:
             // bij een team van die sterkte is de kans op de top 2 (Europa) overal ongeveer 40% en op de titel 14-20%.
             // De clubs behouden hun eigen profiel; alleen hun sterkte wordt bijgesteld.
+            // Zwakkere generaties (minder sterke Pokémon) beginnen met iets zwakkere CPU-clubs, in punten teamsterkte S bij seizoen 1.
+            // Alle clubs krijgen dezelfde verschuiving, zodat de verhoudingen (en dus de odds) realistisch blijven; ze vervalt vanzelf naarmate je team groeit.
+            GEN_EARLY_SHIFT: { 1: -4.9, 2: -4.7, 3: -4.2, 4: -1.9, 5: -2.8, 6: -2.9, 7: -1.2, 8: -2, 9: 0 },
+            GEN_EARLY_TAU: 15,             // na hoeveel seizoenen de verschuiving nog 37% is (e^-1); past bij hoe snel spelers in zwakke generaties inlopen
             GEN_TARGET_SHIFT: 0.6,         // alle generaties tegelijk zwaarder (+) of makkelijker (-), in punten teamsterkte S
-            // Typische startsterkte (S) van een draft per generatie, gemeten met een bot die altijd de beste kaart neemt (de echte spelers lagen in Gen 1 op 65-68).
-            // Zwakkere generaties hebben zwakkere Pokémon, dus hun zwakke clubs staan lager: een gewone draft eindigt in seizoen 1 in elke generatie
-            // ongeveer 1 keer op 6 laatste (een slechte draft, -1 sd, ongeveer 4 op 10). Bijstellen kan met de echte start-S uit de export.
-            GEN_TYPICAL_S1: { 1: 71.3, 2: 71.0, 3: 71.7, 4: 75.7, 5: 72.7, 6: 74.2, 7: 76.7, 8: 73.9, 9: 78.1 },
+            // Typische startsterkte (S) van een draft per generatie, gemeten met een bot die kiest en traint op de OVR van de kaart zoals een speler (Gen 1: de echte runs lagen op 65-68).
+            // Daarop is GEN_EARLY_SHIFT gekalibreerd: een gewone draft eindigt in seizoen 1 in elke generatie ongeveer 1 keer op 7 laatste, zoals in het gewone spel.
+            GEN_TYPICAL_S1: { 1: 69.1, 2: 69.0, 3: 69.4, 4: 74.8, 5: 71.1, 6: 72.6, 7: 75.6, 8: 72.8, 9: 76.6 },
             GEN_CLUB_TARGETS: {
-                1: [84.1, 78.9, 73.0, 71.6, 70.6, 69.8, 68.8],   // Gen 1: Een Bayern met een uitdager
-                2: [83.6, 78.6, 72.0, 70.8, 70.0, 69.1, 68.1],   // Gen 2: Een Bayern met een uitdager
-                3: [81.5, 79.0, 77.3, 71.8, 70.6, 69.6, 68.6],   // Gen 3: Drie kanshebbers
-                4: [87.5, 79.9, 77.8, 76.3, 75.3, 74.3, 73.3],   // Gen 4: Een Bayern met grote voorsprong
-                5: [82.5, 81.0, 74.5, 73.0, 72.0, 71.0, 70.0],   // Gen 5: Twee sterke clubs
-                6: [81.4, 79.9, 78.4, 75.3, 73.8, 72.3, 70.8],   // Gen 6: Open: geen Bayern
-                7: [86.4, 81.6, 78.5, 77.1, 76.1, 75.1, 74.1],   // Gen 7: Een Bayern met een uitdager
-                8: [83.1, 81.6, 75.8, 74.3, 73.3, 72.3, 71.3],   // Gen 8: Twee sterke clubs
-                9: [85.0, 83.5, 79.3, 77.8, 76.8, 75.8, 74.8],   // Gen 9: Twee sterke clubs
+                1: [84.1, 78.9, 75.7, 74.3, 73.3, 72.5, 71.5],   // Gen 1: Een Bayern met een uitdager
+                2: [83.6, 78.6, 75.6, 74.4, 73.6, 72.7, 71.7],   // Gen 2: Een Bayern met een uitdager
+                3: [81.5, 79.0, 77.3, 74.1, 72.9, 71.9, 70.9],   // Gen 3: Drie kanshebbers
+                4: [87.5, 79.9, 78.4, 76.9, 75.9, 74.9, 73.9],   // Gen 4: Een Bayern met grote voorsprong
+                5: [82.5, 81.0, 75.8, 74.3, 73.3, 72.3, 71.3],   // Gen 5: Twee sterke clubs
+                6: [81.4, 79.9, 78.4, 76.9, 75.4, 73.9, 72.4],   // Gen 6: Open: geen Bayern
+                7: [86.4, 81.6, 78.6, 77.2, 76.2, 75.2, 74.2],   // Gen 7: Een Bayern met een uitdager
+                8: [83.1, 81.6, 76.4, 74.9, 73.9, 72.9, 71.9],   // Gen 8: Twee sterke clubs
+                9: [85.0, 83.5, 78.3, 76.8, 75.8, 74.8, 73.8],   // Gen 9: Twee sterke clubs
             },
             // Hoe zwaar sterkte telt in een uitslag: met hogere waarden wint de sterkere ploeg vaker (een echte Bayern).
             // Twee gelijke ploegen blijven gelijk en maken evenveel doelpunten als vroeger; alleen het verschil telt zwaarder.
@@ -581,9 +588,12 @@
             CUP_CHANCES: 14,               // meer kansen = minder toeval, de sterkste ploeg wint vaker
             // Per ronde (R16, QF, SF, finale) een verschuiving op elke pool van de tegenstander. Nu uniform: de potten
             // (zwak naar sterk) maken de finale vanzelf de zwaarste ronde.
-            CUP_ROUND_SHIFT: [-30, -30, -30, -30],
+            CUP_ROUND_SHIFT: [-80, -70, -100, -95],   // per ronde (R16, KF, HF, finale): een gewone speler (S85 in seizoen 8) wint ~62%, 50%, 42%, 33%
             CUP_FINAL_FORM: 0.06,          // verborgen vorm van de finaletegenstander: willekeurig +/- 6% op alle pools
-            CUP_GROWTH_PER_SEASON: 15,     // groei van de cuptegenstanders per seizoen (op elke pool)
+            // Groei van de cuptegenstanders (op elke pool): net als de competitie eerst snel, dan vlakker, tot een eindbaas-plafond.
+            // Groei(seizoen) = CUP_GROWTH_MAX x (1 - e^(-(seizoen-1)/CUP_GROWTH_TAU)); de eerste seizoenen blijven gelijk aan +15 per seizoen.
+            CUP_GROWTH_TAU: 12.8,
+            CUP_EARLY_MULT: 1.4,           // de vroege verschuiving van zwakke generaties geldt ook voor de cup, x dit getal
             CUP_GROWTH_MAX: 250
         };
         const genData = [
@@ -657,15 +667,15 @@
                 links: [['GK', 'CB1'], ['GK', 'CB2'], ['LB', 'CB1'], ['CB1', 'CB2'], ['CB2', 'RB'], ['LB', 'CDM1'], ['CB1', 'CDM1'], ['CB2', 'CDM2'], ['RB', 'CDM2'], ['CDM1', 'CDM2'], ['CDM1', 'LAM'], ['CDM1', 'CAM'], ['CDM2', 'CAM'], ['CDM2', 'RAM'], ['LAM', 'CAM'], ['CAM', 'RAM'], ['LAM', 'ST'], ['CAM', 'ST'], ['RAM', 'ST']]
             },
             '3-4-3': {
-                name: '3-4-3 Flank Press', desc: 'Three forwards and flying wing-backs. Thin at the back.',
+                name: '3-4-3 Flank Press', desc: 'Three forwards and two wide midfielders who run the flanks. Thin at the back.',
                 positions: [
                     { id: 'LW', display: 'LW', top: '18%', left: '18%', role: 'WG' },
                     { id: 'ST', display: 'ST', top: '13%', left: '50%', role: 'ST' },
                     { id: 'RW', display: 'RW', top: '18%', left: '82%', role: 'WG' },
-                    { id: 'LWB', display: 'LWB', top: '44%', left: '12%', role: 'FB' },
+                    { id: 'LWB', display: 'LM', top: '44%', left: '12%', role: 'WM' },
                     { id: 'CM1', display: 'CM1', top: '47%', left: '37%', role: 'CM' },
                     { id: 'CM2', display: 'CM2', top: '47%', left: '63%', role: 'CM' },
-                    { id: 'RWB', display: 'RWB', top: '44%', left: '88%', role: 'FB' },
+                    { id: 'RWB', display: 'RM', top: '44%', left: '88%', role: 'WM' },
                     { id: 'CB1', display: 'CB1', top: '74%', left: '25%', role: 'CB' },
                     { id: 'CB2', display: 'CB2', top: '76%', left: '50%', role: 'CB' },
                     { id: 'CB3', display: 'CB3', top: '74%', left: '75%', role: 'CB' },
@@ -1888,7 +1898,7 @@ const AudioManager = {
             if (totalWeight === 0) return 0;
             const profile = BALANCE.FORMATION_PROFILES[activeFormation];
             const styleFactor = (profile && profile[phase]) || 1;
-            return Math.round((totalScore / totalWeight) * styleFactor);
+            return Math.round((totalScore / totalWeight) * styleFactor * ((BALANCE.FORMATION_POWER && BALANCE.FORMATION_POWER[activeFormation]) || 1));
         }
 
        function updateScores() {
@@ -2295,6 +2305,36 @@ function updateObjectiveLine() {
 const _tot = o => o.poss + o.create + o.prevent + o.finish + o.block;
 function clubS(pools) { return Math.sqrt(7.5 * _tot(pools) / 5); }
 // Hoeveel sterker de CPU-clubs zijn geworden (afvlakkend)
+// Vroege verschuiving van de CPU voor de gekozen generaties: speel je met één zwakke generatie, dan zijn de clubs in het begin zwakker;
+// speel je met alle generaties, dan verandert er niets (daar is de moeilijkheid al goed). Ertussen schuift het evenredig mee.
+function activeEarlyShift() {
+    const act = genData.filter(g => g.active).map(g => g.id);
+    if (!act.length || !BALANCE.GEN_EARLY_SHIFT) return 0;
+    const avgShift = act.reduce((a, g) => a + (BALANCE.GEN_EARLY_SHIFT[g] || 0), 0) / act.length;
+    return avgShift * (genData.length - act.length) / (genData.length - 1);
+}
+// Cuptegenstanders: groei, rondeverschuiving en de vroege verschuiving van zwakke generaties
+function cupGrowth(season) { return BALANCE.CUP_GROWTH_MAX * (1 - Math.exp(-(Math.max(1, season) - 1) / BALANCE.CUP_GROWTH_TAU)); }
+function cupEarlyFactor(pools, season) {
+    const e = activeEarlyShift() * BALANCE.CUP_EARLY_MULT;
+    if (!e) return 1;
+    const sh = e * Math.exp(-(Math.max(1, season) - 1) / BALANCE.GEN_EARLY_TAU);
+    const S = Math.sqrt(7.5 * _tot(pools) / 5);
+    return Math.pow(Math.max(1, S + sh) / S, 2);
+}
+function drawCupOpponents(season) {
+    const boost = cupGrowth(season);
+    const boosted = euroOpponents.map(op => ({ ...op, pools: { poss: op.pools.poss + boost, create: op.pools.create + boost, prevent: op.pools.prevent + boost, finish: op.pools.finish + boost, block: op.pools.block + boost } }));
+    const sorted = [...boosted].sort((a, b) => _tot(a.pools) - _tot(b.pools));
+    // Vier sterkte-potten (R16 -> QF -> SF -> Finale): subtop, sterke middenmoot, Europese top, eindbazen
+    const pots = [sorted.slice(0, 4), sorted.slice(4, 8), sorted.slice(8, 12), sorted.slice(12, 15)].map(p => p.sort(() => 0.5 - Math.random()));
+    return pots.map((p, i) => {
+        const op = p[0], sh = BALANCE.CUP_ROUND_SHIFT[i];
+        const shifted = { poss: op.pools.poss + sh, create: op.pools.create + sh, prevent: op.pools.prevent + sh, finish: op.pools.finish + sh, block: op.pools.block + sh };
+        const f = cupEarlyFactor(shifted, season);
+        return { ...op, pools: { poss: Math.round(shifted.poss * f), create: Math.round(shifted.create * f), prevent: Math.round(shifted.prevent * f), finish: Math.round(shifted.finish * f), block: Math.round(shifted.block * f) } };
+    });
+}
 function leagueGrowthFactor(season) {
     return 1 + BALANCE.LEAGUE_GROWTH_TOTAL * (1 - Math.exp(-(Math.max(1, season) - 1) / BALANCE.LEAGUE_GROWTH_TAU));
 }
@@ -2381,21 +2421,23 @@ function titleOdds(rows, runs) {
 
 // Een echte wedstrijdodd (decimaal, met een kleine marge van de bookmaker)
 function bookOdds(p) {
-    let o = 1 / (Math.max(p, 0.004) * 1.07);
+    let o = 1 / (Math.max(p, 0.0005) * 1.07);
     if (o < 1.05) o = 1.05;
     else if (o < 2) o = Math.round(o * 20) / 20;
     else if (o < 5) o = Math.round(o * 10) / 10;
     else if (o < 10) o = Math.round(o * 2) / 2;
     else if (o < 30) o = Math.round(o);
     else if (o < 100) o = Math.round(o / 5) * 5;
-    else o = Math.min(250, Math.round(o / 25) * 25);
+    else if (o < 250) o = Math.round(o / 25) * 25;
+    else if (o < 500) o = Math.round(o / 50) * 50;
+    else o = Math.min(1000, Math.round(o / 100) * 100);
     return o.toFixed(2);
 }
 
 // Alle ploegen, netjes op volgorde van titelkans (grootste favoriet bovenaan)
 function rankedOddsRows() {
     const rows = currentPowerTable();
-    const odds = titleOdds(rows, 1000);
+    const odds = titleOdds(rows, 5000);
     rows.forEach((r, i) => { r.odds = odds[i]; });
     rows.sort((a, b) => (b.odds - a.odds) || (_tot(b.pools) - _tot(a.pools)));
     rows.forEach((r, i) => { r.oddsRank = i + 1; });
@@ -2744,6 +2786,79 @@ function getSwapPartners(posId) {
     if (!line || line === 'gk') return [];
     return f.positions.filter(p => p.id !== posId && LINE_OF[p.role] === line && userTeam[p.id]);
 }
+
+// Alle mogelijke wissels binnen een lijn, met het effect op je team (aanval, middenveld, verdediging), de beste bovenaan
+function swapCandidates() {
+    const f = formations[activeFormation];
+    const before = computeHeaderScores();
+    const seen = new Set(), out = [];
+    f.positions.forEach(pa => {
+        getSwapPartners(pa.id).forEach(pb => {
+            const key = [pa.id, pb.id].sort().join('|');
+            if (seen.has(key)) return;
+            seen.add(key);
+            const A = userTeam[pa.id], B = userTeam[pb.id];
+            if (!A || !B) return;
+            userTeam[pa.id] = B; userTeam[pb.id] = A;
+            const after = computeHeaderScores();
+            userTeam[pa.id] = A; userTeam[pb.id] = B;
+            const d = { atk: after.atk - before.atk, mid: after.mid - before.mid, def: after.def - before.def };
+            out.push({ a: pa, b: pb, d, gain: (d.mid + 2 * d.atk + 2 * d.def) / 5 });
+        });
+    });
+    return out.sort((x, y) => y.gain - x.gain);
+}
+
+// De wisselknop in de banner toont wat de beste wissel nu waard is (in teamsterkte)
+function updateSwapButton() {
+    const btn = document.getElementById('btn-swap');
+    if (!btn) return;
+    const can = isTransferWindow && actionPoints >= BALANCE.SWAP_COST;
+    btn.disabled = !can;
+    const badge = document.getElementById('swap-hint');
+    if (!badge) return;
+    let best = 0;
+    if (can) { try { if (squadComplete()) { const c = swapCandidates(); best = c.length ? c[0].gain : 0; } } catch (e) { best = 0; } }
+    if (best >= 0.4) { badge.textContent = '+' + best.toFixed(1); badge.classList.remove('hidden'); }
+    else { badge.classList.add('hidden'); }
+}
+
+window.openSwapOverview = function() {
+    if (!isTransferWindow) return;
+    openModalShell(`Swap Positions (${BALANCE.SWAP_COST} AP)`, `${actionPoints} AP left`);
+    const canAfford = actionPoints >= BALANCE.SWAP_COST;
+    const list = swapCandidates();
+    const useful = list.filter(c => c.gain >= 0.4).slice(0, 8);
+    const cards = useful.map(c => {
+        const A = userTeam[c.a.id], B = userTeam[c.b.id];
+        return `
+            <button onclick="swapFromOverview('${c.a.id}', '${c.b.id}')" ${canAfford ? '' : 'disabled'} class="border-2 border-slate-600 bg-slate-900 hover:border-purple-500 p-3 rounded-xl flex flex-col items-center justify-center transition-all shadow-lg w-full relative">
+                <span class="absolute -top-2 -right-2 bg-green-500 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full">+${c.gain.toFixed(1)}</span>
+                <div class="flex items-center gap-2">
+                    <img src="${A.sprite}" class="w-12 h-12 object-contain drop-shadow-xl">
+                    <span class="text-purple-300 font-black text-lg">&#8645;</span>
+                    <img src="${B.sprite}" class="w-12 h-12 object-contain drop-shadow-xl">
+                </div>
+                <span class="text-yellow-400 font-black text-xs uppercase tracking-widest mt-1">${c.a.display} &#8645; ${c.b.display}</span>
+                <span class="text-white font-bold text-[11px] truncate max-w-full">${A.name} &amp; ${B.name}</span>
+                ${deltaChips(c.d)}
+            </button>`;
+    }).join('');
+    document.getElementById('gacha-container').innerHTML = `
+        <div class="col-span-full w-full max-w-md mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
+            <p class="text-xs sm:text-sm text-slate-300 text-center mb-1">Two teammates in the same line trade places. A good swap can be worth more than a training.</p>
+            <p class="text-[10px] sm:text-xs text-slate-400 text-center mb-3">The number is the gain in team strength. Chemistry links change with the new positions.</p>
+            ${cards ? `<div class="grid grid-cols-2 gap-3 w-full">${cards}</div>` : '<p class="text-sm text-slate-300 font-bold text-center my-4">No swap improves your team right now.</p>'}
+            ${canAfford ? '' : `<p class="text-xs text-yellow-400 font-bold uppercase tracking-widest text-center mt-3">You need ${BALANCE.SWAP_COST} AP for a swap</p>`}
+            <button onclick="closeModal()" class="mt-6 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold rounded-full uppercase tracking-wide border border-slate-500">Close</button>
+        </div>`;
+};
+
+// Wisselen vanuit het overzicht en direct het volgende voordeel tonen (zolang je actiepunten hebt)
+window.swapFromOverview = function(a, b) {
+    doSwap(a, b);
+    if (isTransferWindow && actionPoints >= BALANCE.SWAP_COST) openSwapOverview();
+};
 
 window.openSwapMenu = function(posId) {
     const f = formations[activeFormation];
@@ -3278,6 +3393,7 @@ function checkOffSeasonActions() {
     if (!btn) return;
     const campBtn = document.getElementById('btn-camp');
     if (campBtn) campBtn.disabled = !(isTransferWindow && actionPoints >= BALANCE.CAMP_COST);
+    updateSwapButton();
     
     if (actionPoints <= 0) {
         btn.innerHTML = "Start Next Season &rarr;";
@@ -3691,14 +3807,18 @@ await rollOptions(role, displayPos);
             // Omdat iedereen procentueel groeit, blijven de onderlinge sterkteverschillen behouden.
             const leagueFactor = leagueGrowthFactor(currentSeason);
 
-            const applyBoost = (pools) => {
-                return {
-                    poss: Math.round(pools.poss * leagueFactor),
-                    create: Math.round(pools.create * leagueFactor),
-                    prevent: Math.round(pools.prevent * leagueFactor),
-                    finish: Math.round(pools.finish * leagueFactor),
-                    block: Math.round(pools.block * leagueFactor)
-                };
+            const earlyNow = activeEarlyShift();
+            const applyBoost = (pools, gen) => {
+                let p = { poss: pools.poss * leagueFactor, create: pools.create * leagueFactor, prevent: pools.prevent * leagueFactor, finish: pools.finish * leagueFactor, block: pools.block * leagueFactor };
+                const early = earlyNow;
+                if (early) {
+                    // Vroege verschuiving van deze generatie, vervalt over de seizoenen
+                    const sh = early * Math.exp(-(currentSeason - 1) / BALANCE.GEN_EARLY_TAU);
+                    const S = Math.sqrt(7.5 * (p.poss + p.create + p.prevent + p.finish + p.block) / 5);
+                    const f = Math.pow(Math.max(1, S + sh) / S, 2);
+                    p = { poss: p.poss * f, create: p.create * f, prevent: p.prevent * f, finish: p.finish * f, block: p.block * f };
+                }
+                return { poss: Math.round(p.poss), create: Math.round(p.create), prevent: Math.round(p.prevent), finish: Math.round(p.finish), block: Math.round(p.block) };
             };
             
             if (currentSeason > 1 && standings.length > 0) {
@@ -3728,12 +3848,12 @@ await rollOptions(role, displayPos);
                 let newStandings = [];
                 for (let t of standings) {
                     if (t.id === relegatedTeam.id && replacement) {
-                        newStandings.push({ id: replacement.id, name: replacement.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(replacement.pools) });
+                        newStandings.push({ id: replacement.id, name: replacement.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(replacement.pools, replacement.gen) });
                     } else if (t.isUser) {
                         newStandings.push({ id: 0, name: userTeamName, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, isUser: true, pools: myTeamEnginePools });
                     } else {
                         let originalOp = allOpponents.find(o => o.id === t.id);
-                        newStandings.push({ id: t.id, name: t.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(originalOp.pools) });
+                        newStandings.push({ id: t.id, name: t.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(originalOp.pools, originalOp.gen) });
                     }
                 }
                 standings = newStandings;
@@ -3766,9 +3886,10 @@ await rollOptions(role, displayPos);
                 }
                 selectedOpponents.sort(() => 0.5 - Math.random());
  
-                standings = selectedOpponents.map(o => ({ id: o.id, name: o.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(o.pools) })); // seasonBoost is hier automatisch 0
+                standings = selectedOpponents.map(o => ({ id: o.id, name: o.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, pools: applyBoost(o.pools, o.gen) })); // seasonBoost is hier automatisch 0
                 standings.push({ id: 0, name: userTeamName, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, isUser: true, pools: myTeamEnginePools });
-                seasonSchedule = [...selectedOpponents].sort(() => 0.5 - Math.random());
+                // Jij speelt tegen dezelfde sterkte als in de stand (inclusief een eventuele vroege verschuiving van de gekozen generaties)
+                seasonSchedule = selectedOpponents.map(o => ({ ...o, pools: standings.find(t => t.id === o.id).pools })).sort(() => 0.5 - Math.random());
             }
         }
         async function startSeasonSimulation() {
@@ -4184,41 +4305,8 @@ await rollOptions(role, displayPos);
             
             document.getElementById('tv-scoreboard').classList.remove('hidden');
             
-            // ENDGAME FIX: Cup teams schalen mee, maar botsen tegen een "Final Boss Cap" (+250)
-            // Hierdoor is de Cup winnend af te sluiten met een slim 85 OVR team, 
-            // maar kan een 99 OVR monsterploeg ze alsnog genadeloos vernietigen.
-            const cupBoost = Math.min((currentSeason - 1) * BALANCE.CUP_GROWTH_PER_SEASON, BALANCE.CUP_GROWTH_MAX);
-            
-            const applyCupBoost = (op) => {
-                return {
-                    ...op,
-                    pools: {
-                        poss: op.pools.poss + cupBoost,
-                        create: op.pools.create + cupBoost,
-                        prevent: op.pools.prevent + cupBoost,
-                        finish: op.pools.finish + cupBoost,
-                        block: op.pools.block + cupBoost
-                    }
-                };
-            };
-
-            const boostedEuro = euroOpponents.map(applyCupBoost);
-
-            // Sorteer gebuffte Europese tegenstanders van zwak naar sterk op totale pool-score
-            const getTotalPool = (op) => op.pools.poss + op.pools.create + op.pools.prevent + op.pools.finish + op.pools.block;
-            let sortedEuro = [...boostedEuro].sort((a, b) => getTotalPool(a) - getTotalPool(b));
-
-            // Verdeel in 4 sterkte-potten (R16 -> QF -> SF -> Final)
-            let pot1 = sortedEuro.slice(0, 4).sort(() => 0.5 - Math.random());   // Subtop
-            let pot2 = sortedEuro.slice(4, 8).sort(() => 0.5 - Math.random());   // Sterke middenmoot
-            let pot3 = sortedEuro.slice(8, 12).sort(() => 0.5 - Math.random());  // Europese top
-            let pot4 = sortedEuro.slice(12, 15).sort(() => 0.5 - Math.random()); // Eindbazen
-
-            continentalOpponents = [pot1[0], pot2[0], pot3[0], pot4[0]].map((op, i) => {
-                const sh = BALANCE.CUP_ROUND_SHIFT[i];
-                return { ...op, pools: { poss: op.pools.poss + sh, create: op.pools.create + sh, prevent: op.pools.prevent + sh, finish: op.pools.finish + sh, block: op.pools.block + sh } };
-            });
-            currentCupRound = 0;
+            // De cuptegenstanders groeien mee met de seizoenen (met een eindbaas-plafond) en houden rekening met de gekozen generaties
+            continentalOpponents = drawCupOpponents(currentSeason);
             cupPath = [];
             finalSummary = null;
             savePhase = 'cup';
