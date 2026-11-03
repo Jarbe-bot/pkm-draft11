@@ -2369,7 +2369,12 @@ function takeKickoffSnapshot() {
     const ranks = {}; rows.forEach(r => { ranks[r.id] = r.rank; });
     kickPrev = kickNow;
     kickNow = { season: currentSeason, rank: me.rank, gap, S: me.S, ranks };
-    try { const orank = {}; rankedOddsRows().forEach(r => { orank[r.id] = r.oddsRank; }); kickNow.oddsRanks = orank; } catch (e) {}
+    try {
+        const orank = {}; const orows = rankedOddsRows();
+        orows.forEach(r => { orank[r.id] = r.oddsRank; });
+        kickNow.oddsRanks = orank;
+        kickNow.league = orows.map(r => ({ name: r.name, user: !!r.isUser, S: Math.round(r.S * 10) / 10, pct: Math.round(r.odds * 1000) / 10, oddsRank: r.oddsRank }));
+    } catch (e) {}
     boardExpectNow = boardExpectation(currentSeason);
 }
 
@@ -2390,6 +2395,7 @@ function selectionScore() {
 function evaluateBoardSeason(pos) {
     if (lastVerdict && lastVerdict.season === currentSeason) return lastVerdict;
     const before = boardWordInfo(boardTrust).word;
+    const pctBefore = boardTrust;
     const E = boardExpectNow || boardExpectation(currentSeason);
     const sel = selectionScore();
     const diff = E - pos;
@@ -2410,14 +2416,16 @@ function evaluateBoardSeason(pos) {
     finHist.push(pos);
     const after = boardWordInfo(boardTrust).word;
     const outcome = d >= 3 ? 'success' : (d <= -3 ? 'miss' : 'narrow');
-    lastVerdict = { season: currentSeason, pos, E, sel, d, before, after, patience, name: after, text: '', resolved: true, outcome, rank: kickNow ? kickNow.rank : null };
+    lastVerdict = { season: currentSeason, pos, E, sel, d, before, after, patience, name: after, text: '', resolved: true, outcome, rank: kickNow ? kickNow.rank : null, pctBefore, pctAfter: boardTrust };
     updateTrustUI();
     return lastVerdict;
 }
 
 function awardCupTrust(round) {
     boardTrust = Math.min(100, boardTrust + (BALANCE.TRUST_CUP_ROUNDS[round] || 0));
-    if (lastVerdict && lastVerdict.season === currentSeason) lastVerdict.after = boardWordInfo(boardTrust).word;
+    if (lastVerdict && lastVerdict.season === currentSeason) { lastVerdict.after = boardWordInfo(boardTrust).word; lastVerdict.pctAfter = boardTrust; }
+    const lr = careerLog && careerLog.seasons.find(x => x.season === currentSeason);
+    if (lr) { lr.trustPct = Math.round(boardTrust * 10) / 10; if (lr.verdict) lr.verdict.pctAfter = lr.trustPct; }
     updateTrustUI();
 }
 
@@ -2750,14 +2758,48 @@ function logMatch(comp, gf, ga, opponent) {
     }
 }
 
+// De selectie zoals ze nu staat (voor het logboek en de export)
+function squadSnapshot() {
+    const f = formations[activeFormation];
+    if (!f) return [];
+    return f.positions.map(pos => {
+        const p = userTeam[pos.id];
+        if (!p) return { pos: pos.display, slot: pos.id, role: pos.role, name: null };
+        let ovr = null; try { ovr = calculatePlayerOVR(p, pos.role); } catch (e) {}
+        return { pos: pos.display, slot: pos.id, role: pos.role, name: p.name, dex: p.id, gen: p.generation,
+            types: p.types || [p.primaryType, p.secondaryType].filter(Boolean),
+            stats: { spe: p.stats.spe, hp: p.stats.hp, atk: p.stats.atk, def: p.stats.def, spa: p.stats.spa, spd: p.stats.spd }, ovr };
+    });
+}
+function verdictForLog(v) {
+    if (!v) return null;
+    return { E: v.E, sel: v.sel, d: Math.round(v.d * 10) / 10, patience: v.patience, pctBefore: v.pctBefore != null ? Math.round(v.pctBefore * 10) / 10 : null, pctAfter: v.pctAfter != null ? Math.round(v.pctAfter * 10) / 10 : null };
+}
+
 function recordSeasonInLog(finalPos, boardResult) {
     const L = ensureCareerLog();
     const me = standings.find(t => t.isUser) || { pts: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0 };
     const h = computeHeaderScores();
     const rating = Math.round((h.atk + h.mid + h.def) / 3);
     const best = Object.values(playerStats).filter(ps => ps && ps.p).sort((a, b) => b.seasonGoals - a.seasonGoals)[0];
+    const snap = kickNow && kickNow.season === currentSeason ? kickNow : null;
+    const myRow = snap && snap.league ? snap.league.find(r => r.user) : null;
+    const pc = L.prevCounts || { transfers: 0, trainings: 0, camps: 0, swaps: 0 };
+    const prevIdx = L.seasons.findIndex(x => x.season === currentSeason);
+    const actions = prevIdx >= 0 && L.seasons[prevIdx].actions ? L.seasons[prevIdx].actions
+        : { trainings: L.counts.trainings - pc.trainings, transfers: L.counts.transfers - pc.transfers, camps: L.counts.camps - pc.camps, swaps: L.counts.swaps - pc.swaps };
+    if (prevIdx < 0) L.prevCounts = { transfers: L.counts.transfers, trainings: L.counts.trainings, camps: L.counts.camps, swaps: L.counts.swaps };
     const rec = {
         season: currentSeason, pos: finalPos, clubs: standings.length,
+        // voor analyse: sterkte, kans, competitie en selectie bij de aftrap van dit seizoen
+        S: snap ? Math.round(snap.S * 10) / 10 : null,
+        phases: { atk: h.atk, mid: h.mid, def: h.def },
+        powerRank: snap ? snap.rank : null, gapTop3: snap ? Math.round(snap.gap * 10) / 10 : null,
+        titlePct: myRow ? myRow.pct : null, oddsRank: myRow ? myRow.oddsRank : null,
+        league: snap && snap.league ? snap.league : null,
+        actions, squad: squadSnapshot(),
+        trustPct: Math.round(boardTrust * 10) / 10,
+        verdict: verdictForLog(boardResult),
         pts: me.pts, w: me.w, d: me.d, l: me.l, gf: me.gf, ga: me.ga,
         cup: finalPos <= 2 ? 0 : -1,          // -1 niet gekwalificeerd, 0..3 rondes gewonnen, 4 = cup gewonnen
         rating,
@@ -2793,7 +2835,7 @@ function refreshSeasonScorers() {
 
 function updateLogBoard(o) {
     const rec = ensureCareerLog().seasons.find(x => x.season === currentSeason);
-    if (rec && o) rec.board = { name: o.name, text: o.text, outcome: o.resolved ? o.outcome : 'pending' };
+    if (rec && o) { rec.board = { name: o.name, text: o.text, outcome: o.resolved ? o.outcome : 'pending' }; rec.verdict = verdictForLog(o); rec.trustPct = Math.round(boardTrust * 10) / 10; }
 }
 
 function seasonWasTitle() { const r = ensureCareerLog().seasons.find(x => x.season === currentSeason); return !!r && r.pos === 1; }
@@ -2846,6 +2888,45 @@ function careerChartSvg(seasons) {
         ${g}${labels}<path d="${path}" fill="none" stroke="#facc15" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>${dots}</svg>`;
 }
 
+// Alles wat nodig is om een run te analyseren, in één bestand
+function buildExportData() {
+    const L = ensureCareerLog();
+    return {
+        format: 'pokemon-draft-fc-export', version: 1, exportedAt: new Date().toISOString(),
+        game: {
+            team: userTeamName, formation: activeFormation, season: currentSeason, phase: savePhase || null,
+            generations: genData.filter(g => g.active).map(g => g.id)
+        },
+        rules: { balance: JSON.parse(JSON.stringify(BALANCE)) },
+        board: {
+            trustPct: Math.round(boardTrust * 10) / 10, negStreak, finHist: finHist.slice(), expectNow: boardExpectNow,
+            lastVerdict: lastVerdict ? { season: lastVerdict.season, pos: lastVerdict.pos, E: lastVerdict.E, sel: lastVerdict.sel, d: lastVerdict.d, patience: lastVerdict.patience, pctBefore: lastVerdict.pctBefore, pctAfter: lastVerdict.pctAfter } : null
+        },
+        squadNow: squadSnapshot(),
+        leagueNow: kickNow && kickNow.league ? kickNow.league : null,
+        career: {
+            status: L.status, startedSeason: L.startedSeason, counts: L.counts, matches: L.matches,
+            biggestWin: L.biggestWin, highestRating: L.highestRating, seasons: L.seasons
+        }
+    };
+}
+
+window.exportCareerData = function(btn) {
+    const data = buildExportData();
+    const slug = String(userTeamName || 'team').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'team';
+    const name = `pkm-draft-fc_${slug}_S${currentSeason}.json`;
+    try {
+        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name; document.body.appendChild(a); a.click();
+        setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+        if (btn) { btn.textContent = '\u2714 Saved: ' + name; }
+    } catch (e) {
+        if (btn) { btn.textContent = 'Export failed'; }
+    }
+};
+
 window.openCareerOverview = function(final = false) {
     const L = ensureCareerLog();
     const S = L.seasons;
@@ -2866,7 +2947,7 @@ window.openCareerOverview = function(final = false) {
 
     const chart = S.length
         ? `<div id="career-chart-scroll" class="overflow-x-auto bg-slate-900 rounded-xl border border-slate-700 p-2 md:p-3">${careerChartSvg(S)}</div>
-           <p class="text-[10px] text-slate-500 text-center mt-1">League finish per season. 🏆 = title. CUP: how far you got (– = not qualified). BOARD: ✅ trust up, ➖ steady, ❌ trust down.</p>`
+           <p class="text-[10px] text-slate-500 text-center mt-1">League finish per season. 🏆 = title. CUP: how far you got (– = not qualified). BOARD: ✅ trust up, ➖ steady, ❌ trust down. RATING: average of Attack, Midfield and Defense.</p>`
         : `<p class="text-center text-slate-400 text-sm py-8 bg-slate-900 rounded-xl border border-slate-700">Finish your first season to start writing your story.</p>`;
 
     const scorersHtml = scorers.length ? scorers.map((ps, i) => `
@@ -2882,6 +2963,7 @@ window.openCareerOverview = function(final = false) {
             <td class="py-1.5 px-1.5 md:px-2 font-black text-slate-300 whitespace-nowrap">S${r.season}</td>
             <td class="py-1.5 px-1.5 md:px-2 font-bold whitespace-nowrap ${r.pos === 1 ? 'text-yellow-400' : (r.pos <= 2 ? 'text-blue-400' : (r.pos === r.clubs ? 'text-red-400' : 'text-white'))}">${ordinalText(r.pos)}</td>
             <td class="py-1.5 px-1.5 md:px-2 text-white whitespace-nowrap">${r.pts}</td>
+            <td class="py-1.5 px-1.5 md:px-2 text-slate-300 whitespace-nowrap">${r.rating != null ? r.rating : '&ndash;'}</td>
             <td class="py-1.5 px-1.5 md:px-2 text-slate-300 whitespace-nowrap">${r.w}-${r.d}-${r.l}</td>
             <td class="py-1.5 px-1.5 md:px-2 text-slate-300 whitespace-nowrap">${r.cup === -1 ? '–' : (r.cup === 4 ? '🏆<span class="hidden md:inline"> Winner</span>' : `<span class="md:hidden">${['R16', 'QF', 'SF', 'F'][r.cup]}</span><span class="hidden md:inline">${['Round of 16', 'Quarter-final', 'Semi-final', 'Final'][r.cup]}</span>`)}</td>
             <td class="py-1.5 px-1.5 md:px-2 text-slate-300 truncate max-w-[110px] md:max-w-[160px]">${r.topScorer ? `${r.topScorer.name} (${r.topScorer.goals})` : '–'}</td>
@@ -2904,7 +2986,7 @@ window.openCareerOverview = function(final = false) {
         ${chart}
 
         ${S.length ? `<div class="overflow-x-auto mt-4"><table class="w-full text-[11px] md:text-xs text-left">
-            <thead><tr class="text-slate-500 uppercase tracking-wider"><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Season</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Finish</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Pts</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">W-D-L</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Cup</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Scorer</th></tr></thead>
+            <thead><tr class="text-slate-500 uppercase tracking-wider"><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Season</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Finish</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Pts</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Rating</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">W-D-L</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Cup</th><th class="py-1 px-1.5 md:px-2 whitespace-nowrap">Scorer</th></tr></thead>
             <tbody>${rows}</tbody></table></div>` : ''}
 
         <h3 class="text-sm md:text-base font-black text-white uppercase tracking-widest mt-5 mb-2">All-time top scorers</h3>
@@ -2927,6 +3009,7 @@ window.openCareerOverview = function(final = false) {
         </div>
 
         <div class="flex flex-col gap-3 max-w-sm mx-auto mt-6">
+            <button onclick="exportCareerData(this)" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-full border border-slate-600 uppercase tracking-widest text-xs md:text-sm w-full">&#11015; Export run data</button>
             ${final
                 ? '<button onclick="closeCareerOverview(); startNewDraft();" class="px-6 py-3.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 text-white font-black rounded-full shadow-lg uppercase tracking-widest text-sm md:text-base w-full">Start New Career</button>'
                 : '<button onclick="closeCareerOverview()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full border border-slate-500 uppercase tracking-widest text-xs md:text-sm w-full">Close</button>'}
