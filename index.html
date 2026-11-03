@@ -96,7 +96,7 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">6. The Board</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-yellow-400">What the board expects:</strong> Every season the board hopes for a finish one place better than your last two seasons. Only the reigning champion is expected to win again; everyone else is asked to fight for the title at most. In your first season it hopes for a top 6.</li>
+                        <li><strong class="text-yellow-400">What the board expects:</strong> Every season the board hopes for a finish one place better than your last two seasons. Only the reigning champion is expected to win again; everyone else is asked to qualify for the Continental Cup at most. Every cup round you win pleases the board too. In your first season it hopes for a top 6.</li>
                         <li><strong class="text-sky-400">The board's mood:</strong> From Ecstatic to Furious. The board evaluates whether you improve the squad (the wrong stats on the wrong players do not count) and how you finish compared to what it hoped for. A bad season hurts more than a good one helps, and repeated bad seasons hurt more each time. Tap the Board badge to see how it feels.</li>
                         <li><strong class="text-white">Furious means last chance.</strong> A board that has lost all faith sacks you, and so does finishing last from season 2 onwards.</li>
                         <li><strong class="text-green-400">Title odds:</strong> Tap ODDS to see the title race, with every club's chance of winning the league.</li>
@@ -537,7 +537,11 @@
             TRUST_DISASTER_PLACES: 5,        // 5 of meer plaatsen onder de verwachting is een rampseizoen
             TRUST_DISASTER_EXTRA: 10,        // ... en kost nog eens 10% extra (zodat de stemming echt omslaat)
             TRUST_TITLE: 6,
-            TRUST_CUP: 8,
+            TRUST_CUP_ROUNDS: [2, 3, 5, 10], // vertrouwen voor het winnen van R16, kwartfinale, halve finale en finale (samen +20%)
+            // Naarmate je team het plafond nadert, wordt vooruitgang moeilijker: de lat voor lof zakt mee (achteruitgang blijft even streng)
+            SEL_CEILING_S: 92,
+            SEL_SCALE_RANGE: 12,
+            SEL_SCALE_MIN: 0.25,
             TRUST_PATIENCE: [1, 1.5, 2],     // opeenvolgende negatieve seizoenen: negatief saldo x1, x1,5, x2
             TRUST_S1_LOSS_FACTOR: 0.5,       // seizoen 1: verliezen tellen half (slechte draft)
             TRUST_WORDS: [[92, 'Ecstatic', 'text-emerald-400'], [78, 'Happy', 'text-green-400'], [60, 'Content', 'text-sky-400'], [40, 'Unhappy', 'text-orange-400'], [0, 'Furious', 'text-red-500']],
@@ -2196,27 +2200,27 @@ function boardExpectation(season) {
 }
 
 // Teksten voor de speler
-function expectationShort(E) { return E <= 1 ? 'the title' : (E === 2 ? 'a title challenge' : (E >= 7 ? 'a safe finish' : `a top ${E} finish`)); }
+function expectationShort(E) { return E <= 1 ? 'the title' : (E === 2 ? 'a Continental Cup place' : (E >= 7 ? 'a safe finish' : `a top ${E} finish`)); }
 function expectationSentence(E) {
     if (E <= 1) return 'We expect you to defend the title.';
-    if (E === 2) return 'We expect you to fight for the title.';
+    if (E === 2) return 'We expect you to qualify for the Continental Cup.';
     if (E >= 7) return 'We expect you to stay out of the relegation spot.';
     if (E >= 6) return 'We expect you to stay clear of the bottom places.';
     return `We expect a top ${E} finish.`;
 }
 function hopeNoun(E) {
     if (E <= 1) return 'the title';
-    if (E === 2) return 'a top 2 finish';
+    if (E === 2) return 'a Continental Cup place';
     if (E >= 7) return 'a finish clear of the bottom';
     return `a top ${E} finish`;
 }
-function expectationLabel(E) { return E <= 1 ? 'Title' : `Top ${E}`; }
+function expectationLabel(E) { return E <= 1 ? 'Title' : (E === 2 ? 'Cup spot' : `Top ${E}`); }
 
 function updateObjectiveBanner() {
     const el = document.getElementById('board-objective-text');
     if (!el) return;
     const E = boardExpectation(currentSeason);
-    el.textContent = `Board expects ${E <= 1 ? 'you to defend the title' : (E === 2 ? 'you to fight for the title' : `top ${E}`)} \u00B7 tap ODDS for the title race`;
+    el.textContent = `Board expects ${E <= 1 ? 'you to defend the title' : (E === 2 ? 'you to qualify for the Cup' : `top ${E}`)} \u00B7 tap ODDS for the title race`;
 }
 
 function updateObjectiveLine() {
@@ -2358,7 +2362,7 @@ function takeKickoffSnapshot() {
     const gap = me.S - top3.reduce((a, r) => a + r.S, 0) / top3.length;
     const ranks = {}; rows.forEach(r => { ranks[r.id] = r.rank; });
     kickPrev = kickNow;
-    kickNow = { season: currentSeason, rank: me.rank, gap, ranks };
+    kickNow = { season: currentSeason, rank: me.rank, gap, S: me.S, ranks };
     try { const orank = {}; rankedOddsRows().forEach(r => { orank[r.id] = r.oddsRank; }); kickNow.oddsRanks = orank; } catch (e) {}
     boardExpectNow = boardExpectation(currentSeason);
 }
@@ -2367,10 +2371,13 @@ function takeKickoffSnapshot() {
 function selectionScore() {
     if (!kickPrev || !kickNow) return 0;
     const dR = kickPrev.rank - kickNow.rank, dG = kickNow.gap - kickPrev.gap;
-    if (kickNow.rank === 1 && kickPrev.rank === 1) return dG >= 2 ? 1 : (dG <= -3 ? -1 : 0);
+    // Hoe dichter je bij het plafond zit, hoe moeilijker winst wordt: de lat voor lof zakt mee, de lat voor een negatieve score niet
+    const fS = typeof kickNow.S === 'number'
+        ? Math.max(BALANCE.SEL_SCALE_MIN, Math.min(1, (BALANCE.SEL_CEILING_S - kickNow.S) / BALANCE.SEL_SCALE_RANGE)) : 1;
+    if (kickNow.rank === 1 && kickPrev.rank === 1) return dG >= 2 * fS ? 1 : (dG <= -3 ? -1 : 0);
     if (dR >= 2) return 2;
     if (dR === 1) return 1;
-    if (dR === 0) return dG >= 2 ? 1 : (dG <= -2 ? -1 : 0);
+    if (dR === 0) return dG >= 2 * fS ? 1 : (dG <= -2 ? -1 : 0);
     return dR === -1 ? -1 : -2;
 }
 
@@ -2397,13 +2404,13 @@ function evaluateBoardSeason(pos) {
     finHist.push(pos);
     const after = boardWordInfo(boardTrust).word;
     const outcome = d >= 3 ? 'success' : (d <= -3 ? 'miss' : 'narrow');
-    lastVerdict = { season: currentSeason, pos, E, sel, d, before, after, patience, name: after, text: '', resolved: true, outcome };
+    lastVerdict = { season: currentSeason, pos, E, sel, d, before, after, patience, name: after, text: '', resolved: true, outcome, rank: kickNow ? kickNow.rank : null };
     updateTrustUI();
     return lastVerdict;
 }
 
-function awardCupTrust() {
-    boardTrust = Math.min(100, boardTrust + BALANCE.TRUST_CUP);
+function awardCupTrust(round) {
+    boardTrust = Math.min(100, boardTrust + (BALANCE.TRUST_CUP_ROUNDS[round] || 0));
     if (lastVerdict && lastVerdict.season === currentSeason) lastVerdict.after = boardWordInfo(boardTrust).word;
     updateTrustUI();
 }
@@ -2415,7 +2422,7 @@ function boardVerdictHtml(v) {
         : (diff < 0 ? `You finished ${ordinalText(v.pos)}: the board hoped for ${hopeNoun(v.E)}.`
         : `You finished ${ordinalText(v.pos)}, just as the board hoped.`);
     const squadTxt = v.season === 1 ? '' : (v.sel > 0 ? 'Your squad improved.'
-        : (v.sel < 0 ? 'Your squad did not keep up.' : 'Your squad did not improve much.'));
+        : (v.sel < 0 ? 'Your squad did not keep up.' : (v.rank && v.rank <= 3 ? 'Your squad held its level at the top.' : 'Your squad did not improve much.')));
     const up = v.d > 0, down = v.d < 0;
     const color = up ? 'text-green-400' : (down ? 'text-red-400' : 'text-yellow-400');
     const border = up ? 'border-green-600/60' : (down ? 'border-red-600/60' : 'border-yellow-600/60');
@@ -3272,20 +3279,20 @@ await rollOptions(role, displayPos);
                 const disabledAttr = actionPoints <= 0 ? 'disabled opacity-50 cursor-not-allowed' : 'hover:scale-105';
 
                 statsHtml += `
-                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" ${actionPoints <= 0 ? 'disabled' : ''} class="${borderClass} border-2 p-3 sm:p-4 md:p-2.5 rounded-xl flex flex-col items-center justify-center transition-all transform ${disabledAttr} shadow-lg w-full relative">
+                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" ${actionPoints <= 0 ? 'disabled' : ''} class="${borderClass} border-2 p-3 sm:p-4 md:px-4 md:py-2 rounded-xl flex flex-col items-center justify-center md:flex-row md:flex-wrap md:justify-between md:items-center transition-all transform ${disabledAttr} shadow-lg w-full relative">
                         ${isJustTrained ? '<span class="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">+UP</span>' : ''}
-                        <span class="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-0.5">${s.label}</span>
-                        <span class="font-black text-2xl sm:text-3xl ${displayColor} transition-colors duration-300">${currentVal}</span>
-                        <span class="text-[9px] sm:text-[10px] text-slate-400 mt-1 font-bold">${rangeText}</span>
+                        <span class="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-0.5 md:mb-0">${s.label}</span>
+                        <span class="font-black text-2xl sm:text-3xl md:text-2xl ${displayColor} transition-colors duration-300">${currentVal}</span>
+                        <span class="text-[9px] sm:text-[10px] text-slate-400 mt-1 md:mt-0 md:w-full md:text-left font-bold">${rangeText}</span>
                     </button>
                 `;
             });
 
             gacha.innerHTML = `
-                <div class="col-span-full w-full max-w-sm md:max-w-2xl mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
+                <div class="col-span-full w-full max-w-sm md:max-w-lg mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
                     <img src="${p.sprite}" class="w-20 h-20 sm:w-24 sm:h-24 md:w-16 md:h-16 object-contain drop-shadow-xl mb-4 md:mb-2">
                     ${(trainCounts[p.id] || 0) > 0 ? '<p class="text-[10px] sm:text-xs text-yellow-400 font-bold uppercase tracking-widest mb-3 md:mb-2 text-center">Already trained this off-season: gains are halved</p>' : ''}
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-2 w-full">
+                    <div class="grid grid-cols-2 gap-3 md:gap-2 w-full">
                         ${statsHtml}
                     </div>
                     <button onclick="openDraft('${posId}', '${displayPos}', '${role}')" class="mt-6 md:mt-3 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold rounded-full uppercase tracking-widest border border-slate-500">
@@ -4239,8 +4246,9 @@ await rollOptions(role, displayPos);
             if (careerLog) { const lr = careerLog.seasons.find(x => x.season === currentSeason); if (lr) lr.cupPath = cupPath.slice(); }
             if (currentCupRound === 3 && finalScore.h > finalScore.a) finalSummary = buildFinalSummary([...userGoals, ...userET], finalScore, cupOp);
             logCupProgress(finalScore.h > finalScore.a);
-            const cupBoardHtml = '';
-            if (currentCupRound === 3 && finalScore.h > finalScore.a) awardCupTrust();
+            const cupWon = finalScore.h > finalScore.a;
+            if (cupWon) awardCupTrust(currentCupRound);
+            const cupBoardHtml = cupWon && currentCupRound < 3 ? '<p class="mt-3 text-xs font-bold text-green-400">&#9650; The board is pleased with your Continental Cup run.</p>' : '';
             if (finalScore.h > finalScore.a) {
                 currentCupRound++;
                 savePhase = currentCupRound > 3 ? 'cupwon' : 'cup';
