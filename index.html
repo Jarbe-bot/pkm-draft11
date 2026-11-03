@@ -552,19 +552,20 @@
             // bij een team van die sterkte is de kans op de top 2 (Europa) overal ongeveer 40% en op de titel 14-20%.
             // De clubs behouden hun eigen profiel; alleen hun sterkte wordt bijgesteld.
             GEN_TARGET_SHIFT: 0.6,         // alle generaties tegelijk zwaarder (+) of makkelijker (-), in punten teamsterkte S
-            // Referentiesterkte van een goede speler per generatie (S): 80 plus de helft van het verschil in draftsterkte van die generatie.
-            // Alleen ter documentatie en voor de tests; bijstellen kan zodra er echte runs (export) zijn om mee te vergelijken.
-            GEN_REF_S: { 1: 78.6, 2: 78.6, 3: 78.6, 4: 81.1, 5: 79.1, 6: 80.1, 7: 81.6, 8: 80.1, 9: 82.1 },
+            // Typische startsterkte (S) van een draft per generatie, gemeten met een bot die altijd de beste kaart neemt (de echte spelers lagen in Gen 1 op 65-68).
+            // Zwakkere generaties hebben zwakkere Pokémon, dus hun zwakke clubs staan lager: een gewone draft eindigt in seizoen 1 in elke generatie
+            // ongeveer 1 keer op 6 laatste (een slechte draft, -1 sd, ongeveer 4 op 10). Bijstellen kan met de echte start-S uit de export.
+            GEN_TYPICAL_S1: { 1: 71.3, 2: 71.0, 3: 71.7, 4: 75.7, 5: 72.7, 6: 74.2, 7: 76.7, 8: 73.9, 9: 78.1 },
             GEN_CLUB_TARGETS: {
-                1: [84.1, 78.9, 75.7, 74.3, 73.3, 72.5, 71.5],   // Gen 1: Een Bayern met een uitdager
-                2: [83.6, 78.6, 75.6, 74.4, 73.6, 72.7, 71.7],   // Gen 2: Een Bayern met een uitdager
-                3: [81.5, 79.0, 77.3, 74.1, 72.9, 71.9, 70.9],   // Gen 3: Drie kanshebbers
-                4: [87.5, 79.9, 78.4, 76.9, 75.9, 74.9, 73.9],   // Gen 4: Een Bayern met grote voorsprong
-                5: [82.5, 81.0, 75.8, 74.3, 73.3, 72.3, 71.3],   // Gen 5: Twee sterke clubs
-                6: [81.4, 79.9, 78.4, 76.9, 75.4, 73.9, 72.4],   // Gen 6: Open: geen Bayern
-                7: [86.4, 81.6, 78.6, 77.2, 76.2, 75.2, 74.2],   // Gen 7: Een Bayern met een uitdager
-                8: [83.1, 81.6, 76.4, 74.9, 73.9, 72.9, 71.9],   // Gen 8: Twee sterke clubs
-                9: [85.0, 83.5, 78.3, 76.8, 75.8, 74.8, 73.8],   // Gen 9: Twee sterke clubs
+                1: [84.1, 78.9, 73.0, 71.6, 70.6, 69.8, 68.8],   // Gen 1: Een Bayern met een uitdager
+                2: [83.6, 78.6, 72.0, 70.8, 70.0, 69.1, 68.1],   // Gen 2: Een Bayern met een uitdager
+                3: [81.5, 79.0, 77.3, 71.8, 70.6, 69.6, 68.6],   // Gen 3: Drie kanshebbers
+                4: [87.5, 79.9, 77.8, 76.3, 75.3, 74.3, 73.3],   // Gen 4: Een Bayern met grote voorsprong
+                5: [82.5, 81.0, 74.5, 73.0, 72.0, 71.0, 70.0],   // Gen 5: Twee sterke clubs
+                6: [81.4, 79.9, 78.4, 75.3, 73.8, 72.3, 70.8],   // Gen 6: Open: geen Bayern
+                7: [86.4, 81.6, 78.5, 77.1, 76.1, 75.1, 74.1],   // Gen 7: Een Bayern met een uitdager
+                8: [83.1, 81.6, 75.8, 74.3, 73.3, 72.3, 71.3],   // Gen 8: Twee sterke clubs
+                9: [85.0, 83.5, 79.3, 77.8, 76.8, 75.8, 74.8],   // Gen 9: Twee sterke clubs
             },
             // Hoe zwaar sterkte telt in een uitslag: met hogere waarden wint de sterkere ploeg vaker (een echte Bayern).
             // Twee gelijke ploegen blijven gelijk en maken evenveel doelpunten als vroeger; alleen het verschil telt zwaarder.
