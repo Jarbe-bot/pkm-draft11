@@ -106,7 +106,7 @@
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">7. League &amp; Continental Cup</h3>
                     <ul class="list-disc pl-5 space-y-1">
                         <li><strong class="text-green-400">Formations:</strong> every formation has its own style. 4-2-4 goes all-out attack (most goals, weak midfield, open games), 5-4-1 parks the bus (fewest goals conceded, lone striker), 3-5-2 controls midfield but is open on the flanks, 4-2-3-1 controls the game, 4-4-2 is compact and solid, 4-3-3 attacks wide, 3-4-3 presses high over the flanks but is thin at the back, the 4-1-2-1-2 diamond overloads the centre without width, 5-3-2 defends deep and counters with two strikers, and 4-4-1-1 runs everything through its second striker. Overall they are equally strong.</li>
-                        <li><strong class="text-blue-400">League:</strong> 8 clubs, 7 matchdays. The top 2 qualify for the Continental Cup. Rival clubs start strong and grow 0.8% stronger every season (up to +30%), so standing still means falling behind.5% stronger (up to +30%), so standing still means falling behind. The strong clubs stay strong and the weak stay weak.</li>
+                        <li><strong class="text-blue-400">League:</strong> 8 clubs, 7 matchdays. The top 2 qualify for the Continental Cup. Rival clubs start strong and keep growing, fast at first and then slower and slower, so standing still means falling behind.5% stronger (up to +30%), so standing still means falling behind. The strong clubs stay strong and the weak stay weak.</li>
                         <li><strong class="text-yellow-400">Continental Cup:</strong> Four knockout rounds against Europe's elite, each round tougher than the last. Cup nights are open games with more chances, so the better team usually wins. Every round is tougher than the last, and the final is the toughest test of all: the finalist is one of Europe's best and arrives in unpredictable form. Cup opponents also grow every season.</li>
                     </ul>
                 </div>
@@ -548,8 +548,10 @@
             // Competitie: alle CPU-ploegen groeien met hetzelfde percentage (onderlinge verhoudingen blijven gelijk)
             LEAGUE_STAR_SHARE: 0.3,        // de beste 30% van de topgroep telt als 'ster': elke competitie krijgt één uitschieter
             LEAGUE_BASE_FACTOR: 1.07,      // alle competitieclubs starten 7% sterker: een zwaardere start
-            LEAGUE_GROWTH: 0.008,          // +0,8% per seizoen (vlakkere groei, zodat de late game even zwaar blijft)
-            LEAGUE_GROWTH_MAX: 1.30,       // maximaal +30%
+            // De CPU groeit net als jij steeds minder: snel in het begin, daarna vlakt het af naar een plafond.
+            // Groei(seizoen) = LEAGUE_GROWTH_TOTAL x (1 - e^(-(seizoen-1)/LEAGUE_GROWTH_TAU)); het eerste decennium blijft gelijk aan +0,8% per seizoen.
+            LEAGUE_GROWTH_TOTAL: 0.15,     // plafond: de pools van de CPU-clubs groeien maximaal +15%
+            LEAGUE_GROWTH_TAU: 14,         // hoe snel het plafond benaderd wordt (kleiner = sneller)
             // Continental Cup
             CUP_POSS_EXP: 1.8,             // balbezit weegt even zwaar als in de competitie
             CUP_CHANCES: 14,               // meer kansen = minder toeval, de sterkste ploeg wint vaker
@@ -2238,6 +2240,10 @@ function updateObjectiveLine() {
 // ---------- krachtentabel ----------
 const _tot = o => o.poss + o.create + o.prevent + o.finish + o.block;
 function clubS(pools) { return Math.sqrt(7.5 * _tot(pools) / 5); }
+// Hoeveel sterker de CPU-clubs zijn geworden (afvlakkend)
+function leagueGrowthFactor(season) {
+    return 1 + BALANCE.LEAGUE_GROWTH_TOTAL * (1 - Math.exp(-(Math.max(1, season) - 1) / BALANCE.LEAGUE_GROWTH_TAU));
+}
 
 function squadComplete() {
     const f = formations[activeFormation];
@@ -2286,7 +2292,7 @@ function mcCpuMatch(p1, p2, thr, rnd) {
 function titleOdds(rows, runs) {
     const n = rows.length;
     const rnd = mulberry32(rows.reduce((a, r) => (Math.imul(a, 31) + Math.round(_tot(r.pools))) >>> 0, 7));
-    const thr = 4200 * BALANCE.LEAGUE_BASE_FACTOR * Math.min(Math.pow(1 + BALANCE.LEAGUE_GROWTH, currentSeason - 1), BALANCE.LEAGUE_GROWTH_MAX);
+    const thr = 4200 * BALANCE.LEAGUE_BASE_FACTOR * leagueGrowthFactor(currentSeason);
     const wins = new Array(n).fill(0);
     for (let r = 0; r < runs; r++) {
         const pts = new Array(n).fill(0), gd = new Array(n).fill(0);
@@ -3521,7 +3527,7 @@ await rollOptions(role, displayPos);
  
             // Competitiegroei: elke CPU-ploeg wordt per seizoen hetzelfde percentage sterker.
             // Omdat iedereen procentueel groeit, blijven de onderlinge sterkteverschillen behouden.
-            const leagueFactor = Math.min(Math.pow(1 + BALANCE.LEAGUE_GROWTH, currentSeason - 1), BALANCE.LEAGUE_GROWTH_MAX);
+            const leagueFactor = leagueGrowthFactor(currentSeason);
 
             const applyBoost = (pools) => {
                 return {
@@ -3844,7 +3850,7 @@ await rollOptions(role, displayPos);
                         if(Math.random() < (1 - prob) * 0.9) cpuGoalsB++;
                     }
                    // De drempel groeit mee met het seizoen, zodat alleen échte topteams dominant blijven in de tabel
-                    const eliteThreshold = 4200 * BALANCE.LEAGUE_BASE_FACTOR * Math.min(Math.pow(1 + BALANCE.LEAGUE_GROWTH, currentSeason - 1), BALANCE.LEAGUE_GROWTH_MAX);
+                    const eliteThreshold = 4200 * BALANCE.LEAGUE_BASE_FACTOR * leagueGrowthFactor(currentSeason);
                     if(s1 > eliteThreshold && Math.random() < 0.25) cpuGoalsA++;
                     if(s2 > eliteThreshold && Math.random() < 0.25) cpuGoalsB++;
 
@@ -4275,12 +4281,27 @@ await rollOptions(role, displayPos);
             }
         }
 
+       // Een penaltyreeks: iedereen trapt één keer voordat iemand een tweede keer aan de beurt komt.
+       // Een CPU-club heeft maar 6 namen, dus de rest vult aan met spelers van andere clubs (liefst uit dezelfde generatie).
+       function buildCpuTakers(cupOp) {
+           const shuffle = a => a.sort(() => 0.5 - Math.random());
+           const own = shuffle([...new Set(cupOp.names)]);
+           if (own.length >= 11) return own.slice(0, 11);
+           const others = allOpponents.filter(o => o.id !== cupOp.id && o.names);
+           const sameGen = shuffle(others.filter(o => cupOp.gen && o.gen === cupOp.gen).flatMap(o => o.names));
+           const rest = shuffle(others.filter(o => !(cupOp.gen && o.gen === cupOp.gen)).flatMap(o => o.names));
+           const extra = [...new Set([...sameGen, ...rest])].filter(n => !own.includes(n));
+           return own.concat(extra).slice(0, 11);
+       }
+       // Eén penalty: scoort hij? (apart zodat de tests de uitkomst kunnen sturen)
+       function penaltyScores(chance) { return Math.random() < chance; }
+
        async function simulatePenalties(baseHome, baseAway, cupOp) {
             const delay = ms => new Promise(res => setTimeout(res, ms));
             let hPens = 0, aPens = 0; let hTaken = 0, aTaken = 0;
             
             let userTakers = Object.values(userTeam).filter(p => p !== null).sort((a, b) => b.normStats.atk - a.normStats.atk);
-            let cpuTakers = [...cupOp.names].sort(() => 0.5 - Math.random()); 
+            let cpuTakers = buildCpuTakers(cupOp);
             
             let userGk = userTeam['GK'];
             let userGkDef = userGk ? userGk.normStats.def : 50;
@@ -4289,7 +4310,7 @@ await rollOptions(role, displayPos);
             document.getElementById('tv-home-scorers').innerHTML = '<div class="text-center w-full text-blue-400 text-xs font-bold mb-2 border-b border-slate-700 pb-1">Shootout</div>';
             document.getElementById('tv-away-scorers').innerHTML = '<div class="text-center w-full text-red-400 text-xs font-bold mb-2 border-b border-slate-700 pb-1">Shootout</div>';
 
-            for(let round=1; round<=11; round++) { 
+            for(let round=1; round<=100; round++) { 
                 // --- JOUW BEURT ---
                 let taker = userTakers[hTaken % userTakers.length];
                 let takerName = taker ? taker.name : "Player";
@@ -4299,7 +4320,7 @@ await rollOptions(role, displayPos);
                 chance = Math.max(0.35, Math.min(0.85, chance)); 
                 
                 hTaken++;
-                const isHomeGoal = Math.random() < chance; 
+                const isHomeGoal = penaltyScores(chance); 
                 if(isHomeGoal) {
                     hPens++;
                     // Jij scoort: Luid gejuich (700ms fade timer)
@@ -4322,7 +4343,7 @@ await rollOptions(role, displayPos);
                 cpuChance = Math.max(0.35, Math.min(0.85, cpuChance));
 
                 aTaken++;
-                const isAwayGoal = Math.random() < cpuChance;
+                const isAwayGoal = penaltyScores(cpuChance);
                 if(isAwayGoal) {
                     aPens++;
                     // CPU scoort: Teleurstelling
@@ -4340,8 +4361,10 @@ await rollOptions(role, displayPos);
             }
 
             if (hPens === aPens) {
-                hPens++;
+                // Onbereikbaar in de praktijk (100 rondes gelijk), maar nooit een onzichtbaar doelpunt: loot, en toon de uitslag
+                if (Math.random() < 0.5) hPens++; else aPens++;
                 document.getElementById('tv-home-score').innerText = `${baseHome} (${hPens})`;
+                document.getElementById('tv-away-score').innerText = `${baseAway} (${aPens})`;
             }
             
             document.getElementById('tv-status-text').innerText = 'FT (PENS)';
