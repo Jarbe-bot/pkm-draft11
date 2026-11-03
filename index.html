@@ -443,6 +443,7 @@
             #pitch-container .player-node img { width: 10.4cqw !important; height: 10.4cqw !important; }
             #pitch-container .player-node [class*="md:text-xs"] { font-size: max(10px, 1.56cqw) !important; }
         }
+        @media (min-width: 768px) { #reroll-wrapper:has(#btn-reroll.hidden) { min-height: 0; margin-bottom: 0; } }
         #kickoff-overlay.final-glow { box-shadow: inset 0 0 70px rgba(250,204,21,0.35); border: 2px solid rgba(250,204,21,0.55); background: radial-gradient(circle at 50% 20%, rgba(250,204,21,0.18), rgba(15,23,42,0.96) 70%); }
     </style>
 
@@ -531,7 +532,10 @@
             EXPECT_MIN_NON_CHAMPION: 2,      // wie vorig seizoen niet kampioen werd, krijgt nooit een beter dan 2e plaats als verwachting
             TRUST_SEL_PER_POINT: 3,          // selectiescore (-2..+2): +-3% per punt
             TRUST_PERF_UP: 3,                // uitslag: +3% per plaats boven de verwachting (max 3 plaatsen)
-            TRUST_PERF_DOWN: 4,              // uitslag: -4% per plaats onder de verwachting (max 3 plaatsen)
+            TRUST_PERF_DOWN: 4,              // uitslag: -4% per plaats onder de verwachting
+            TRUST_PERF_DOWN_PLACES: 5,       // ... tot maximaal 5 plaatsen
+            TRUST_DISASTER_PLACES: 5,        // 5 of meer plaatsen onder de verwachting is een rampseizoen
+            TRUST_DISASTER_EXTRA: 10,        // ... en kost nog eens 10% extra (zodat de stemming echt omslaat)
             TRUST_TITLE: 6,
             TRUST_CUP: 8,
             TRUST_PATIENCE: [1, 1.5, 2],     // opeenvolgende negatieve seizoenen: negatief saldo x1, x1,5, x2
@@ -2376,7 +2380,8 @@ function evaluateBoardSeason(pos) {
     const E = boardExpectNow || boardExpectation(currentSeason);
     const sel = selectionScore();
     const diff = E - pos;
-    const perf = diff >= 0 ? BALANCE.TRUST_PERF_UP * Math.min(3, diff) : -BALANCE.TRUST_PERF_DOWN * Math.min(3, -diff);
+    let perf = diff >= 0 ? BALANCE.TRUST_PERF_UP * Math.min(3, diff) : -BALANCE.TRUST_PERF_DOWN * Math.min(BALANCE.TRUST_PERF_DOWN_PLACES, -diff);
+    if (-diff >= BALANCE.TRUST_DISASTER_PLACES) perf -= BALANCE.TRUST_DISASTER_EXTRA;
     let d = BALANCE.TRUST_SEL_PER_POINT * sel + perf;
     if (pos === 1) d += BALANCE.TRUST_TITLE;
     let patience = 1;
@@ -2414,7 +2419,10 @@ function boardVerdictHtml(v) {
     const up = v.d > 0, down = v.d < 0;
     const color = up ? 'text-green-400' : (down ? 'text-red-400' : 'text-yellow-400');
     const border = up ? 'border-green-600/60' : (down ? 'border-red-600/60' : 'border-yellow-600/60');
-    const moodTxt = up ? '&#9650; The board is more pleased' : (down ? '&#9660; The board is less pleased' : 'The board feels the same');
+    const moodTxt = up ? '&#9650; The board is more pleased'
+        : (v.d <= -20 ? '&#9660; The board is furious about this season'
+        : (v.d <= -9 ? '&#9660; The board is very unhappy with this season'
+        : (down ? '&#9660; The board is less pleased' : 'The board feels the same')));
     const info = boardWordInfo(boardTrust);
     const patienceTxt = v.patience > 1 ? '<p class="text-xs text-orange-300 font-bold mt-1">The board is running out of patience.</p>' : '';
     const last = boardTrust < BALANCE.TRUST_WORDS[3][0] ? '<p class="text-xs text-red-400 font-black mt-1">Last chance: another bad season and you are out.</p>' : '';
@@ -2422,7 +2430,8 @@ function boardVerdictHtml(v) {
         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">What the board thinks</p>
         <p class="text-sm text-white font-bold">${resultTxt}</p>
         ${squadTxt ? `<p class="text-sm text-slate-200 mt-0.5">${squadTxt}</p>` : ''}
-        <p class="text-sm font-black ${color} mt-2">${moodTxt}: <span class="${info.color}">${info.word}</span></p>${patienceTxt}${last}
+        <p class="text-sm font-black ${color} mt-2">${moodTxt}</p>
+        <p class="text-xs text-slate-300 mt-0.5">Board mood: <span class="font-black ${info.color}">${info.word}</span></p>${patienceTxt}${last}
     </div>`;
 }
 
@@ -3263,7 +3272,7 @@ await rollOptions(role, displayPos);
                 const disabledAttr = actionPoints <= 0 ? 'disabled opacity-50 cursor-not-allowed' : 'hover:scale-105';
 
                 statsHtml += `
-                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" ${actionPoints <= 0 ? 'disabled' : ''} class="${borderClass} border-2 p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center transition-all transform ${disabledAttr} shadow-lg w-full relative">
+                    <button onclick="trainStat('${posId}', '${s.key}', '${role}', '${displayPos}')" ${actionPoints <= 0 ? 'disabled' : ''} class="${borderClass} border-2 p-3 sm:p-4 md:p-2.5 rounded-xl flex flex-col items-center justify-center transition-all transform ${disabledAttr} shadow-lg w-full relative">
                         ${isJustTrained ? '<span class="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">+UP</span>' : ''}
                         <span class="text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest mb-0.5">${s.label}</span>
                         <span class="font-black text-2xl sm:text-3xl ${displayColor} transition-colors duration-300">${currentVal}</span>
@@ -3273,13 +3282,13 @@ await rollOptions(role, displayPos);
             });
 
             gacha.innerHTML = `
-                <div class="col-span-full w-full max-w-sm mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
-                    <img src="${p.sprite}" class="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl mb-4">
-                    ${(trainCounts[p.id] || 0) > 0 ? '<p class="text-[10px] sm:text-xs text-yellow-400 font-bold uppercase tracking-widest mb-3 text-center">Already trained this off-season: gains are halved</p>' : ''}
-                    <div class="grid grid-cols-2 gap-3 w-full">
+                <div class="col-span-full w-full max-w-sm md:max-w-2xl mx-auto flex flex-col items-center" onclick="event.stopPropagation()">
+                    <img src="${p.sprite}" class="w-20 h-20 sm:w-24 sm:h-24 md:w-16 md:h-16 object-contain drop-shadow-xl mb-4 md:mb-2">
+                    ${(trainCounts[p.id] || 0) > 0 ? '<p class="text-[10px] sm:text-xs text-yellow-400 font-bold uppercase tracking-widest mb-3 md:mb-2 text-center">Already trained this off-season: gains are halved</p>' : ''}
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-2 w-full">
                         ${statsHtml}
                     </div>
-                    <button onclick="openDraft('${posId}', '${displayPos}', '${role}')" class="mt-6 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold rounded-full uppercase tracking-widest border border-slate-500">
+                    <button onclick="openDraft('${posId}', '${displayPos}', '${role}')" class="mt-6 md:mt-3 px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold rounded-full uppercase tracking-widest border border-slate-500">
                         🔙 Back to Profile
                     </button>
                 </div>
@@ -3527,7 +3536,12 @@ await rollOptions(role, displayPos);
                 
                 let replacement = null;
                 if (availableReplacements.length > 0) {
-                    let relStrength = relegatedTeam.pools.poss + relegatedTeam.pools.create + relegatedTeam.pools.prevent + relegatedTeam.pools.finish + relegatedTeam.pools.block;
+                    // FIX: de gedegradeerde club heeft zijn gegroeide sterkte, de kandidaten hun basissterkte. Vergelijk basis met basis,
+                    // anders komt er elk seizoen een sterkere club binnen en trekt de hele competitie langzaam omhoog.
+                    const relOriginal = allOpponents.find(o => o.id === relegatedTeam.id);
+                    let relStrength = relOriginal
+                        ? (relOriginal.pools.poss + relOriginal.pools.create + relOriginal.pools.prevent + relOriginal.pools.finish + relOriginal.pools.block)
+                        : (relegatedTeam.pools.poss + relegatedTeam.pools.create + relegatedTeam.pools.prevent + relegatedTeam.pools.finish + relegatedTeam.pools.block) / leagueFactor;
                     availableReplacements.sort((a, b) => {
                         let aStrength = a.pools.poss + a.pools.create + a.pools.prevent + a.pools.finish + a.pools.block;
                         let bStrength = b.pools.poss + b.pools.create + b.pools.prevent + b.pools.finish + b.pools.block;
