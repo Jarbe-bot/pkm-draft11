@@ -96,7 +96,7 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">6. The Board</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-yellow-400">What the board expects:</strong> Every season the board hopes for a finish one place better than your last two seasons (a club that keeps winning only has to keep winning). In your first season it hopes for a top 6.</li>
+                        <li><strong class="text-yellow-400">What the board expects:</strong> Every season the board hopes for a finish one place better than your last two seasons. Only the reigning champion is expected to win again; everyone else is asked to fight for the title at most. In your first season it hopes for a top 6.</li>
                         <li><strong class="text-sky-400">The board's mood:</strong> From Ecstatic to Furious. The board evaluates whether you improve the squad (the wrong stats on the wrong players do not count) and how you finish compared to what it hoped for. A bad season hurts more than a good one helps, and repeated bad seasons hurt more each time. Tap the Board badge to see how it feels.</li>
                         <li><strong class="text-white">Furious means last chance.</strong> A board that has lost all faith sacks you, and so does finishing last from season 2 onwards.</li>
                         <li><strong class="text-green-400">Title odds:</strong> Tap ODDS to see the title race, with every club's chance of winning the league.</li>
@@ -437,6 +437,7 @@
     <style>
         @keyframes trophyDrop { 0% { transform: translateY(-120vh) rotate(-20deg) scale(0.6); opacity: 0; } 70% { transform: translateY(14px) rotate(4deg) scale(1.1); opacity: 1; } 100% { transform: none; opacity: 1; } }
         @keyframes champFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        @media (min-width: 1024px) { #pitch-view .pitch { width: min(100%, calc((100vh - 170px) * 0.75)); } }
         #kickoff-overlay.final-glow { box-shadow: inset 0 0 70px rgba(250,204,21,0.35); border: 2px solid rgba(250,204,21,0.55); background: radial-gradient(circle at 50% 20%, rgba(250,204,21,0.18), rgba(15,23,42,0.96) 70%); }
     </style>
 
@@ -522,6 +523,7 @@
             },
             // Bestuursvertrouwen (intern een percentage; de speler ziet alleen een woord)
             TRUST_START: 70,
+            EXPECT_MIN_NON_CHAMPION: 2,      // wie vorig seizoen niet kampioen werd, krijgt nooit een beter dan 2e plaats als verwachting
             TRUST_SEL_PER_POINT: 3,          // selectiescore (-2..+2): +-3% per punt
             TRUST_PERF_UP: 3,                // uitslag: +3% per plaats boven de verwachting (max 3 plaatsen)
             TRUST_PERF_DOWN: 4,              // uitslag: -4% per plaats onder de verwachting (max 3 plaatsen)
@@ -2173,25 +2175,46 @@ function updateTrustUI() {
     if (el) el.innerHTML = `<span class="text-slate-400 mr-1">Board</span>${trustHearts()}`;
 }
 
-// De verwachting: één plaats beter dan het gemiddelde van je laatste twee seizoenen (seizoen 1: 6e), een kampioen houdt de 1e plaats
+// De verwachting: één plaats beter dan het gemiddelde van je laatste twee seizoenen (seizoen 1: 6e).
+// Alleen een regerend kampioen krijgt de 1e plaats; iedereen anders hoogstens "meestrijden om de titel" (2e).
 function boardExpectation(season) {
     const s = season || currentSeason;
     if (s <= 1 || !finHist.length) return 6;
     const last = finHist.slice(-2);
-    return Math.max(1, Math.round(last.reduce((a, b) => a + b, 0) / last.length) - 1);
+    let E = Math.max(1, Math.round(last.reduce((a, b) => a + b, 0) / last.length) - 1);
+    if (finHist[finHist.length - 1] !== 1) E = Math.max(BALANCE.EXPECT_MIN_NON_CHAMPION, E);
+    return E;
 }
+
+// Teksten voor de speler
+function expectationShort(E) { return E <= 1 ? 'the title' : (E === 2 ? 'a title challenge' : (E >= 7 ? 'a safe finish' : `a top ${E} finish`)); }
+function expectationSentence(E) {
+    if (E <= 1) return 'We expect you to defend the title.';
+    if (E === 2) return 'We expect you to fight for the title.';
+    if (E >= 7) return 'We expect you to stay out of the relegation spot.';
+    if (E >= 6) return 'We expect you to stay clear of the bottom places.';
+    return `We expect a top ${E} finish.`;
+}
+function hopeNoun(E) {
+    if (E <= 1) return 'the title';
+    if (E === 2) return 'a top 2 finish';
+    if (E >= 7) return 'a finish clear of the bottom';
+    return `a top ${E} finish`;
+}
+function expectationLabel(E) { return E <= 1 ? 'Title' : `Top ${E}`; }
 
 function updateObjectiveBanner() {
     const el = document.getElementById('board-objective-text');
     if (!el) return;
-    el.textContent = `Board expects top ${boardExpectation(currentSeason)} \u00B7 tap ODDS for the title race`;
+    const E = boardExpectation(currentSeason);
+    el.textContent = `Board expects ${E <= 1 ? 'you to defend the title' : (E === 2 ? 'you to fight for the title' : `top ${E}`)} \u00B7 tap ODDS for the title race`;
 }
 
 function updateObjectiveLine() {
     const el = document.getElementById('season-objective-line');
     if (!el) return;
     if (boardExpectNow) {
-        el.innerHTML = `&#127919; <span class="text-purple-300">Board: top ${boardExpectNow}</span>`;
+        el.innerHTML = `&#127919; <span class="text-purple-300">Board: ${expectationLabel(boardExpectNow).toLowerCase()}</span>`;
         el.title = 'Board expectation';
         el.classList.remove('hidden');
     } else {
@@ -2378,8 +2401,8 @@ function awardCupTrust() {
 function boardVerdictHtml(v) {
     if (!v) return '';
     const diff = v.E - v.pos;
-    const resultTxt = diff > 0 ? `You finished ${ordinalText(v.pos)}: better than the board hoped (${ordinalText(v.E)}).`
-        : (diff < 0 ? `You finished ${ordinalText(v.pos)}: the board hoped for ${ordinalText(v.E)} or better.`
+    const resultTxt = diff > 0 ? `You finished ${ordinalText(v.pos)}: better than the board hoped.`
+        : (diff < 0 ? `You finished ${ordinalText(v.pos)}: the board hoped for ${hopeNoun(v.E)}.`
         : `You finished ${ordinalText(v.pos)}, just as the board hoped.`);
     const squadTxt = v.season === 1 ? '' : (v.sel > 0 ? 'Your squad improved.'
         : (v.sel < 0 ? 'Your squad did not keep up.' : 'Your squad did not improve much.'));
@@ -2405,12 +2428,12 @@ window.openBoardBriefing = function(auto, opts) {
     const w = boardWordInfo(boardTrust);
     const crit = boardTrust < BALANCE.TRUST_WORDS[3][0];
     const intro = opts.kickoff
-        ? `<p class="text-center text-white font-bold text-base md:text-lg mb-1">"Welcome, coach! In your first season we expect a top ${E} finish."</p>`
-        : `<p class="text-center text-white font-bold text-base md:text-lg mb-1">"We expect a top ${E} finish this season."</p>`;
+        ? `<p class="text-center text-white font-bold text-base md:text-lg mb-1">"Welcome, coach! ${expectationSentence(E)}"</p>`
+        : `<p class="text-center text-white font-bold text-base md:text-lg mb-1">"${expectationSentence(E)}"</p>`;
     let recap = '';
     if (lastVerdict && lastVerdict.season === currentSeason - 1) {
         const d = lastVerdict.E - lastVerdict.pos;
-        recap = `<p class="text-center text-xs text-slate-400 mb-3">Last season you finished ${ordinalText(lastVerdict.pos)} (the board hoped for ${ordinalText(lastVerdict.E)}).</p>`;
+        recap = `<p class="text-center text-xs text-slate-400 mb-3">Last season you finished ${ordinalText(lastVerdict.pos)} (the board hoped for ${hopeNoun(lastVerdict.E)}).</p>`;
     }
     const btnLabel = opts.kickoff ? 'Kick off the season' : (auto ? 'Start planning' : 'Close');
     document.getElementById('board-modal-content').innerHTML = `
