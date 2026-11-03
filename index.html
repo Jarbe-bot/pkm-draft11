@@ -547,6 +547,25 @@
             TRUST_WORDS: [[92, 'Ecstatic', 'text-emerald-400'], [78, 'Happy', 'text-green-400'], [60, 'Content', 'text-sky-400'], [40, 'Unhappy', 'text-orange-400'], [0, 'Furious', 'text-red-500']],
             // Competitie: alle CPU-ploegen groeien met hetzelfde percentage (onderlinge verhoudingen blijven gelijk)
             LEAGUE_STAR_SHARE: 0.3,        // de beste 30% van de topgroep telt als 'ster': elke competitie krijgt één uitschieter
+            // Sterkte (S) van de 7 clubs van elke generatie bij de start, van sterkste naar zwakste club.
+            // Elke generatie heeft een eigen vorm (herspeelbaarheid), maar even moeilijk voor een team van de sterkte die bij die generatie past:
+            // bij een team van die sterkte is de kans op de top 2 (Europa) overal ongeveer 40% en op de titel 14-20%.
+            // De clubs behouden hun eigen profiel; alleen hun sterkte wordt bijgesteld.
+            GEN_TARGET_SHIFT: 0.8,         // alle generaties tegelijk zwaarder (+) of makkelijker (-), in punten teamsterkte S
+            // Referentiesterkte van een goede speler per generatie (S): 80 plus de helft van het verschil in draftsterkte van die generatie.
+            // Alleen ter documentatie en voor de tests; bijstellen kan zodra er echte runs (export) zijn om mee te vergelijken.
+            GEN_REF_S: { 1: 78.6, 2: 78.6, 3: 78.6, 4: 81.1, 5: 79.1, 6: 80.1, 7: 81.6, 8: 80.1, 9: 82.1 },
+            GEN_CLUB_TARGETS: {
+                1: [84.0, 78.8, 75.6, 74.2, 73.2, 72.4, 71.4],   // Gen 1: Een Bayern met een uitdager
+                2: [83.4, 78.4, 75.4, 74.2, 73.4, 72.6, 71.6],   // Gen 2: Een Bayern met een uitdager
+                3: [82.0, 79.5, 77.8, 74.6, 73.4, 72.4, 71.4],   // Gen 3: Drie kanshebbers
+                4: [87.1, 79.4, 78.0, 76.4, 75.4, 74.4, 73.4],   // Gen 4: Een Bayern met grote voorsprong
+                5: [82.8, 81.3, 76.1, 74.6, 73.6, 72.6, 71.6],   // Gen 5: Twee sterke clubs
+                6: [81.3, 79.8, 78.3, 76.8, 75.3, 73.8, 72.3],   // Gen 6: Open: geen Bayern
+                7: [86.6, 81.8, 78.8, 77.4, 76.4, 75.4, 74.4],   // Gen 7: Een Bayern met een uitdager
+                8: [83.3, 81.8, 76.6, 75.1, 74.1, 73.1, 72.1],   // Gen 8: Twee sterke clubs
+                9: [85.3, 83.8, 78.6, 77.1, 76.1, 75.1, 74.1],   // Gen 9: Twee sterke clubs
+            },
             LEAGUE_BASE_FACTOR: 1.07,      // alle competitieclubs starten 7% sterker: een zwaardere start
             // De CPU groeit net als jij steeds minder: snel in het begin, daarna vlakt het af naar een plafond.
             // Groei(seizoen) = LEAGUE_GROWTH_TOTAL x (1 - e^(-(seizoen-1)/LEAGUE_GROWTH_TAU)); het eerste decennium blijft gelijk aan +0,8% per seizoen.
@@ -788,6 +807,17 @@
             p.poss = Math.round(Math.max(p.poss, others * BALANCE.LEAGUE_POSS_RATIO));
             ['create', 'prevent', 'finish', 'block'].forEach(k => { p[k] = Math.round(p[k] * BALANCE.LEAGUE_OTHER_FACTOR); });
             ['poss', 'create', 'prevent', 'finish', 'block'].forEach(k => { p[k] = Math.round(p[k] * BALANCE.LEAGUE_BASE_FACTOR); });
+        });
+
+        // Per generatie de clubsterkte bijstellen naar BALANCE.GEN_CLUB_TARGETS (sterkste club krijgt de eerste waarde, enz.)
+        Object.entries(BALANCE.GEN_CLUB_TARGETS).forEach(([g, targets]) => {
+            const tot = o => o.pools.poss + o.pools.create + o.pools.prevent + o.pools.finish + o.pools.block;
+            allOpponents.filter(o => o.gen === +g).sort((a, b) => tot(b) - tot(a)).forEach((o, i) => {
+                if (targets[i] == null) return;
+                const cur = Math.sqrt(7.5 * tot(o) / 5);
+                const f = Math.pow((targets[i] + BALANCE.GEN_TARGET_SHIFT) / cur, 2);
+                ['poss', 'create', 'prevent', 'finish', 'block'].forEach(k => { o.pools[k] = Math.round(o.pools[k] * f); });
+            });
         });
 
                 const euroOpponents = [
