@@ -96,9 +96,9 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">6. The Board</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-yellow-400">Board meeting:</strong> Before every off-season the board tells you where it expects you to finish. You choose your promise: <span class="text-green-400">Safe</span> (no bonus), <span class="text-yellow-400">Ambitious</span> (+2 AP) or <span class="text-red-400">All-in</span> (+3 AP). Bonus AP are paid out immediately.</li>
-                        <li><strong class="text-red-400">Board trust (&hearts;&hearts;&hearts;):</strong> Deliver and you win back 1 heart. Fail and you lose hearts (Safe 1, Ambitious 2, All-in 2). Missing the target by just one place costs nothing on Safe or Ambitious, and 1 heart on All-in.</li>
-                        <li><strong class="text-white">No hearts left = sacked.</strong> Finishing last from season 2 onwards still gets you sacked as well.</li>
+                        <li><strong class="text-yellow-400">Board expectation:</strong> Every season the board expects a finish one place better than your last two seasons (a club that keeps winning only has to keep winning). Tap the Board badge to see the power table with every club's title chance.</li>
+                        <li><strong class="text-sky-400">Board trust:</strong> Shown as a word, from Untouchable to Critical. The board judges how much stronger your squad became compared to the league (the wrong stats on the wrong players do not count) and how you finished against its expectation. A bad season hurts more than a good one helps, and repeated bad seasons hurt more each time.</li>
+                        <li><strong class="text-white">Critical means last chance.</strong> Trust at zero gets you sacked, and so does finishing last from season 2 onwards.</li>
                     </ul>
                 </div>
                 <div>
@@ -216,7 +216,7 @@
                 
                 <div class="flex items-center gap-1.5 md:gap-2 flex-wrap">
                     <span id="ui-season-counter" class="bg-blue-600 text-white text-[9px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0">Season 1</span>
-                    <span id="ui-board-trust" title="Board trust" class="bg-slate-800 border border-slate-600 text-[9px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0"></span>
+                    <span id="ui-board-trust" onclick="openBoardBriefing(false)" role="button" title="Board: tap for the power table" class="cursor-pointer bg-slate-800 border border-slate-600 text-[9px] md:text-xs font-bold px-2 py-0.5 md:py-1 rounded shadow-inner uppercase tracking-widest shrink-0"></span>
                     
                     <div id="ui-trophies" class="flex items-center gap-0.5 text-[10px] sm:text-xs md:text-sm drop-shadow-md shrink-0"></div>
                     
@@ -359,15 +359,15 @@
                     <div id="post-season-awards" class="hidden flex-col gap-4 transition-all duration-500 order-1 lg:order-none w-full"></div>
                     
                    <div id="tv-scoreboard" class="tv-glass rounded-2xl overflow-hidden shadow-2xl relative w-full border border-slate-600 transition-all duration-500 order-2 lg:order-none">
-                        <div id="kickoff-overlay" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex-col items-center justify-center p-6 text-center">
-                            <h3 id="kickoff-title" class="pixel-font text-lg md:text-xl font-black uppercase mb-6 tracking-widest drop-shadow-lg text-blue-400">Round of 16</h3>
-                            <div id="kickoff-path" class="hidden mb-5 bg-slate-900/70 border border-yellow-600/40 rounded-xl px-4 py-2"></div>
-                            <div class="flex flex-col items-center gap-4 text-white text-xl md:text-3xl font-bold mb-8 w-full justify-center">
+                        <div id="kickoff-overlay" class="hidden absolute inset-0 bg-slate-900/95 backdrop-blur-md z-50 flex-col items-center justify-start overflow-y-auto p-5 text-center">
+                            <h3 id="kickoff-title" class="pixel-font text-lg md:text-xl font-black uppercase mt-auto mb-4 tracking-widest drop-shadow-lg text-blue-400">Round of 16</h3>
+                            <div id="kickoff-path" class="hidden mb-3 bg-slate-900/70 border border-yellow-600/40 rounded-xl px-3 py-1.5"></div>
+                            <div class="flex flex-col items-center gap-3 text-white text-xl md:text-3xl font-bold mb-5 w-full justify-center">
                                 <span id="kickoff-home" class="truncate max-w-full text-yellow-400 text-center">My Team</span> 
                                 <span class="text-slate-400 text-xs md:text-sm bg-slate-800 px-3.5 py-1.5 rounded-full border border-slate-700 shadow-inner font-black">VS</span> 
                                 <span id="kickoff-away" class="truncate max-w-full text-center">Opponent</span>
                             </div>
-                            <button id="btn-start-match" onclick="startCupMatchLoop()" class="px-8 py-4 md:px-10 md:py-5 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_40px_rgba(59,130,246,0.6)] uppercase tracking-widest transform hover:scale-105 transition-all text-base md:text-xl">
+                            <button id="btn-start-match" onclick="startCupMatchLoop()" class="mb-auto px-8 py-4 md:px-10 md:py-5 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 text-white font-black rounded-full shadow-[0_0_40px_rgba(59,130,246,0.6)] uppercase tracking-widest transform hover:scale-105 transition-all text-base md:text-xl">
                                 Start Match ⚽
                             </button>
                         </div>
@@ -499,9 +499,6 @@
             SWAP_COST: 1,
             // Bestuur
             BASE_AP: 3,
-            BOARD_CASH: { safe: 0, ambitious: 2, allin: 3 },
-            BOARD_STEP_AMBITIOUS: 1,       // Ambitieus: 1 plaats beter dan de verwachting
-            BOARD_STEP_ALLIN: 3,           // All-in: 3 plaatsen beter (of titel + cupwedstrijd als Ambitieus al de titel is)
             // Competitieclubs: balbezit was structureel te laag (72% van hun andere fasen). Herverdeling, zelfde totale moeilijkheid:
             LEAGUE_POSS_RATIO: 0.85,       // balbezit minstens 85% van het gemiddelde van hun andere fasen
             LEAGUE_OTHER_FACTOR: 0.90,     // andere fasen x0,90
@@ -519,10 +516,16 @@
                 '5-3-2':     { poss: 0.93, create: 0.97, finish: 1.07, prevent: 1.11, block: 1.13 },  // counteren
                 '4-4-1-1':   { poss: 0.99, create: 1.02, finish: 0.97, prevent: 1.01, block: 0.99 }   // tweede spits als spil
             },
-            TRUST_MAX: 3,
-            TRUST_GAIN_ON_SUCCESS: 1,
-            TRUST_LOSS_NARROW: { safe: 0, ambitious: 0, allin: 1 },   // 1 plaats tekort
-            TRUST_LOSS_MISS: { safe: 1, ambitious: 2, allin: 2 },     // 2+ plaatsen tekort
+            // Bestuursvertrouwen (intern een percentage; de speler ziet alleen een woord)
+            TRUST_START: 70,
+            TRUST_SEL_PER_POINT: 3,          // selectiescore (-2..+2): +-3% per punt
+            TRUST_PERF_UP: 3,                // uitslag: +3% per plaats boven de verwachting (max 3 plaatsen)
+            TRUST_PERF_DOWN: 4,              // uitslag: -4% per plaats onder de verwachting (max 3 plaatsen)
+            TRUST_TITLE: 6,
+            TRUST_CUP: 8,
+            TRUST_PATIENCE: [1, 1.5, 2],     // opeenvolgende negatieve seizoenen: negatief saldo x1, x1,5, x2
+            TRUST_S1_LOSS_FACTOR: 0.5,       // seizoen 1: verliezen tellen half (slechte draft)
+            TRUST_WORDS: [[92, 'Untouchable', 'text-emerald-400'], [78, 'Safe', 'text-green-400'], [60, 'Stable', 'text-sky-400'], [40, 'Shaky', 'text-orange-400'], [0, 'Critical', 'text-red-500']],
             // Competitie: alle CPU-ploegen groeien met hetzelfde percentage (onderlinge verhoudingen blijven gelijk)
             LEAGUE_BASE_FACTOR: 1.07,      // alle competitieclubs starten 7% sterker: een zwaardere start
             LEAGUE_GROWTH: 0.008,          // +0,8% per seizoen (vlakkere groei, zodat de late game even zwaar blijft)
@@ -810,8 +813,14 @@
         let currentSeason = 1;
         let isTransferWindow = false;
         let actionPoints = 3;
-        let boardTrust = 3;          // bestuursvertrouwen (hartjes)
-        let boardObjective = null;   // gekozen doel voor het lopende seizoen
+        let boardTrust = 70;         // bestuursvertrouwen in % (intern)
+        let boardObjective = null;   // (oud systeem, ongebruikt)
+        let negStreak = 0;           // opeenvolgende seizoenen met een negatief bestuurssaldo
+        let finHist = [];            // eindposities per seizoen
+        let kickNow = null, kickPrev = null;   // krachtentabel bij de aftrap (dit en vorig seizoen)
+        let boardExpectNow = null;   // verwachting van het bestuur voor het lopende seizoen
+        let boardBriefSeason = 0;    // seizoen waarvoor de bestuursbriefing al getoond is
+        let lastVerdict = null;      // uitspraak van het bestuur over het laatste seizoen
         let leagueReady = false;     // competitie voor het volgende seizoen al opgebouwd tijdens de bestuursvergadering
         let trainCounts = {};        // aantal trainingen per speler in dit venster
         let careerLog = null;        // carrièregeschiedenis voor het carrièreoverzicht
@@ -1031,7 +1040,8 @@
                     myTeamEnginePools, teamChemScore, playerStats, standings,
                     seasonSchedule, continentalOpponents, currentCupRound, hasPlayedCup,
                     currentSeason, isTransferWindow, actionPoints, domesticTitles,
-                    boardTrust, boardObjective, leagueReady, trainCounts, careerLog,
+                    trustPct: boardTrust, negStreak, finHist, kickNow, kickPrev, boardExpectNow, boardBriefSeason, lastVerdict,
+                    leagueReady, trainCounts, careerLog,
                     savePhase, seasonMatchday, cupPath, finalSummary,
                     resultsFeedHtml: (document.getElementById('results-feed-list') || {}).innerHTML || '',
                     genDataActive: genData.map(g => g.active)
@@ -1049,8 +1059,14 @@
                     continentalOpponents = data.continentalOpponents || []; currentCupRound = data.currentCupRound || 0;
                     hasPlayedCup = data.hasPlayedCup || false; currentSeason = data.currentSeason;
                     isTransferWindow = data.isTransferWindow; actionPoints = data.actionPoints; domesticTitles = data.domesticTitles || 0;
-                    boardTrust = (typeof data.boardTrust === 'number') ? data.boardTrust : BALANCE.TRUST_MAX;
-                    boardObjective = data.boardObjective || null;
+                    boardTrust = (typeof data.trustPct === 'number') ? data.trustPct : BALANCE.TRUST_START;   // oude saves (hartjes) starten op 70%
+                    boardObjective = null;
+                    negStreak = data.negStreak || 0;
+                    finHist = data.finHist || [];
+                    kickNow = data.kickNow || null; kickPrev = data.kickPrev || null;
+                    boardExpectNow = data.boardExpectNow || null;
+                    boardBriefSeason = data.boardBriefSeason || 0;
+                    lastVerdict = data.lastVerdict || null;
                     leagueReady = !!data.leagueReady;
                     trainCounts = data.trainCounts || {};
                     careerLog = data.careerLog || newCareerLog(currentSeason);
@@ -1090,9 +1106,9 @@
                             document.getElementById('btn-finish-transfers').classList.add('block');
                             document.getElementById('action-count').innerText = actionPoints;
                             checkOffSeasonActions();
-                            if (!boardObjective && currentSeason > 1) {
+                            if (currentSeason > 1) {
                                 if (!leagueReady) { initStandings(); leagueReady = true; }
-                                setTimeout(openBoardMeeting, 100);
+                                if (boardBriefSeason !== currentSeason) setTimeout(() => openBoardBriefing(true), 100);
                             }
                             document.getElementById('btn-simulate').classList.add('hidden');
                             document.getElementById('btn-resign').classList.remove('hidden');
@@ -2120,23 +2136,31 @@ const TRAIN_STAT_LABELS = [
     { key: 'spd', label: 'Sp.Def', color: 'text-pink-400' }
 ];
 
+// ====================================================================
+// BESTUUR: vertrouwen in %, krachtentabel, selectie + uitslag
+// ====================================================================
 function resetBoardState() {
     careerLog = newCareerLog(1);
     savePhase = 'draft';
     seasonMatchday = 0;
-    boardTrust = BALANCE.TRUST_MAX;
+    boardTrust = BALANCE.TRUST_START;
     boardObjective = null;
+    negStreak = 0; finHist = []; kickNow = null; kickPrev = null; boardExpectNow = null; boardBriefSeason = 0; lastVerdict = null;
     leagueReady = false;
     trainCounts = {};
     updateTrustUI();
 }
 
+function boardWordInfo(t) {
+    const W = BALANCE.TRUST_WORDS;
+    for (const w of W) if (t >= w[0]) return { word: w[1], color: w[2] };
+    return { word: W[W.length - 1][1], color: W[W.length - 1][2] };
+}
+
+// (naam behouden) toont het bestuurswoord in plaats van hartjes
 function trustHearts() {
-    let html = '';
-    for (let i = 0; i < BALANCE.TRUST_MAX; i++) {
-        html += i < boardTrust ? '<span class="text-red-500">&hearts;</span>' : '<span class="text-slate-600">&hearts;</span>';
-    }
-    return html;
+    const w = boardWordInfo(boardTrust);
+    return `<span class="${w.color}">${w.word}</span>`;
 }
 
 function updateTrustUI() {
@@ -2144,171 +2168,247 @@ function updateTrustUI() {
     if (el) el.innerHTML = `<span class="text-slate-400 mr-1">Board</span>${trustHearts()}`;
 }
 
-function ordinalText(n) {
-    const v = n % 100;
-    if (v >= 11 && v <= 13) return n + 'th';
-    return n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
-}
-
-function objectiveTargetText(T, cup) {
-    if (cup) return 'Win the league + win a Continental Cup match';
-    if (T === 1) return 'Win the league';
-    if (T === (standings.length || 8) - 1) return 'Avoid last place';
-    return `Finish top ${T}`;
+// De verwachting: één plaats beter dan het gemiddelde van je laatste twee seizoenen (seizoen 1: 6e), een kampioen houdt de 1e plaats
+function boardExpectation(season) {
+    const s = season || currentSeason;
+    if (s <= 1 || !finHist.length) return 6;
+    const last = finHist.slice(-2);
+    return Math.max(1, Math.round(last.reduce((a, b) => a + b, 0) / last.length) - 1);
 }
 
 function updateObjectiveBanner() {
     const el = document.getElementById('board-objective-text');
     if (!el) return;
-    el.textContent = boardObjective ? `Board: ${boardObjective.text} (${boardObjective.name})` : 'Swap players or train specific stats';
-}
-
-function objectiveShortText(o) {
-    if (o.cup) return 'Title + cup win';
-    if (o.T === 1) return 'Title';
-    if (o.T === (standings.length || 8) - 1) return 'Avoid last';
-    return `Top ${o.T}`;
+    el.textContent = `Board expects top ${boardExpectation(currentSeason)} \u00B7 tap Board for the table`;
 }
 
 function updateObjectiveLine() {
     const el = document.getElementById('season-objective-line');
     if (!el) return;
-    if (boardObjective && boardObjective.season === currentSeason) {
-        const color = { safe: 'text-green-400', ambitious: 'text-yellow-400', allin: 'text-red-400' }[boardObjective.level] || 'text-purple-300';
-        el.innerHTML = `&#127919; <span class="${color}">${objectiveShortText(boardObjective)}</span>`;
-        el.title = `Board objective: ${boardObjective.text} (${boardObjective.name})`;
+    if (boardExpectNow) {
+        el.innerHTML = `&#127919; <span class="text-purple-300">Top ${boardExpectNow}</span>`;
+        el.title = 'Board expectation';
         el.classList.remove('hidden');
     } else {
         el.classList.add('hidden');
     }
 }
 
-function computeBoardExpectation() {
-    const total = o => o.poss + o.create + o.prevent + o.finish + o.block;
-    const mine = total(myTeamEnginePools);
-    return 1 + standings.filter(t => !t.isUser && total(t.pools) > mine).length;
+// ---------- krachtentabel ----------
+const _tot = o => o.poss + o.create + o.prevent + o.finish + o.block;
+function clubS(pools) { return Math.sqrt(7.5 * _tot(pools) / 5); }
+
+function squadComplete() {
+    const f = formations[activeFormation];
+    return !!f && f.positions.every(p => userTeam[p.id]);
 }
 
-function openBoardMeeting() {
-    const P = computeBoardExpectation();
-    const n = standings.length || 8;
-    const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
-    // Elk niveau is minstens 1 plaats ambitieuzer dan het vorige
-    const safeT = clamp(P, 2, n - 1);
-    const ambT = Math.max(1, Math.min(P - BALANCE.BOARD_STEP_AMBITIOUS, safeT - 1));
-    const allinT = Math.max(1, Math.min(P - BALANCE.BOARD_STEP_ALLIN, ambT - 1));
-    const opts = [
-        { level: 'safe', name: 'Safe', T: safeT, cup: false },
-        { level: 'ambitious', name: 'Ambitious', T: ambT, cup: false },
-        { level: 'allin', name: 'All-in', T: allinT, cup: ambT === 1 }
-    ];
-    window._boardOptions = { P, opts };
+function currentPowerTable() {
+    updateScores();
+    if (!standings.some(t => !t.isUser)) { initStandings(); leagueReady = true; }
+    const rows = standings.filter(t => !t.isUser).map(t => ({ id: t.id, name: t.name, pools: t.pools, S: clubS(t.pools) }));
+    rows.push({ id: 'USER', name: userTeamName, pools: myTeamEnginePools, S: clubS(myTeamEnginePools), isUser: true });
+    rows.sort((a, b) => _tot(b.pools) - _tot(a.pools));
+    rows.forEach((r, i) => { r.rank = i + 1; });
+    return rows;
+}
 
-    const style = {
-        safe: { box: 'border-green-500/60 hover:border-green-400', name: 'text-green-400' },
-        ambitious: { box: 'border-yellow-500/60 hover:border-yellow-400', name: 'text-yellow-400' },
-        allin: { box: 'border-red-500/60 hover:border-red-400', name: 'text-red-400' }
+// Dezelfde formules als de echte wedstrijden, voor de titelkansen
+function mcUserMatch(u, c) {
+    const pu = Math.pow(u.poss, 1.8), pc = Math.pow(c.poss, 1.8);
+    const uc = Math.round(pu / (pu + pc) * 10) || 0, cc = 10 - uc;
+    const cl = (a, b) => Math.min(0.85, Math.max(0.10, a / (a + b * 1.1)));
+    const a = cl(u.create, c.prevent), b = cl(u.finish, c.block), d = cl(c.create, u.prevent), e = cl(c.finish, u.block);
+    let ug = 0, cg = 0;
+    for (let i = 0; i < uc; i++) if (Math.random() < a && Math.random() < b) ug++;
+    for (let i = 0; i < cc; i++) if (Math.random() < d && Math.random() < e) cg++;
+    return [ug, cg];
+}
+function mcCpuMatch(p1, p2, thr) {
+    const s1 = _tot(p1) || 3500, s2 = _tot(p2) || 3500;
+    const prob = Math.pow(s1, 2) / (Math.pow(s1, 2) + Math.pow(s2, 2));
+    let a = 0, b = 0;
+    for (let c = 0; c < 4; c++) { if (Math.random() < prob * 0.9) a++; if (Math.random() < (1 - prob) * 0.9) b++; }
+    if (s1 > thr && Math.random() < 0.25) a++;
+    if (s2 > thr && Math.random() < 0.25) b++;
+    return [a, b];
+}
+function titleOdds(rows, runs) {
+    const n = rows.length;
+    const thr = 4200 * BALANCE.LEAGUE_BASE_FACTOR * Math.min(Math.pow(1 + BALANCE.LEAGUE_GROWTH, currentSeason - 1), BALANCE.LEAGUE_GROWTH_MAX);
+    const wins = new Array(n).fill(0);
+    for (let r = 0; r < runs; r++) {
+        const pts = new Array(n).fill(0), gd = new Array(n).fill(0);
+        let order = rows.map((_, i) => i);
+        for (let round = 0; round < n - 1; round++) {
+            for (let k = 0; k < n / 2; k++) {
+                const a = order[k], b = order[n - 1 - k]; let ga, gb;
+                if (rows[a].isUser) { const x = mcUserMatch(rows[a].pools, rows[b].pools); ga = x[0]; gb = x[1]; }
+                else if (rows[b].isUser) { const x = mcUserMatch(rows[b].pools, rows[a].pools); ga = x[1]; gb = x[0]; }
+                else { const x = mcCpuMatch(rows[a].pools, rows[b].pools, thr); ga = x[0]; gb = x[1]; }
+                gd[a] += ga - gb; gd[b] += gb - ga;
+                if (ga > gb) pts[a] += 3; else if (ga < gb) pts[b] += 3; else { pts[a]++; pts[b]++; }
+            }
+            order = [order[0], order[n - 1], ...order.slice(1, n - 1)];
+        }
+        let best = 0;
+        for (let i = 1; i < n; i++) if (pts[i] > pts[best] || (pts[i] === pts[best] && gd[i] > gd[best])) best = i;
+        wins[best]++;
+    }
+    return wins.map(w => w / runs);
+}
+function oddsText(p) {
+    if (p < 0.025) return '<5%';
+    return (Math.round(p * 20) * 5) + '%';
+}
+
+function powerTableHtml() {
+    const rows = currentPowerTable();
+    const odds = titleOdds(rows, 300);
+    rows.forEach((r, i) => { r.odds = odds[i]; });
+    const prev = kickNow && kickNow.ranks ? kickNow.ranks : null;
+    const me = rows.find(r => r.isUser);
+    const shown = rows.slice(0, 5);
+    const rowHtml = r => {
+        let arrow = '<span class="text-slate-600">&middot;</span>';
+        if (prev && prev[r.id] !== undefined) {
+            const d = prev[r.id] - r.rank;
+            arrow = d > 0 ? '<span class="text-green-400">&#9650;</span>' : (d < 0 ? '<span class="text-red-400">&#9660;</span>' : '<span class="text-slate-600">&#61;</span>');
+        }
+        return `<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg ${r.isUser ? 'bg-purple-900/50 border border-purple-500/60' : 'bg-slate-900 border border-slate-700'}">
+            <span class="w-5 text-right text-slate-500 font-black text-xs">${r.rank}</span>
+            <span class="w-4 text-center text-xs">${arrow}</span>
+            <span class="flex-1 truncate text-sm ${r.isUser ? 'text-purple-200 font-black' : 'text-white font-bold'}">${r.name}</span>
+            <span class="text-yellow-400 font-black text-sm w-12 text-right">${oddsText(r.odds)}</span>
+        </div>`;
     };
-    const cards = opts.map(o => {
-        const cash = BALANCE.BOARD_CASH[o.level];
-        const narrow = BALANCE.TRUST_LOSS_NARROW[o.level];
-        const miss = BALANCE.TRUST_LOSS_MISS[o.level];
-        return `
-            <button onclick="chooseBoardObjective('${o.level}')" class="w-full text-left bg-slate-900 hover:bg-slate-800 border-2 ${style[o.level].box} rounded-xl p-4 transition-all transform hover:scale-[1.02] shadow-lg">
-                <div class="flex justify-between items-center mb-1 gap-2">
-                    <span class="font-black uppercase tracking-widest text-sm md:text-base ${style[o.level].name}">${o.name}</span>
-                    <span class="bg-slate-800 px-2 py-1 rounded text-yellow-400 font-black text-xs md:text-sm shrink-0">${cash > 0 ? `+${cash} AP now` : 'No bonus AP'}</span>
-                </div>
-                <p class="text-white font-bold text-sm md:text-base">${objectiveTargetText(o.T, o.cup)}</p>
-                <p class="text-[10px] md:text-xs text-slate-400 mt-1">Delivered: +${BALANCE.TRUST_GAIN_ON_SUCCESS} &hearts; &nbsp;|&nbsp; Just short: ${narrow > 0 ? `-${narrow} &hearts;` : 'no penalty'} &nbsp;|&nbsp; Failed: -${miss} &hearts;</p>
-            </button>`;
-    }).join('');
+    let html = shown.map(rowHtml).join('');
+    if (me.rank > 5) html += '<div class="text-center text-slate-600 text-xs leading-none">&#8942;</div>' + rowHtml(me);
+    return `<p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1.5 flex justify-between px-1"><span>Power table</span><span>Title chance</span></p>
+        <div class="flex flex-col gap-1.5">${html}</div>`;
+}
 
+// ---------- aftrap-momentopname en beoordeling ----------
+function takeKickoffSnapshot() {
+    if (kickNow && kickNow.season === currentSeason) return;
+    if (!squadComplete()) return;
+    const rows = currentPowerTable();
+    const me = rows.find(r => r.isUser);
+    const top3 = rows.filter(r => !r.isUser).sort((a, b) => b.S - a.S).slice(0, 3);
+    const gap = me.S - top3.reduce((a, r) => a + r.S, 0) / top3.length;
+    const ranks = {}; rows.forEach(r => { ranks[r.id] = r.rank; });
+    kickPrev = kickNow;
+    kickNow = { season: currentSeason, rank: me.rank, gap, ranks };
+    boardExpectNow = boardExpectation(currentSeason);
+}
+
+// Is je team effectief beter geworden ten opzichte van de competitie? (-2 tot +2)
+function selectionScore() {
+    if (!kickPrev || !kickNow) return 0;
+    const dR = kickPrev.rank - kickNow.rank, dG = kickNow.gap - kickPrev.gap;
+    if (kickNow.rank === 1 && kickPrev.rank === 1) return dG >= 2 ? 1 : (dG <= -3 ? -1 : 0);
+    if (dR >= 2) return 2;
+    if (dR === 1) return 1;
+    if (dR === 0) return dG >= 2 ? 1 : (dG <= -2 ? -1 : 0);
+    return dR === -1 ? -1 : -2;
+}
+
+function evaluateBoardSeason(pos) {
+    if (lastVerdict && lastVerdict.season === currentSeason) return lastVerdict;
+    const before = boardWordInfo(boardTrust).word;
+    const E = boardExpectNow || boardExpectation(currentSeason);
+    const sel = selectionScore();
+    const diff = E - pos;
+    const perf = diff >= 0 ? BALANCE.TRUST_PERF_UP * Math.min(3, diff) : -BALANCE.TRUST_PERF_DOWN * Math.min(3, -diff);
+    let d = BALANCE.TRUST_SEL_PER_POINT * sel + perf;
+    if (pos === 1) d += BALANCE.TRUST_TITLE;
+    let patience = 1;
+    if (d < 0) {
+        negStreak++;
+        patience = BALANCE.TRUST_PATIENCE[Math.min(negStreak, BALANCE.TRUST_PATIENCE.length) - 1];
+        d *= patience;
+    } else {
+        negStreak = 0;
+    }
+    if (currentSeason === 1 && d < 0) d *= BALANCE.TRUST_S1_LOSS_FACTOR;
+    boardTrust = Math.max(0, Math.min(100, boardTrust + d));
+    finHist.push(pos);
+    const after = boardWordInfo(boardTrust).word;
+    const outcome = d >= 3 ? 'success' : (d <= -3 ? 'miss' : 'narrow');
+    lastVerdict = { season: currentSeason, pos, E, sel, d, before, after, patience, name: after, text: '', resolved: true, outcome };
+    updateTrustUI();
+    return lastVerdict;
+}
+
+function awardCupTrust() {
+    boardTrust = Math.min(100, boardTrust + BALANCE.TRUST_CUP);
+    if (lastVerdict && lastVerdict.season === currentSeason) lastVerdict.after = boardWordInfo(boardTrust).word;
+    updateTrustUI();
+}
+
+function boardVerdictHtml(v) {
+    if (!v) return '';
+    const selTxt = v.sel > 0 ? '&#9650; Squad stronger than the rest of the league' : (v.sel < 0 ? '&#9660; Squad falling behind the league' : '&#61; Squad holding its position');
+    const diff = v.E - v.pos;
+    const perfTxt = diff > 0 ? `${diff} place${diff > 1 ? 's' : ''} above expectation` : (diff < 0 ? `${-diff} place${-diff > 1 ? 's' : ''} below expectation` : 'as expected');
+    const up = v.d > 0, down = v.d < 0;
+    const color = up ? 'text-green-400' : (down ? 'text-red-400' : 'text-yellow-400');
+    const border = up ? 'border-green-600/60' : (down ? 'border-red-600/60' : 'border-yellow-600/60');
+    const arrow = up ? '&#9650;' : (down ? '&#9660;' : '&#61;');
+    const wordTxt = v.before === v.after ? `<span class="${boardWordInfo(boardTrust).color}">${v.after}</span> ${arrow}` : `${v.before} ${arrow} <span class="${boardWordInfo(boardTrust).color}">${v.after}</span>`;
+    const patienceTxt = v.patience > 1 ? '<p class="text-[10px] text-orange-300 font-bold uppercase tracking-wider mt-1">The board is losing patience</p>' : '';
+    const last = boardTrust < BALANCE.TRUST_WORDS[3][0] ? '<p class="text-xs text-red-400 font-black mt-1">LAST CHANCE: another season without progress and you are finished.</p>' : '';
+    return `<div class="mt-4 bg-slate-900 rounded-xl p-3 border ${border} text-center">
+        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Board Verdict</p>
+        <p class="text-xs text-white font-bold">${selTxt}</p>
+        <p class="text-xs text-white font-bold">Finished ${ordinalText(v.pos)}, the board expected ${ordinalText(v.E)}: ${perfTxt}</p>
+        <p class="text-sm font-black ${color} mt-1">${wordTxt}</p>${patienceTxt}${last}
+    </div>`;
+}
+
+// ---------- briefing ----------
+window.openBoardBriefing = function(auto) {
+    const E = boardExpectation(currentSeason);
+    const w = boardWordInfo(boardTrust);
+    const crit = boardTrust < BALANCE.TRUST_WORDS[3][0];
+    const recap = (lastVerdict && lastVerdict.season === currentSeason - 1)
+        ? `<p class="text-center text-[11px] text-slate-400 mb-3">Last season: ${lastVerdict.sel > 0 ? 'squad &#9650;' : (lastVerdict.sel < 0 ? 'squad &#9660;' : 'squad &#61;')} &nbsp;|&nbsp; finished ${ordinalText(lastVerdict.pos)} (expected ${ordinalText(lastVerdict.E)})</p>` : '';
+    const body = squadComplete() ? powerTableHtml() : '<p class="text-center text-slate-400 text-sm">Complete your squad to see the power table.</p>';
     document.getElementById('board-modal-content').innerHTML = `
-        <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-1 uppercase tracking-wider text-center">Board Meeting</h2>
-        <p class="text-center text-slate-400 text-xs md:text-sm font-bold uppercase tracking-widest mb-4">Season ${currentSeason}</p>
-        <p class="text-center text-white font-bold text-base md:text-lg mb-2">"We expect you to finish ${ordinalText(P)} this season."</p>
-        <div class="text-center text-xl md:text-2xl mb-2">${trustHearts()}</div>
-        <p class="text-center text-[10px] md:text-xs text-slate-400 mb-5">Make your promise. Bonus Action Points are paid out right away. Lose all your hearts and you are sacked.</p>
-        <div class="flex flex-col gap-3">${cards}</div>`;
+        <h2 class="text-2xl md:text-3xl font-black text-yellow-400 mb-1 uppercase tracking-wider text-center">Board Briefing</h2>
+        <p class="text-center text-slate-400 text-xs md:text-sm font-bold uppercase tracking-widest mb-3">Season ${currentSeason}</p>
+        <p class="text-center text-white font-bold text-base md:text-lg mb-1">"We expect a top ${E} finish this season."</p>
+        <p class="text-center text-sm font-black mb-2">Board mood: <span class="${w.color}">${w.word}</span></p>
+        ${crit ? '<p class="text-center text-red-400 font-black text-xs uppercase tracking-wider mb-2">Last chance: another season without progress and you are finished.</p>' : ''}
+        ${recap}
+        ${body}
+        <p class="text-[10px] md:text-xs text-slate-400 text-center mt-3 leading-relaxed">The board looks at two things: how much stronger your squad becomes compared to the league, and how you finish against its expectation. Tap the Board badge any time to see how your changes move the table.</p>
+        <button onclick="closeBoardBriefing(${auto ? 'true' : 'false'})" class="mt-4 w-full px-6 py-3.5 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full uppercase tracking-widest text-sm md:text-base">${auto ? 'Start planning' : 'Close'}</button>`;
     const modal = document.getElementById('board-modal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-}
+};
 
-window.chooseBoardObjective = function(level) {
-    const data = window._boardOptions;
-    if (!data || boardObjective) return;
-    const o = data.opts.find(x => x.level === level);
-    boardObjective = { level, name: o.name, T: o.T, cup: o.cup, P: data.P, season: currentSeason, resolved: false, text: objectiveTargetText(o.T, o.cup) };
-    actionPoints += BALANCE.BOARD_CASH[level];
-    document.getElementById('action-count').innerText = actionPoints;
+window.closeBoardBriefing = function(auto) {
     const modal = document.getElementById('board-modal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
-    updateObjectiveBanner();
-    checkOffSeasonActions();
-    renderPitch();
-    SaveManager.save();
+    if (auto) { checkOffSeasonActions(); renderPitch(); SaveManager.save(); }
 };
 
-// stage: 'league' (einde competitie), 'cupwin' of 'cuploss' (eerste cupmatch, enkel voor het titel+cup doel)
-function evaluateBoardObjective(stage) {
-    const o = boardObjective;
-    if (!o || o.resolved || o.season !== currentSeason) return null;
-    const pos = standings.findIndex(t => t.isUser) + 1;
-    let outcome;
-    if (o.cup) {
-        if (stage === 'league') {
-            if (pos === 1) return o;                    // titel binnen, cup moet nog beslissen
-            outcome = pos <= 2 ? 'narrow' : 'miss';
-        } else {
-            outcome = stage === 'cupwin' ? 'success' : 'narrow';
-        }
-    } else {
-        outcome = pos <= o.T ? 'success' : (pos === o.T + 1 ? 'narrow' : 'miss');
-    }
-    let delta;
-    if (outcome === 'success') delta = Math.min(BALANCE.TRUST_GAIN_ON_SUCCESS, BALANCE.TRUST_MAX - boardTrust);
-    else if (outcome === 'narrow') delta = -BALANCE.TRUST_LOSS_NARROW[o.level];
-    else delta = -BALANCE.TRUST_LOSS_MISS[o.level];
-    boardTrust = Math.max(0, boardTrust + delta);
-    o.resolved = true;
-    o.outcome = outcome;
-    o.delta = delta;
-    updateTrustUI();
-    return o;
+function ordinalText(n) {
+    const v = n % 100;
+    if (v >= 11 && v <= 13) return n + 'th';
+    return n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th');
 }
 
-function boardResultHtml(o) {
-    if (!o) return '';
-    if (!o.resolved) {
-        return `<div class="mt-4 bg-slate-900 rounded-xl p-3 border border-yellow-600/60 text-center">
-            <p class="text-[10px] text-yellow-400 font-bold uppercase tracking-widest mb-1">Board Objective (${o.name})</p>
-            <p class="text-sm text-white font-bold">${o.text}</p>
-            <p class="text-xs text-slate-400 mt-1">League won! Now win a Continental Cup match to deliver.</p>
-        </div>`;
-    }
-    const look = {
-        success: { txt: '&#9989; Delivered', color: 'text-green-400', border: 'border-green-600/60' },
-        narrow: { txt: '&#10134; Just short', color: 'text-yellow-400', border: 'border-yellow-600/60' },
-        miss: { txt: '&#10060; Failed', color: 'text-red-400', border: 'border-red-600/60' }
-    }[o.outcome];
-    const trustTxt = o.delta > 0 ? `+${o.delta} &hearts;` : (o.delta < 0 ? `${o.delta} &hearts;` : 'trust unchanged');
-    return `<div class="mt-4 bg-slate-900 rounded-xl p-3 border ${look.border} text-center">
-        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Board Objective (${o.name})</p>
-        <p class="text-sm text-white font-bold">${o.text}</p>
-        <p class="text-xs font-black ${look.color} mt-1">${look.txt} &nbsp;|&nbsp; ${trustTxt}</p>
-        <div class="mt-1 text-lg">${trustHearts()}</div>
-    </div>`;
-}
 
 function sackedBlockHtml() {
     return `
         <div class="mt-5 bg-red-900/40 border border-red-600 rounded-xl p-4 text-center shadow-inner">
             <span class="text-3xl mb-1 block">&#128201;&#10060;</span>
             <p class="text-lg text-red-500 font-black uppercase tracking-widest mb-1">You Have Been Sacked!</p>
-            <p class="text-xs text-red-200 font-medium mb-4">You failed to deliver on your promises. The board has lost all faith and terminated your contract.</p>
+            <p class="text-xs text-red-200 font-medium mb-4">The board has lost all faith in the direction of the club and terminated your contract.</p>
             <button onclick="openCareerOverview(true)" class="px-6 py-3 mb-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-full border border-slate-500 uppercase tracking-widest text-xs md:text-sm w-full transition-all">📈 View Your Career</button>
             <button onclick="startNewDraft()" class="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-400 text-white font-black rounded-full shadow-[0_0_25px_rgba(239,68,68,0.6)] uppercase tracking-widest text-sm md:text-base w-full transition-all">START NEW CAREER</button>
         </div>`;
@@ -2653,7 +2753,7 @@ window.openCareerOverview = function(final = false) {
 
     const chart = S.length
         ? `<div id="career-chart-scroll" class="overflow-x-auto bg-slate-900 rounded-xl border border-slate-700 p-2 md:p-3">${careerChartSvg(S)}</div>
-           <p class="text-[10px] text-slate-500 text-center mt-1">League finish per season. 🏆 = title. CUP: how far you got (– = not qualified). BOARD: ✅ delivered, ➖ just short, ❌ failed.</p>`
+           <p class="text-[10px] text-slate-500 text-center mt-1">League finish per season. 🏆 = title. CUP: how far you got (– = not qualified). BOARD: ✅ trust up, ➖ steady, ❌ trust down.</p>`
         : `<p class="text-center text-slate-400 text-sm py-8 bg-slate-900 rounded-xl border border-slate-700">Finish your first season to start writing your story.</p>`;
 
     const scorersHtml = scorers.length ? scorers.map((ps, i) => `
@@ -2684,7 +2784,7 @@ window.openCareerOverview = function(final = false) {
         <div class="grid grid-cols-3 gap-2 mb-4 text-center">
             <div class="bg-slate-900 rounded-lg p-3 border border-yellow-600/50"><p class="text-2xl">🏆</p><p class="text-white font-black text-lg">${titles.length}</p><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">League titles</p></div>
             <div class="bg-slate-900 rounded-lg p-3 border border-blue-600/50"><p class="text-2xl">🌍</p><p class="text-white font-black text-lg">${cups.length}</p><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Continental Cups</p></div>
-            <div class="bg-slate-900 rounded-lg p-3 border border-red-600/50"><p class="text-2xl">❤️</p><p class="text-white font-black text-lg">${trustHearts()}</p><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Board trust</p></div>
+            <div class="bg-slate-900 rounded-lg p-3 border border-red-600/50"><p class="text-2xl">🏛️</p><p class="text-white font-black text-lg">${trustHearts()}</p><p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Board trust</p></div>
         </div>
 
         <h3 class="text-sm md:text-base font-black text-white uppercase tracking-widest mb-2">Your journey</h3>
@@ -2765,7 +2865,7 @@ function showResumeSummaryCard() {
     const finalPos = standings.findIndex(t => t.isUser) + 1;
     const me = standings.find(t => t.isUser) || { pts: 0 };
     const canPlayCup = finalPos <= 2 && !hasPlayedCup;
-    const boardHtml = (boardObjective && boardObjective.season === currentSeason) ? boardResultHtml(boardObjective) : '';
+    const boardHtml = (lastVerdict && lastVerdict.season === currentSeason) ? boardVerdictHtml(lastVerdict) : '';
     const nextBtn = canPlayCup
         ? `<button onclick="startContinentalCup()" class="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-400 text-white font-black rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] uppercase tracking-widest text-sm md:text-base w-full transition-all">🏆 Play Continental Cup</button>`
         : `<button onclick="startTransferWindow()" class="px-6 py-4 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-400 text-white font-black rounded-full shadow-[0_0_20px_rgba(168,85,247,0.5)] uppercase tracking-widest text-sm md:text-base w-full transition-all">Start Next Season (Transfers)</button>`;
@@ -3407,6 +3507,7 @@ await rollOptions(role, displayPos);
             
             if (!leagueReady) initStandings();
             leagueReady = false;
+            takeKickoffSnapshot();
             updateObjectiveLine();
             updateTableUI();
             document.getElementById('results-feed').classList.remove('hidden');
@@ -3709,13 +3810,13 @@ await rollOptions(role, displayPos);
          const finalPos = standings.findIndex(t => t.isUser) + 1;
          const qualified = finalPos <= 2;
          const isLastPlace = (finalPos === standings.length);
-         const boardResult = evaluateBoardObjective('league');
+         const boardResult = evaluateBoardSeason(finalPos);
          recordSeasonInLog(finalPos, boardResult);
          const boardSacked = boardTrust <= 0;
          const isSacked = (gameMode === 'rtg' && currentSeason > 1 && isLastPlace) || boardSacked;
          if (isSacked && careerLog) careerLog.status = 'sacked';
          const sackText = (boardSacked && !(currentSeason > 1 && isLastPlace))
-             ? "You failed to deliver on your promises. The board has lost all faith and terminated your contract."
+             ? "The board has lost all faith in the direction of the club and terminated your contract."
              : "Finishing dead last resulted in relegation. The club board has terminated your contract.";
          const isFirstSeasonWarning = (gameMode === 'rtg' && currentSeason === 1 && isLastPlace);
 
@@ -3765,7 +3866,7 @@ await rollOptions(role, displayPos);
         const awards = document.getElementById('post-season-awards');
          awards.classList.remove('hidden');
          awards.classList.add('flex', 'order-first');
-         awards.innerHTML = `<div class="poke-box-dark p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${boardResultHtml(boardResult)}${actionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
+         awards.innerHTML = `<div class="poke-box-dark p-5 md:p-6 text-center shadow-2xl relative overflow-hidden"><h2 class="pixel-font text-lg md:text-xl font-black text-white mb-2 uppercase tracking-wide" style="line-height:1.4;">Season ${currentSeason} Finished</h2><p class="${qualified ? 'text-blue-400' : (isSacked ? 'text-red-500' : (isFirstSeasonWarning ? 'text-orange-400' : 'text-yellow-400'))} text-xs md:text-sm font-bold mb-5">You finished in position ${finalPos}!</p><div class="flex flex-col sm:flex-row gap-3 justify-center"><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${mvpContent}</div><div class="bg-slate-900/50 p-3 rounded-xl border border-slate-700/50 w-full sm:w-1/2 flex items-center gap-3">${topScorerContent}</div></div>${allScorersHtml}${boardVerdictHtml(boardResult)}${actionHtml}<button onclick="viewTeam()" class="mt-4 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs md:text-sm rounded-full transition-colors border border-slate-500 uppercase tracking-wide w-full">View Team</button></div>`;
          
          // NIEUW: Trigger alle seizoens-achievements (Perfect Harmony, Bidoof, Goals, Iron Wall)
          AchievementManager.check('end_season');
@@ -3891,8 +3992,10 @@ await rollOptions(role, displayPos);
             }
             const startBtn = document.getElementById('btn-start-match');
             if (startBtn) startBtn.innerHTML = isFinal ? 'Play the Final 🏆' : 'Start Match ⚽';
+            document.getElementById('tv-scoreboard').style.minHeight = isFinal ? '540px' : '430px';
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
+            overlay.scrollTop = 0;
             
             setTimeout(() => { document.getElementById('tv-scoreboard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
         }
@@ -3901,6 +4004,7 @@ await rollOptions(role, displayPos);
             const overlay = document.getElementById('kickoff-overlay');
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
+            document.getElementById('tv-scoreboard').style.minHeight = '';
 
             document.getElementById('tv-status-text').innerText = 'LIVE';
             document.getElementById('tv-status-dot').classList.add('animate-pulse');
@@ -4024,10 +4128,8 @@ await rollOptions(role, displayPos);
             if (careerLog) { const lr = careerLog.seasons.find(x => x.season === currentSeason); if (lr) lr.cupPath = cupPath.slice(); }
             if (currentCupRound === 3 && finalScore.h > finalScore.a) finalSummary = buildFinalSummary([...userGoals, ...userET], finalScore, cupOp);
             logCupProgress(finalScore.h > finalScore.a);
-            const cupBoardResult = (boardObjective && boardObjective.cup && !boardObjective.resolved && boardObjective.season === currentSeason)
-                ? evaluateBoardObjective(finalScore.h > finalScore.a ? 'cupwin' : 'cuploss') : null;
-            const cupBoardHtml = cupBoardResult ? boardResultHtml(cupBoardResult) : '';
-            if (cupBoardResult) updateLogBoard(cupBoardResult);
+            const cupBoardHtml = '';
+            if (currentCupRound === 3 && finalScore.h > finalScore.a) awardCupTrust();
             if (finalScore.h > finalScore.a) {
                 currentCupRound++;
                 savePhase = currentCupRound > 3 ? 'cupwon' : 'cup';
@@ -4140,7 +4242,6 @@ await rollOptions(role, displayPos);
     actionPoints = BALANCE.BASE_AP;
     hasReroll = false;
     trainCounts = {};
-    boardObjective = null;
 
     document.body.className = 'min-h-screen flex flex-col relative bg-office';        
     document.getElementById('match-center').classList.add('hidden');
@@ -4174,8 +4275,9 @@ await rollOptions(role, displayPos);
     leagueReady = true;
     updateObjectiveBanner();
     savePhase = 'transfer';
+    boardBriefSeason = currentSeason;
             SaveManager.save();
-    openBoardMeeting();
+    openBoardBriefing(true);
 }
 
        function finishTransfers() {
