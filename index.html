@@ -96,7 +96,7 @@
                 <div>
                     <h3 class="text-base md:text-lg font-bold text-white mb-1.5 uppercase">6. The Board</h3>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li><strong class="text-yellow-400">What the board expects:</strong> Every season the board hopes for a finish one place better than your last two seasons. A reigning champion is expected to win again only if it is also the strongest club; otherwise the board asks it to fight for the title, without making the title itself a must. Everyone else is asked to qualify for the Continental Cup at most. Every cup round you win pleases the board too. In your first season it hopes for a top 6.</li>
+                        <li><strong class="text-yellow-400">What the board expects:</strong> Every season the board hopes for a finish one place better than your last two seasons. A reigning champion is expected to win again only if it is also the strongest club; otherwise the board asks it to fight for the title, without making the title itself a must. Everyone else is asked to qualify for the Continental Cup at most. Every cup round you win pleases the board too. In your first season the board judges your squad: a favourite is asked to fight for the title, a strong squad for a top 3 to 5 finish, and anyone else to stay clear of the bottom places.</li>
                         <li><strong class="text-sky-400">The board's mood:</strong> From Ecstatic to Furious. The board evaluates whether you improve the squad (the wrong stats on the wrong players do not count) and how you finish compared to what it hoped for. A bad season hurts more than a good one helps, and repeated bad seasons hurt more each time. Tap the Board badge to see how it feels.</li>
                         <li><strong class="text-white">Furious means last chance.</strong> A board that has lost all faith sacks you, and so does finishing last from season 2 onwards.</li>
                         <li><strong class="text-green-400">Title odds:</strong> Tap ODDS to see the title race, with every club's chance of winning the league.</li>
@@ -558,6 +558,7 @@
             // Zwakkere generaties (minder sterke Pokémon) beginnen met iets zwakkere CPU-clubs, in punten teamsterkte S bij seizoen 1.
             // Alle clubs krijgen dezelfde verschuiving, zodat de verhoudingen (en dus de odds) realistisch blijven; ze vervalt vanzelf naarmate je team groeit.
             GEN_EARLY_SHIFT: { 1: -4.9, 2: -4.7, 3: -4.2, 4: -1.9, 5: -2.8, 6: -2.9, 7: -1.2, 8: -2, 9: 0 },
+            GEN_POOL_BONUS: 2.5,           // bij een combinatie van generaties is de draft gemiddeld zoveel S beter dan het gemiddelde van de losse generaties
             GEN_EARLY_TAU: 15,             // na hoeveel seizoenen de verschuiving nog 37% is (e^-1); past bij hoe snel spelers in zwakke generaties inlopen
             GEN_TARGET_SHIFT: 0.6,         // alle generaties tegelijk zwaarder (+) of makkelijker (-), in punten teamsterkte S
             // Typische startsterkte (S) van een draft per generatie, gemeten met een bot die kiest en traint op de OVR van de kaart zoals een speler (Gen 1: de echte runs lagen op 65-68).
@@ -2241,7 +2242,15 @@ function updateTrustUI() {
 // De 1e plaats wordt alleen verwacht van een regerend kampioen die ook de sterkste club is. Wie kampioen was maar niet
 // de favoriet is, krijgt "meestrijden om de titel" (2e plaats): de titel zelf is dan geen harde eis.
 function computeBoardExpectation(s) {
-    if (s <= 1 || !finHist.length) return { E: 6, fight: false };
+    if (s <= 1 || !finHist.length) {
+        // Seizoen 1: het bestuur kijkt naar je selectie. Een favoriet moet meestrijden om de titel, een sterk team om de top, de rest hoort bovenaan de onderste plaatsen weg te blijven.
+        let rank = null;
+        if (s === currentSeason) {
+            try { if (squadComplete()) { const me = currentPowerTable().find(r => r.isUser); rank = me ? me.rank : null; } } catch (e) { rank = null; }
+        }
+        const E1 = rank === null ? 6 : Math.min(6, Math.max(2, rank));
+        return { E: E1, fight: E1 === 2 };
+    }
     const last = finHist.slice(-2);
     let E = Math.max(1, Math.round(last.reduce((a, b) => a + b, 0) / last.length) - 1);
     const champion = finHist[finHist.length - 1] === 1;
@@ -2311,7 +2320,9 @@ function activeEarlyShift() {
     const act = genData.filter(g => g.active).map(g => g.id);
     if (!act.length || !BALANCE.GEN_EARLY_SHIFT) return 0;
     const avgShift = act.reduce((a, g) => a + (BALANCE.GEN_EARLY_SHIFT[g] || 0), 0) / act.length;
-    return avgShift * (genData.length - act.length) / (genData.length - 1);
+    // Een grotere pool geeft betere kaarten (bij 2+ generaties ongeveer +2,5 S): dan hoeft de CPU minder zwakker te worden
+    const bonus = act.length > 1 ? BALANCE.GEN_POOL_BONUS : 0;
+    return (avgShift + bonus) * (genData.length - act.length) / (genData.length - 1);
 }
 // Cuptegenstanders: groei, rondeverschuiving en de vroege verschuiving van zwakke generaties
 function cupGrowth(season) { return BALANCE.CUP_GROWTH_MAX * (1 - Math.exp(-(Math.max(1, season) - 1) / BALANCE.CUP_GROWTH_TAU)); }
