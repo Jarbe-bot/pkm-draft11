@@ -5317,9 +5317,9 @@ window.openShop = function(msg = '') {
     const eveningWhy = inv ? 'You already have an open investment.' : (econ.eveningDone ? 'One per season.' : 'Invest now, get more back later.');
     const tiles = econTab === 'short'
         ? tile('&#127852;', 'Rare Candy', `+${BALANCE.ECON.XP_CANDY} XP for one player who can still evolve. Gets pricier every time this season.`, econCandyPrice(), 'econBuyCandy()', canEvolveAny)
-        + tile('&#128372;', 'Agent', 'At your next transfer you choose one type or one generation for the four cards.', P.agent, "econBuyFlag('agent')", true, econ.flags.agent ? 'Active' : '')
+        + tile('&#128372;', 'Agent', 'At your next transfer you choose one type or one generation for the four cards. Cannot be combined with the Scouting Mission.', P.agent, "econBuyFlag('agent')", !econ.flags.scout, econ.flags.agent ? 'Active' : '')
         + tile('&#127869;', 'Sponsor Evening', eveningWhy + ' Three random sponsors; some want a result.', P.evening, 'econOpenEvening()', !inv && !econ.eveningDone)
-        + tile('&#128301;', 'Scouting Mission', 'Your next transfer has at least an Ultra Ball (total 500+) or better.', P.scout, "econBuyFlag('scout')", true, econ.flags.scout ? 'Active' : '')
+        + tile('&#128301;', 'Scouting Mission', 'All four cards of your next transfer are Ultra Ball (total 500+) or better. Cannot be combined with the Agent.', P.scout, "econBuyFlag('scout')", !econ.flags.agent, econ.flags.scout ? 'Active' : '')
         : tile('&#127967;', 'Stadium', '+1 AP every season.', P.stadium, "econBuyUpgrade('stadium')", true, econ.stadium ? 'Owned' : '')
         + tile('&#127947;', 'Training Complex', `+${Math.round(BALANCE.ECON.COMPLEX_BONUS * 100)}% gain per training, per level (max 2). Level ${econ.complex}/2.`, P.complex[Math.min(econ.complex, 1)], "econBuyUpgrade('complex')", true, econ.complex >= 2 ? 'Owned' : '')
         + tile('&#127891;', 'Youth Academy', `Players in their first form earn ${BALANCE.ECON.ACADEMY_MULT}x XP.`, P.academy, "econBuyUpgrade('academy')", true, econ.academy ? 'Owned' : '')
@@ -5345,8 +5345,8 @@ window.econBuyUpgrade = function(kind) {
 };
 window.econBuyFlag = function(kind) {
     const P = BALANCE.ECON.PRICE;
-    if (kind === 'scout') { if (econ.flags.scout || !econSpend(P.scout)) return; econ.flags.scout = true; }
-    if (kind === 'agent') { if (econ.flags.agent || !econSpend(P.agent)) return; econ.flags.agent = true; }
+    if (kind === 'scout') { if (econ.flags.scout || econ.flags.agent || !econSpend(P.scout)) return; econ.flags.scout = true; }
+    if (kind === 'agent') { if (econ.flags.agent || econ.flags.scout || !econSpend(P.agent)) return; econ.flags.agent = true; }
     if (kind === 'campDiscount') { if (econ.flags.campDiscount || !econSpend(P.campDiscount)) return; econ.flags.campDiscount = true; checkOffSeasonActions(); }
     SaveManager.save(); openShop('Bought!');
 };
@@ -5421,10 +5421,25 @@ window.econSignSponsor = function(i) {
 };
 
 // ---------------- Transfers: Scouting Mission, Agent, Analysis ----------------
+// Scouting Mission: n kaarten van 500+ (Ultra Ball of hoger). Eerst de Pokémon die niet verder evolueren, want die halen het vaakst 500.
+async function econFindUltraCards(pool, n) {
+    const shuffle = arr => arr.slice().sort(() => Math.random() - 0.5);
+    const order = shuffle(pool.filter(id => !EVOLVES_TO[id])).concat(shuffle(pool.filter(id => EVOLVES_TO[id])));
+    const good = [], rest = [];
+    for (let i = 0; i < order.length && good.length < n && i < 160; i += 8) {
+        const got = (await Promise.all(order.slice(i, i + 8).map(id => fetchPokemonDetail(id)))).filter(p => p !== null);
+        got.forEach(p => (p.bst >= BALANCE.ECON.SCOUT_MIN_BST ? good : rest).push(p));
+    }
+    const out = good.slice(0, n);
+    rest.sort((x, y) => y.bst - x.bst);
+    while (out.length < n && rest.length) out.push(rest.shift());   // te weinig sterke Pokémon over: vul aan met de sterkste die er is
+    return out;
+}
 async function econRollOptions(role, displayPos) {
     if (econ.flags.agent && econ.flags.agent !== true) econ.flags.agent = true;   // oudere opslag
     if (econ.flags.agent && !econAgentChoice && !econSkipAgent) { econPendingRoll = { role, displayPos }; econShowAgentChooser(); return; }
     const ag = econAgentChoice; econAgentChoice = null; econSkipAgent = false;
+    const useScout = !!econ.flags.scout && !ag;   // één hulpmiddel per transfer: Agent en Scouting Mission stapelen niet
     const gacha = document.getElementById('gacha-container');
     gacha.innerHTML = '<div class="col-span-full flex flex-col items-center justify-center py-10"><div class="spinner mb-4"></div><p class="text-yellow-400 font-bold uppercase tracking-widest animate-pulse">Scouting...</p></div>';
     const draftedIds = Object.values(userTeam).filter(p => p !== null).map(p => p.id);
@@ -5433,17 +5448,14 @@ async function econRollOptions(role, displayPos) {
         const filtered = available.filter(id => ag.kind === 'type' ? (TYPES_OF[id] || []).includes(TYPE_NAMES.indexOf(ag.value)) : getGeneration(id) === ag.value);
         if (filtered.length >= 4) available = filtered;
     }
-    const draw = (n, from) => { const out = []; for (let i = 0; i < n && from.length; i++) { const r = Math.floor(Math.random() * from.length); out.push(from[r]); from.splice(r, 1); } return out; };
-    const ids = draw(4, available);
-    let list = (await Promise.all(ids.map(id => fetchPokemonDetail(id)))).filter(p => p !== null);
-    if (econ.flags.scout && !list.some(p => p.bst >= BALANCE.ECON.SCOUT_MIN_BST)) {
-        for (let round = 0; round < 6 && available.length; round++) {
-            const more = (await Promise.all(draw(6, available).map(id => fetchPokemonDetail(id)))).filter(p => p !== null);
-            const good = more.find(p => p.bst >= BALANCE.ECON.SCOUT_MIN_BST);
-            if (good) { list.sort((a, b) => a.bst - b.bst); list[0] = good; break; }
-        }
+    let list;
+    if (useScout) list = await econFindUltraCards(available, 4);
+    else {
+        const ids = []; for (let i = 0; i < 4 && available.length; i++) { const r = Math.floor(Math.random() * available.length); ids.push(available[r]); available.splice(r, 1); }
+        list = (await Promise.all(ids.map(id => fetchPokemonDetail(id)))).filter(p => p !== null);
     }
-    econ.flags.scout = false; if (ag) econ.flags.agent = false;
+    if (useScout) econ.flags.scout = false;
+    if (ag) econ.flags.agent = false;
     currentRolledOptions = list;
     renderGachaCards(currentRolledOptions, role);
 }
