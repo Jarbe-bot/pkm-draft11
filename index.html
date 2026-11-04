@@ -434,7 +434,7 @@
         </main>
     </div>
 
-    <div id="champions-overlay" class="fixed inset-0 z-[500] hidden flex-col items-center justify-center p-5 overflow-y-auto" style="background: radial-gradient(circle at 50% 30%, rgba(250,204,21,0.28), rgba(15,23,42,0.97) 65%);"></div>
+    <div id="champions-overlay" class="fixed inset-0 z-[500] hidden flex-col items-center justify-center p-5 overflow-y-auto" style="background: radial-gradient(circle at 50% 30%, rgba(250,204,21,0.26), rgba(250,204,21,0) 65%), rgb(15,23,42);"></div>
     <style>
         @keyframes trophyDrop { 0% { transform: translateY(-120vh) rotate(-20deg) scale(0.6); opacity: 0; } 70% { transform: translateY(14px) rotate(4deg) scale(1.1); opacity: 1; } 100% { transform: none; opacity: 1; } }
         @keyframes champFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -558,12 +558,12 @@
             // Zwakkere generaties (minder sterke Pokémon) beginnen met iets zwakkere CPU-clubs, in punten teamsterkte S bij seizoen 1.
             // Alle clubs krijgen dezelfde verschuiving, zodat de verhoudingen (en dus de odds) realistisch blijven; ze vervalt vanzelf naarmate je team groeit.
             GEN_EARLY_SHIFT: { 1: -4.9, 2: -4.7, 3: -4.2, 4: -1.9, 5: -2.8, 6: -2.9, 7: -1.2, 8: -2, 9: 0 },
-            GEN_POOL_BONUS: 2.5,           // bij een combinatie van generaties is de draft gemiddeld zoveel S beter dan het gemiddelde van de losse generaties
+            GEN_POOL_BONUS: 3.4,           // bij een combinatie van generaties is de draft gemiddeld zoveel S beter dan het gemiddelde van de losse generaties (gemeten met een speler die op chemistry let)
             GEN_EARLY_TAU: 15,             // na hoeveel seizoenen de verschuiving nog 37% is (e^-1); past bij hoe snel spelers in zwakke generaties inlopen
             GEN_TARGET_SHIFT: 0.6,         // alle generaties tegelijk zwaarder (+) of makkelijker (-), in punten teamsterkte S
-            // Typische startsterkte (S) van een draft per generatie, gemeten met een bot die kiest en traint op de OVR van de kaart zoals een speler (Gen 1: de echte runs lagen op 65-68).
-            // Daarop is GEN_EARLY_SHIFT gekalibreerd: een gewone draft eindigt in seizoen 1 in elke generatie ongeveer 1 keer op 7 laatste, zoals in het gewone spel.
-            GEN_TYPICAL_S1: { 1: 69.1, 2: 69.0, 3: 69.4, 4: 74.8, 5: 71.1, 6: 72.6, 7: 75.6, 8: 72.8, 9: 76.6 },
+            // Typische startsterkte (S) van een draft per generatie, gemeten met een bot die kiest op de kaart-OVR én op chemistry zoals een speler
+            // (jouw zes gewone drafts in Gen 1+2+3: gemiddeld 75,3; de bot: 74,9). Ter documentatie en voor de tests; bijstellen kan met de echte start-S uit de export.
+            GEN_TYPICAL_S1: { 1: 71.2, 2: 70.9, 3: 71.3, 4: 75.5, 5: 71.8, 6: 73.6, 7: 76.7, 8: 74.3, 9: 78.2 },
             GEN_CLUB_TARGETS: {
                 1: [84.1, 78.9, 75.7, 74.3, 73.3, 72.5, 71.5],   // Gen 1: Een Bayern met een uitdager
                 2: [83.6, 78.6, 75.6, 74.4, 73.6, 72.7, 71.7],   // Gen 2: Een Bayern met een uitdager
@@ -4317,6 +4317,7 @@ await rollOptions(role, displayPos);
             document.getElementById('tv-scoreboard').classList.remove('hidden');
             
             // De cuptegenstanders groeien mee met de seizoenen (met een eindbaas-plafond) en houden rekening met de gekozen generaties
+            currentCupRound = 0;   // elke cup begint weer in de achtste finale (ook na een verloren kwart-, halve of eindfinale, of een gewonnen cup)
             continentalOpponents = drawCupOpponents(currentSeason);
             cupPath = [];
             finalSummary = null;
