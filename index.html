@@ -47,6 +47,23 @@
         </div>
     </div>
 
+    <div id="options-modal" class="fixed inset-0 bg-slate-900/95 z-[400] hidden flex-col items-center justify-center p-4 overflow-y-auto backdrop-blur-sm transition-opacity duration-300 opacity-0">
+        <div class="max-w-md w-full poke-box-dark p-5 md:p-6 shadow-2xl relative my-auto">
+            <button onclick="closeOptions()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center font-bold transition-colors">&times;</button>
+            <h2 class="text-2xl font-black text-yellow-400 mb-4 uppercase tracking-wider text-center border-b border-slate-700 pb-3">Options</h2>
+            <div class="flex items-start justify-between gap-4 bg-slate-900/60 border border-slate-700 rounded-xl p-3">
+                <div class="min-w-0">
+                    <p class="text-white font-black text-sm">Position rating (OVR) on cards</p>
+                    <p class="text-slate-400 text-[11px] leading-snug mt-1"><span class="text-green-400 font-bold">On:</span> every card shows how good that Pok&eacute;mon is in the position you are filling. Handy to learn what works.<br><span class="text-orange-300 font-bold">Off:</span> judge the stats yourself, a challenge for experienced players. Your own squad on the pitch and in the list keeps its ratings.</p>
+                </div>
+                <button id="opt-ovr" role="switch" aria-checked="true" onclick="toggleOptionOvr()" class="shrink-0 relative w-12 h-7 rounded-full transition-colors bg-green-500">
+                    <span id="opt-ovr-knob" class="absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform translate-x-5"></span>
+                </button>
+            </div>
+            <button onclick="closeOptions()" class="mt-5 w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black rounded-xl transition-colors uppercase tracking-wide">Done</button>
+        </div>
+    </div>
+
     <div id="htp-modal" class="fixed inset-0 bg-slate-900/95 z-[400] hidden flex-col items-center justify-center p-4 overflow-y-auto backdrop-blur-sm transition-opacity duration-300 opacity-0">
         <div class="max-w-2xl w-full poke-box-dark p-5 md:p-6 shadow-2xl relative my-auto max-h-[90vh] overflow-y-auto">
             <button onclick="closeHTP()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center font-bold transition-colors">✕</button>
@@ -138,6 +155,7 @@
         <button id="btn-toggle-sfx" onclick="toggleSFX()" class="bg-slate-800 border border-slate-600 text-white p-2 rounded shadow-md hover:bg-slate-700 transition-colors text-sm sm:text-base">
             🔊 On
         </button>
+        <button id="btn-options-start" onclick="openOptions()" title="Options" class="bg-slate-800 border border-slate-600 text-white p-2 rounded shadow-md hover:bg-slate-700 transition-colors text-sm sm:text-base">&#9881;</button>
     </div>
         
         <!-- De Landing Knop: Helemaal onderin geplaatst met mt-auto -->
@@ -242,6 +260,7 @@
                 <button onclick="openCareerOverview()" class="px-2 md:px-3 py-1.5 md:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors shadow-lg flex items-center justify-center">
                     <span>📈</span><span class="hidden sm:inline ml-1 font-bold">CAREER</span>
                 </button>
+                <button id="btn-options" onclick="openOptions()" class="px-2 md:px-3 py-1.5 md:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors shadow-lg flex items-center"><span>&#9881;</span><span class="hidden sm:inline ml-1 font-bold">OPTIONS</span></button>
                 <button onclick="openHTP()" class="px-2 md:px-4 py-1.5 md:py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] md:text-xs font-bold rounded-full border border-slate-600 transition-colors flex items-center justify-center shadow-lg ml-0.5 md:ml-1 min-w-[32px]">
                     <span class="text-blue-400 font-black text-xs md:text-sm">?</span><span class="hidden sm:inline ml-1.5 font-bold">Rules</span>
                 </button>
@@ -276,16 +295,16 @@
         <main class="flex-grow max-w-6xl w-full mx-auto relative mb-20 z-10 flex flex-col" id="main-view">
             
             <div id="transfer-banner" class="hidden w-full max-w-3xl mx-auto bg-gradient-to-r from-purple-700 to-purple-600 text-white font-black px-3.5 py-2.5 md:px-5 md:py-3 rounded-xl mb-2.5 shadow-xl border-2 border-purple-400 items-center justify-between gap-2 flex-wrap">
-                <div class="flex flex-col flex-1 min-w-0">
+                <div class="flex flex-col flex-1 min-w-0 order-1">
                     <span class="uppercase tracking-widest text-xs md:text-base leading-tight">Off-Season Window</span>
                     <span id="board-objective-text" class="text-[10px] md:text-xs text-purple-200 font-medium">Swap players or train specific stats</span>
                 </div>
-                <div class="shrink-0 bg-slate-900 rounded-xl px-3 py-1 text-center leading-none shadow-inner border border-yellow-500/40">
+                <div class="shrink-0 bg-slate-900 rounded-xl px-3 py-1 text-center leading-none shadow-inner border border-yellow-500/40 order-2 md:order-3">
                     <span class="block text-[9px] uppercase tracking-widest text-slate-400">Actions left</span>
                     <span id="action-count" class="text-2xl text-yellow-400 font-black">3</span>
                 </div>
-                <div class="flex gap-2 w-full">
-                    <button id="btn-camp" onclick="openTrainingCamp()" class="flex-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-2 rounded-lg text-white shadow text-sm md:text-base font-bold uppercase tracking-wide whitespace-nowrap">&#9978; Camp</button>
+                <div class="flex gap-2 w-full md:w-auto order-3 md:order-2">
+                    <button id="btn-camp" onclick="openTrainingCamp()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-2 md:px-6 rounded-lg text-white shadow text-sm md:text-base font-bold uppercase tracking-wide whitespace-nowrap">&#9978; Camp</button>
                 </div>
             </div>
             
@@ -591,8 +610,9 @@
             },
             // Hoe zwaar sterkte telt in een uitslag: met hogere waarden wint de sterkere ploeg vaker (een echte Bayern).
             // Twee gelijke ploegen blijven gelijk en maken evenveel doelpunten als vroeger; alleen het verschil telt zwaarder.
+            MATCH_POSS_EXP: 1,             // hoe steil balbezit bepaalt wie de kansen krijgt (de 10 kansen per wedstrijd worden zo verdeeld). 1 = je aandeel in het balbezit is je aandeel in de kansen; vroeger 1,8, waardoor weinig balbezit (counter-voetbal) een valkuil was
             MATCH_CPU_EXPONENT: 3,         // CPU tegen CPU (was 2): een club van S 84 wint tegen S 75 in ~75% van de wedstrijden (was 65%)
-            MATCH_CONV_POWER: 1.5,         // jouw wedstrijden en de cup (was 1): aanval tegen verdediging telt zwaarder
+            MATCH_CONV_POWER: 1.8,         // jouw wedstrijden en de cup (was 1, daarna 1,5): aanval tegen verdediging telt zwaarder. 1,8 samen met MATCH_POSS_EXP 1 houdt de moeilijkheid gelijk aan 1,5 met exponent 1,8
             LEAGUE_BASE_FACTOR: 1.07,      // alle competitieclubs starten 7% sterker: een zwaardere start
             // De CPU groeit net als jij steeds minder: snel in het begin, daarna vlakt het af naar een plafond.
             // Groei(seizoen) = LEAGUE_GROWTH_TOTAL x (1 - e^(-(seizoen-1)/LEAGUE_GROWTH_TAU)); het eerste decennium blijft gelijk aan +0,8% per seizoen.
@@ -912,6 +932,8 @@
         let cupPath = [];            // uitslagen van de lopende cup: [{ round, opp, gf, ga, note }]
         let finalSummary = null;     // samenvatting van de gewonnen finale (voor het kampioensmoment)
         let rivalBoost = 0, rivalSeason = 0;   // extra sterkte (S) van de topclubs omdat jij ver voor staat; laatste seizoen waarin dat is bijgewerkt
+        const OPTIONS_KEY = 'pkm_options_v2';   // instellingen gelden voor het hele spel, niet per carriere
+        let gameOptions = { showOvr: true };
         const SAVE_KEY = 'draft_savegame_v2';   // v2 heeft een eigen opslag, zodat v1 en v2 naast elkaar kunnen bestaan
         let gameMode = 'rtg';
         let isPeeking = false;
@@ -1584,6 +1606,31 @@ const AudioManager = {
                 }
             });
         }
+        function loadOptions() {
+            gameOptions.showOvr = true;
+            try { const o = JSON.parse(localStorage.getItem(OPTIONS_KEY) || '{}'); if (typeof o.showOvr === 'boolean') gameOptions.showOvr = o.showOvr; } catch (e) {}
+        }
+        function saveOptions() { try { localStorage.setItem(OPTIONS_KEY, JSON.stringify(gameOptions)); } catch (e) {} }
+        function renderOptions() {
+            const sw = document.getElementById('opt-ovr'), knob = document.getElementById('opt-ovr-knob');
+            if (!sw || !knob) return;
+            sw.setAttribute('aria-checked', gameOptions.showOvr ? 'true' : 'false');
+            sw.classList.toggle('bg-green-500', gameOptions.showOvr); sw.classList.toggle('bg-slate-600', !gameOptions.showOvr);
+            knob.classList.toggle('translate-x-5', gameOptions.showOvr);
+        }
+        function openOptions() {
+            renderOptions();
+            const modal = document.getElementById('options-modal');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+        function closeOptions() {
+            const modal = document.getElementById('options-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+        function toggleOptionOvr() { gameOptions.showOvr = !gameOptions.showOvr; saveOptions(); renderOptions(); }
+        loadOptions();
         function openHTP() {
             const modal = document.getElementById('htp-modal');
             modal.classList.remove('hidden');
@@ -2418,7 +2465,7 @@ function cpuEdgeProb(s1, s2) {
     return Math.pow(s1, k) / (Math.pow(s1, k) + Math.pow(s2, k));
 }
 function mcUserMatch(u, c, rnd) {
-    const pu = Math.pow(u.poss, 1.8), pc = Math.pow(c.poss, 1.8);
+    const pu = Math.pow(u.poss, BALANCE.MATCH_POSS_EXP), pc = Math.pow(c.poss, BALANCE.MATCH_POSS_EXP);
     const uc = Math.round(pu / (pu + pc) * 10) || 0, cc = 10 - uc;
     const cl = convProb;
     const a = cl(u.create, c.prevent), b = cl(u.finish, c.block), d = cl(c.create, u.prevent), e = cl(c.finish, u.block);
@@ -3550,7 +3597,7 @@ function handleModalClick(event) {
                                     <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-base sm:text-lg">${p.stats.spd}</span></div>
                                 </div>
                                 <div class="flex justify-between items-center w-full text-sm sm:text-base font-bold text-slate-400 mt-3 border-t border-slate-700/50 pt-3 shrink-0">
-                                    <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-base sm:text-lg">${playerOVR} Base OVR</span>
+                                    <span>Gen ${p.generation}</span>${gameOptions.showOvr ? `<span class="text-yellow-400 font-black text-base sm:text-lg">${playerOVR} Base OVR</span>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -3749,7 +3796,7 @@ await rollOptions(role, displayPos);
                             <div class="flex justify-between items-center"><span class="text-slate-400 font-bold">Sp.D</span><span class="text-white font-black text-sm sm:text-base">${p.stats.spd}</span></div>
                         </div>
                         <div class="flex justify-between items-center w-full text-xs sm:text-sm font-bold text-slate-400 mt-2 border-t border-slate-700/50 pt-1.5 shrink-0">
-                            <span>Gen ${p.generation}</span><span class="text-yellow-400 font-black text-sm sm:text-base">${ovr} OVR</span>
+                            <span>Gen ${p.generation}</span>${gameOptions.showOvr ? `<span class="text-yellow-400 font-black text-sm sm:text-base">${ovr} OVR</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -4005,7 +4052,7 @@ await rollOptions(role, displayPos);
             
             const uPoss = myTeamEnginePools.poss || 0;
             const cPoss = cpuOp.pools.poss || 0;
-            const possRatio = (Math.pow(uPoss, 1.8)) / (Math.pow(uPoss, 1.8) + Math.pow(cPoss, 1.8));
+            const possRatio = (Math.pow(uPoss, BALANCE.MATCH_POSS_EXP)) / (Math.pow(uPoss, BALANCE.MATCH_POSS_EXP) + Math.pow(cPoss, BALANCE.MATCH_POSS_EXP));
             
             const userChances = Math.round(possRatio * totalChances) || 0; 
             const cpuChances = totalChances - userChances;
